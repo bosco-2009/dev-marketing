@@ -25,7 +25,7 @@ pagamento (QR aparece), tela "aguardando pagamento", Meus pedidos, comparar prom
 
 ## Pendências
 1. Dono vai criar conta em plataforma de vendas (Kiwify/Hotmart) e enviar links de checkout → preencher `link` em `PRODUCTS`.
-2. Publicar em endereço próprio e preencher `STORE.url`.
+2. Publicação: GitHub Pages a partir da branch `main`, pasta raiz. Endereço esperado: https://bosco-2009.github.io/dev-marketing/ (`STORE.url` já preenchido). O dono precisa tornar o repositório público e ativar o Pages nas configurações.
 3. Atualizar Termos e FAQ para entrega automática nos produtos com `link`.
 4. Ideias: uma imagem de divulgação por prompt, roteiros de Reels, prompts novos (blog, institucional, convite digital).
 
