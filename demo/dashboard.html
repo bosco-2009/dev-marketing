@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demonstração — Dashboard de métricas</title>
+<style>
+:root{--c:#6d28d9;--c2:#a78bfa;--bg:#f4f2f9;--card:#fff;--ink:#1c1530;--mute:#5b5470;--line:#e6e1f2;--ok:#0f8a5f;--no:#b42318;--soft:#ede9fe}
+[data-t=dark]{--bg:#120c1f;--card:#1d1530;--ink:#f1edfb;--mute:#b8aed0;--line:#342a4d;--ok:#34d399;--no:#f87171;--soft:#2e2150}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.4;padding-bottom:76px}
+button,input{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer}
+.demo{background:#1c1530;color:#fff;text-align:center;font-size:12.5px;padding:6px 10px}
+.side{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;z-index:5}
+.side b{display:none}
+.side button{flex:1;padding:10px 4px;font-size:12px;font-weight:600;color:var(--mute);min-height:56px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.side button[aria-current=true]{color:var(--c)}
+[data-t=dark] .side button[aria-current=true]{color:var(--c2)}
+.side svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+main{padding:16px;max-width:1000px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:21px;letter-spacing:-.4px}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{padding:8px 12px;border-radius:7px;font-weight:600;font-size:13.5px;min-height:40px;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--c);color:#fff}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.box small{color:var(--mute);font-size:12.5px;font-weight:600}
+.box strong{display:block;font-size:20px;letter-spacing:-.5px;margin:2px 0}
+.up{color:var(--ok);font-size:12.5px;font-weight:700}.down{color:var(--no);font-size:12.5px;font-weight:700}
+.charts{display:grid;gap:10px;margin-top:10px}
+.box h2{font-size:15px;margin-bottom:10px}
+svg.ch{width:100%;height:auto;display:block}
+.bar{display:grid;grid-template-columns:92px 1fr auto;gap:8px;align-items:center;font-size:13px;margin-bottom:8px}
+.bar i{display:block;height:14px;border-radius:7px;background:var(--c)}
+.bar span:last-child{font-weight:700}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.tools input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;height:44px;background:var(--card)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;white-space:nowrap}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+th button{font-weight:700;min-height:32px}
+td:last-child,th:last-child{text-align:right}
+.pg{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:var(--mute)}
+.pg button{padding:8px 14px;border-radius:9px;background:var(--soft);font-weight:700;min-height:44px}
+.pg button:disabled{opacity:.4}
+.view[hidden]{display:none}
+.row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.tg{padding:12px 16px;border-radius:10px;background:var(--c);color:#fff;font-weight:700;min-height:44px}
+:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+@media(min-width:760px){
+ body{padding:0 0 0 200px}.side{top:0;right:auto;width:200px;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:16px 10px}
+ .side b{display:block;font-size:17px;padding:6px 10px 16px}.side button{flex:none;flex-direction:row;justify-content:flex-start;gap:10px;font-size:14px;padding:10px;border-radius:10px;min-height:44px}
+ .side button[aria-current=true]{background:var(--soft)}.demo{margin-left:-200px}
+ .cards{grid-template-columns:repeat(4,1fr)}.charts{grid-template-columns:1.4fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="demo">Demonstração gerada com o prompt da Dev Marketing · dados fictícios</div>
+<nav class="side" aria-label="Menu"><b>Loja Exemplo</b>
+ <button data-v="geral" aria-current="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.500"/><rect x="14" y="3" width="7" height="5" rx="1.500"/><rect x="14" y="12" width="7" height="9" rx="1.500"/><rect x="3" y="16" width="7" height="5" rx="1.500"/></svg>Visão geral</button>
+ <button data-v="vendas"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l4-5 3 3 5-7"/></svg>Vendas</button>
+ <button data-v="clientes"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20a6.500 6.500 0 0 1 13 0M16 4.500a3.500 3.500 0 0 1 0 7M18 14.500a6 6 0 0 1 3.500 5.500"/></svg>Clientes</button>
+ <button data-v="config"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Ajustes</button>
+</nav>
+<main>
+ <div class="top"><h1 id="tit">Visão geral</h1><div class="seg" role="group" aria-label="Período">
+  <button data-p="7">7 dias</button><button data-p="30" aria-pressed="true">30 dias</button><button data-p="365">12 meses</button></div></div>
+ <section class="view" id="v-geral"><div class="cards" id="cards"></div>
+  <div class="charts"><div class="box"><h2 id="lt">Faturamento</h2><div id="line"></div></div><div class="box"><h2>Por categoria</h2><div id="bars"></div></div></div></section>
+ <section class="view" id="v-vendas" hidden><div class="box"><h2>Últimos registros</h2>
+  <div class="tools"><input id="q" type="search" placeholder="Buscar cliente ou categoria" aria-label="Buscar"></div>
+  <div class="tw"><table><thead><tr><th><button data-s="d">Data</button></th><th><button data-s="cliente">Cliente</button></th><th><button data-s="cat">Categoria</button></th><th><button data-s="valor">Valor</button></th></tr></thead><tbody id="tb"></tbody></table></div>
+  <div class="pg"><button id="prev">Anterior</button><span id="pi"></span><button id="next">Próxima</button></div></div></section>
+ <section class="view" id="v-clientes" hidden><div class="box"><h2>Clientes que mais compraram no período</h2><div id="cli"></div></div></section>
+ <section class="view" id="v-config" hidden><div class="box"><h2>Ajustes</h2><p style="color:var(--mute);margin-bottom:12px">Alterne entre tema claro e escuro.</p><button class="tg" id="tema">Mudar tema</button></div></section>
+</main>
+<script>
+/* ===== DADOS: troque por seus números. Todos os valores da tela são calculados a partir daqui. ===== */
+const DADOS=(function(){
+  // Dados de exemplo gerados de forma fixa (mesmos números a cada abertura), cobrindo os últimos 24 meses.
+  let s=42;const rnd=()=>(s=(s*1664525+1013904223)%4294967296)/4294967296;
+  const categorias=['Camisetas','Calças','Vestidos','Acessórios','Calçados'];
+  const clientes=['Ana Souza','Bruno Lima','Carla Dias','Diego Reis','Elisa Prado','Fábio Nunes','Gabi Rocha','Hugo Melo','Iara Costa','João Pires','Karen Luz','Léo Farias'];
+  const registros=[],hoje=new Date();hoje.setHours(12,0,0,0);
+  for(let i=729;i>=0;i--){
+    const d=new Date(hoje);d.setDate(d.getDate()-i);
+    const n=2+Math.floor(rnd()*3)+(i<365?1:0);
+    for(let k=0;k<n;k++)registros.push({d:d.toISOString().slice(0,10),cliente:clientes[Math.floor(rnd()*clientes.length)],cat:categorias[Math.floor(Math.pow(rnd(),1.6)*categorias.length)],valor:3900+Math.floor(rnd()*26000)});
+  }
+  return {categorias,registros};
+})();
+/* ===== Lógica ===== */
+const $=id=>document.getElementById(id);
+const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const dia=iso=>iso.slice(8)+'/'+iso.slice(5,7)+'/'+iso.slice(0,4);
+const S={p:30,v:'geral',q:'',sort:'d',dir:-1,pg:0};
+function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+function faixa(dias,desloc){const f=new Date();f.setDate(f.getDate()-desloc*dias);const i=new Date(f);i.setDate(i.getDate()-dias+1);return [iso(i),iso(f)];}
+const entre=(a,b)=>DADOS.registros.filter(r=>r.d>=a&&r.d<=b);
+function met(rs){const fat=rs.reduce((s,r)=>s+r.valor,0);return {fat,ped:rs.length,tic:rs.length?Math.round(fat/rs.length):0,cli:new Set(rs.map(r=>r.cliente)).size};}
+function render(){
+  const [a,b]=faixa(S.p,0),[pa,pb]=faixa(S.p,1),rs=entre(a,b),m=met(rs),pm=met(entre(pa,pb));
+  const card=(t,v,ant,fmt)=>{const dl=ant?((v-ant)/ant*100):0;return `<div class="box"><small>${t}</small><strong>${fmt(v)}</strong><span class="${dl>=0?'up':'down'}">${dl>=0?'▲':'▼'} ${Math.abs(dl).toFixed(1).replace('.',',')}%</span></div>`;};
+  $('cards').innerHTML=card('Faturamento',m.fat,pm.fat,brl)+card('Pedidos',m.ped,pm.ped,String)+card('Ticket médio',m.tic,pm.tic,brl)+card('Clientes',m.cli,pm.cli,String);
+  // gráfico de linha: por dia até 30 dias, por mês em 12 meses
+  const g={};rs.forEach(r=>{const k=S.p>30?r.d.slice(0,7):r.d;g[k]=(g[k]||0)+r.valor;});
+  const ks=Object.keys(g).sort(),vs=ks.map(k=>g[k]),mx=Math.max(...vs,1),W=320,H=150;
+  const pts=vs.map((v,i)=>[(ks.length>1?i/(ks.length-1):.5)*(W-20)+10,H-24-(v/mx)*(H-44)]);
+  const lab=k=>S.p>30?k.slice(5)+'/'+k.slice(2,4):k.slice(8)+'/'+k.slice(5,7);
+  $('lt').textContent='Faturamento por '+(S.p>30?'mês':'dia');
+  $('line').innerHTML=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de faturamento"><path d="M${pts.map(p=>p.join(' ')).join(' L')} L${pts[pts.length-1][0]} ${H-24} L${pts[0][0]} ${H-24}Z" fill="var(--c)" opacity=".14"/><polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--c)" stroke-width="2.500" stroke-linejoin="round" stroke-linecap="round"/><text x="10" y="${H-6}" font-size="10" fill="var(--mute)">${lab(ks[0])}</text><text x="${W-10}" y="${H-6}" font-size="10" fill="var(--mute)" text-anchor="end">${lab(ks[ks.length-1])}</text><text x="10" y="12" font-size="10" fill="var(--mute)">máx. ${brl(mx)}</text></svg>`;
+  const pc=DADOS.categorias.map(c=>[c,rs.filter(r=>r.cat===c).reduce((s,r)=>s+r.valor,0)]).sort((x,y)=>y[1]-x[1]),mc=Math.max(...pc.map(x=>x[1]),1);
+  $('bars').innerHTML=pc.map(x=>`<div class="bar"><span>${x[0]}</span><span><i style="width:${Math.max(2,x[1]/mc*100)}%"></i></span><span>${brl(x[1])}</span></div>`).join('');
+  // tabela
+  const n=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),q=n(S.q.trim());
+  const ft=rs.filter(r=>!q||n(r.cliente+' '+r.cat).includes(q)).sort((x,y)=>(x[S.sort]>y[S.sort]?1:x[S.sort]<y[S.sort]?-1:0)*S.dir);
+  const tot=Math.max(1,Math.ceil(ft.length/10));S.pg=Math.min(S.pg,tot-1);
+  $('tb').innerHTML=ft.slice(S.pg*10,S.pg*10+10).map(r=>`<tr><td>${dia(r.d)}</td><td>${r.cliente}</td><td>${r.cat}</td><td>${brl(r.valor)}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--mute)">Nada encontrado</td></tr>';
+  $('pi').textContent=`Página ${S.pg+1} de ${tot} · ${ft.length} registros`;$('prev').disabled=!S.pg;$('next').disabled=S.pg>=tot-1;
+  // clientes
+  const cl={};rs.forEach(r=>cl[r.cliente]=(cl[r.cliente]||0)+r.valor);
+  $('cli').innerHTML=Object.entries(cl).sort((x,y)=>y[1]-x[1]).slice(0,10).map((x,i)=>`<div class="row"><span>${i+1}. ${x[0]}</span><b>${brl(x[1])}</b></div>`).join('');
+  document.querySelectorAll('[data-p]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.p===S.p));
+  document.querySelectorAll('[data-v]').forEach(b=>{b.dataset.v===S.v?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current');});
+  ['geral','vendas','clientes','config'].forEach(v=>$('v-'+v).hidden=v!==S.v);
+  $('tit').textContent={geral:'Visão geral',vendas:'Vendas',clientes:'Clientes',config:'Ajustes'}[S.v];
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.p){S.p=+d.p;S.pg=0;}else if(d.v)S.v=d.v;
+  else if(d.s){S.dir=S.sort===d.s?-S.dir:1;S.sort=d.s;S.pg=0;}
+  else if(b.id==='prev')S.pg--;else if(b.id==='next')S.pg++;
+  else if(b.id==='tema'){const t=document.documentElement.dataset.t==='dark'?'':'dark';document.documentElement.dataset.t=t;try{localStorage.setItem('demo_tema',t);}catch(err){}}
+  else return;render();});
+$('q').addEventListener('input',e=>{S.q=e.target.value;S.pg=0;render();});
+try{document.documentElement.dataset.t=localStorage.getItem('demo_tema')||'';}catch(err){}
+render();
+</script>
+</body>
+</html>

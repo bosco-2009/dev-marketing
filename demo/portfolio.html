@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demonstração — Portfólio</title>
+<style>
+:root{--c:#6d28d9;--cd:#4c1d95;--soft:#ede9fe;--bg:#faf9fd;--ink:#1c1530;--mute:#5b5470;--line:#e6e1f2}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.demo{background:#1c1530;color:#fff;text-align:center;font-size:12.5px;padding:6px 10px}
+nav{position:sticky;top:0;background:rgba(250,249,253,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;gap:4px;justify-content:center;padding:8px;z-index:5}
+nav a{color:var(--mute);text-decoration:none;font-weight:600;font-size:14px;padding:10px 12px;border-radius:999px;min-height:44px;display:flex;align-items:center}
+nav a.on{background:var(--soft);color:var(--cd)}
+section{padding:48px 20px;max-width:860px;margin:0 auto}
+h1{font-size:clamp(34px,9vw,60px);line-height:1.02;letter-spacing:-2px}
+h1 span{color:var(--c)}
+h2{font-size:26px;letter-spacing:-.5px;margin-bottom:16px}
+.lead{font-size:18px;color:var(--mute);margin:16px 0 24px;max-width:36ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;background:var(--c);color:#fff;font-weight:700;padding:14px 22px;border-radius:12px;text-decoration:none;min-height:48px}
+.btn.alt{background:var(--soft);color:var(--cd)}
+.filt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filt button{padding:9px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:600;font-size:14px;min-height:44px}
+.filt button[aria-pressed=true]{background:var(--c);border-color:var(--c);color:#fff}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.proj{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:left;display:block;width:100%}
+.proj svg{display:block;width:100%;aspect-ratio:4/3}
+.proj div{padding:12px 14px 14px}
+.proj small{color:var(--c);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:11.5px}
+.proj b{display:block;font-size:16px}
+.about{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.pic{flex:none;width:110px;height:110px;border-radius:24px;background:var(--c);color:#fff;font-size:38px;font-weight:800;display:grid;place-items:center}
+.about p{flex:1;min-width:220px;color:var(--mute)}
+.serv{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.serv div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.serv p{color:var(--mute);font-size:14.5px;margin-top:4px}
+.ct{display:flex;gap:10px;flex-wrap:wrap}
+footer{text-align:center;color:var(--mute);font-size:13.5px;padding:24px}
+.scrim{position:fixed;inset:0;background:rgba(28,21,48,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.scrim.on{display:flex}
+.modal{position:relative;background:#fff;border-radius:20px 20px 0 0;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.modal svg{display:block;width:100%;aspect-ratio:4/3}
+.modal div{padding:18px 20px 24px}
+.modal h3{font-size:21px;margin:4px 0 8px}
+.modal p{color:var(--mute);margin-bottom:10px}
+.x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;background:#fff;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.rv{opacity:0;transform:translateY(16px);transition:.5s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="demo">Demonstração gerada com o prompt da Dev Marketing · pessoa e projetos fictícios</div>
+<nav aria-label="Seções"><a href="#inicio">Início</a><a href="#projetos">Projetos</a><a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#contato">Contato</a></nav>
+<section id="inicio"><h1>Marina Exemplo,<br><span>designer gráfica</span></h1><p class="lead">Crio identidades visuais claras para pequenos negócios que querem ser lembrados.</p><a class="btn" href="#contato">Falar comigo</a></section>
+<section id="projetos" class="rv"><h2>Projetos</h2><div class="filt" id="filt"></div><div class="grid" id="grid"></div></section>
+<section id="sobre" class="rv"><h2>Sobre mim</h2><div class="about">
+  <!-- Para usar sua foto, troque a div abaixo por: <img class="pic" src="sua-foto.jpg" alt="Seu nome"> -->
+  <div class="pic" aria-hidden="true">ME</div>
+  <p>Sou designer gráfica em Curitiba e trabalho com marcas, embalagens e materiais para redes sociais. Gosto de projetos em que o cliente participa de cada etapa.</p></div></section>
+<section id="servicos" class="rv"><h2>Serviços</h2><div class="serv" id="serv"></div></section>
+<section id="contato" class="rv"><h2>Vamos conversar?</h2><div class="ct">
+  <a class="btn" href="#contato" data-demo>WhatsApp</a><a class="btn alt" href="#contato" data-demo>E-mail</a><a class="btn alt" href="#contato" data-demo>Instagram</a></div>
+  <p id="aviso" hidden style="color:var(--mute);margin-top:12px;font-size:14px">Site de demonstração: os contatos são fictícios.</p></section>
+<footer>Marina Exemplo · Curitiba</footer>
+<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true" id="modal"></div></div>
+<script>
+// Dados editáveis
+const SERVICOS=[
+ {id:'marca',nome:'Identidade visual',inclui:'Logotipo, paleta de cores, tipografia e manual de uso.'},
+ {id:'embalagem',nome:'Embalagens',inclui:'Rótulos e caixas prontos para a gráfica.'},
+ {id:'social',nome:'Redes sociais',inclui:'Modelos editáveis de posts e stories.'}];
+const PROJETOS=[
+ {t:'Café Aurora',s:'marca',feito:'Nova identidade visual para uma cafeteria de bairro.',res:'Marca aplicada na fachada, no cardápio e nos copos.'},
+ {t:'Doce Lume',s:'embalagem',feito:'Linha de embalagens para uma confeitaria artesanal.',res:'Seis embalagens entregues prontas para impressão.'},
+ {t:'Studio Vértice',s:'social',feito:'Kit de modelos para o Instagram de um estúdio de pilates.',res:'Doze modelos editáveis entregues à equipe.'},
+ {t:'Horta Viva',s:'marca',feito:'Marca e sinalização para uma feira de orgânicos.',res:'Marca usada em faixas, barracas e sacolas.'},
+ {t:'Nó de Linha',s:'embalagem',feito:'Etiquetas e sacolas para um ateliê de costura.',res:'Etiquetas e sacolas em duas cores, prontas para a gráfica.'}];
+const $=id=>document.getElementById(id);
+const COR=['#6d28d9','#4c1d95','#8b5cf6','#7c3aed','#5b21b6'];
+function capa(p,i){
+  const ini=p.t.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),c=COR[i%5];
+  const forma=[`<circle cx="150" cy="40" r="46" fill="#fff" opacity=".16"/><circle cx="30" cy="130" r="34" fill="#fff" opacity=".12"/>`,
+   `<rect x="110" y="-10" width="80" height="80" rx="14" transform="rotate(20 150 30)" fill="#fff" opacity=".16"/><rect x="-10" y="100" width="60" height="60" rx="10" fill="#fff" opacity=".12"/>`,
+   `<path d="M200 0v150H60z" fill="#fff" opacity=".14"/>`,
+   `<path d="M0 110q50-40 100 0t100 0v40H0z" fill="#fff" opacity=".16"/>`,
+   `<circle cx="100" cy="75" r="62" fill="none" stroke="#fff" stroke-width="10" opacity=".16"/>`][i%5];
+  return `<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Capa do projeto ${p.t}"><rect width="200" height="150" fill="${c}"/>${forma}<text x="18" y="122" font-family="system-ui,sans-serif" font-size="46" font-weight="800" fill="#fff">${ini}</text></svg>`;
+}
+let filtro='todos';
+const nomeS=id=>SERVICOS.find(s=>s.id===id).nome;
+function render(){
+  $('filt').innerHTML=[{id:'todos',nome:'Todos'},...SERVICOS].map(s=>`<button data-f="${s.id}" aria-pressed="${filtro===s.id}">${s.nome}</button>`).join('');
+  $('grid').innerHTML=PROJETOS.map((p,i)=>filtro==='todos'||p.s===filtro?`<button class="proj" data-p="${i}">${capa(p,i)}<div><small>${nomeS(p.s)}</small><b>${p.t}</b></div></button>`:'').join('');
+}
+$('serv').innerHTML=SERVICOS.map(s=>`<div><b>${s.nome}</b><p>${s.inclui}</p></div>`).join('');
+let ultimo=null;
+function abrir(i){const p=PROJETOS[i];ultimo=document.activeElement;
+  $('modal').innerHTML=`<button class="x" data-x aria-label="Fechar">✕</button>${capa(p,i)}<div><small style="color:var(--c);font-weight:700">${nomeS(p.s)}</small><h3>${p.t}</h3><p><b>O que foi feito:</b> ${p.feito}</p><p><b>Resultado:</b> ${p.res}</p></div>`;
+  $('scrim').classList.add('on');$('modal').querySelector('.x').focus();}
+function fechar(){$('scrim').classList.remove('on');if(ultimo)ultimo.focus();}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');
+  if(e.target.closest('[data-demo]')){e.preventDefault();$('aviso').hidden=false;return;}
+  if(e.target===$('scrim'))return fechar();
+  if(!b)return;
+  if(b.dataset.f){filtro=b.dataset.f;render();}
+  else if(b.dataset.p)abrir(+b.dataset.p);
+  else if('x' in b.dataset)fechar();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fechar();});
+// Menu: destaca a seção atual; animação ao rolar
+const links=[...document.querySelectorAll('nav a')];
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id));}}),{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('section').forEach(s=>io.observe(s));
+  const rv=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');}),{threshold:.08});
+  document.querySelectorAll('.rv').forEach(s=>rv.observe(s));
+}else document.querySelectorAll('.rv').forEach(s=>s.classList.add('in'));
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demonstração — Cardápio digital</title>
+<style>
+:root{--c:#6d28d9;--cd:#4c1d95;--bg:#f6f4fb;--ink:#1c1530;--mute:#5b5470;--line:#e6e1f2;--ok:#0f8a5f;--no:#b42318}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.4;padding-bottom:90px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer}
+.wrap{max-width:560px;margin:0 auto}
+.demo{background:#1c1530;color:#fff;text-align:center;font-size:12.5px;padding:6px 10px}
+header{background:var(--c);color:#fff;padding:18px 16px}
+header h1{font-size:22px;letter-spacing:-.3px}
+header p{font-size:13.5px;opacity:.92;margin-top:4px}
+.st{display:inline-block;margin-top:10px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#fff}
+.st.on{color:var(--ok)}.st.off{color:var(--no)}
+nav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:8px;overflow-x:auto;padding:10px 16px;z-index:5;scrollbar-width:none}
+nav button{flex:none;padding:8px 14px;border-radius:999px;background:var(--bg);font-weight:600;font-size:14px;min-height:44px}
+section{padding:18px 16px 0}
+section h2{font-size:17px;margin-bottom:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.item div{flex:1}
+.item b{display:block}
+.item span{color:var(--mute);font-size:13px;display:block;margin:2px 0 6px}
+.item strong{font-size:15px}
+.add{background:var(--c);color:#fff;font-weight:700;border-radius:10px;padding:0 14px;min-height:44px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 12px;z-index:8}
+.bar button{width:100%;max-width:536px;margin:0 auto;display:flex;justify-content:space-between;background:var(--cd);color:#fff;font-weight:700;padding:15px 18px;border-radius:14px}
+.bar[hidden]{display:none}
+.scrim{position:fixed;inset:0;background:rgba(28,21,48,.55);z-index:10;display:none}
+.scrim.on{display:block}
+.sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);transition:transform .22s;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:20px 20px 0 0;padding:18px 16px 20px;z-index:11}
+.sheet.on{transform:translate(-50%,0)}
+.sheet h3{font-size:18px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.x{width:44px;height:44px;border-radius:50%;background:var(--bg);font-size:17px}
+.qty{display:flex;align-items:center;gap:14px;margin:14px 0}
+.qty button{width:44px;height:44px;border-radius:50%;background:var(--bg);font-size:20px;font-weight:700}
+.qty b{font-size:18px;min-width:24px;text-align:center}
+label{display:block;font-size:13px;font-weight:700;margin-top:12px}
+input,select,textarea{display:block;width:100%;margin-top:6px;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-weight:400;font-size:15px;background:#fff}
+textarea{min-height:64px}
+.pri{display:block;width:100%;background:var(--c);color:#fff;font-weight:700;padding:15px;border-radius:12px;margin-top:16px;text-align:center;text-decoration:none}
+.pri[aria-disabled=true],.pri:disabled{background:#cfc8e0;pointer-events:none}
+.ci{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ci div{flex:1}.ci small{color:var(--mute);display:block}
+.ci button{width:36px;height:36px;border-radius:50%;background:var(--bg);font-weight:700}
+.row{display:flex;justify-content:space-between;padding-top:10px;color:var(--mute)}
+.row.t{color:var(--ink);font-weight:800;font-size:17px}
+.warn{background:#fef3f2;color:var(--no);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:12px;font-weight:600}
+:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="demo">Demonstração gerada com o prompt da Dev Marketing · estabelecimento fictício</div>
+<div class="wrap">
+  <header><h1 id="nome"></h1><p id="hora"></p><span class="st" id="st"></span></header>
+  <nav id="nav" aria-label="Categorias"></nav>
+  <main id="main"></main>
+</div>
+<div class="bar" id="bar" hidden><button id="openCart"><span id="barQ"></span><span id="barT"></span></button></div>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sItem" role="dialog" aria-modal="true"></div>
+<div class="sheet" id="sCart" role="dialog" aria-modal="true"></div>
+<script>
+/* ===== Dados editáveis ===== */
+const LOJA = {
+  nome:'Pizzaria Exemplo', whatsapp:'5500000000000', taxaEntrega:600, // em centavos
+  // horário por dia da semana (0=domingo): [abre, fecha] em horas; null = fechado
+  horario:{0:[0,24],1:[0,24],2:[0,24],3:[0,24],4:[0,24],5:[0,24],6:[0,24]},
+  horarioTexto:'Todos os dias, 24 horas (demonstração)'
+};
+const CARDAPIO = [
+  {cat:'Pizzas', itens:[
+    {id:'p1',nome:'Margherita',desc:'Molho de tomate, muçarela e manjericão',preco:4290},
+    {id:'p2',nome:'Calabresa',desc:'Calabresa fatiada, cebola e azeitonas',preco:4490},
+    {id:'p3',nome:'Quatro queijos',desc:'Muçarela, provolone, parmesão e gorgonzola',preco:4990}]},
+  {cat:'Bebidas', itens:[
+    {id:'b1',nome:'Refrigerante lata',desc:'350 ml',preco:650},
+    {id:'b2',nome:'Suco natural',desc:'Laranja ou limão, 500 ml',preco:990}]},
+  {cat:'Sobremesas', itens:[
+    {id:'s1',nome:'Pizza doce de chocolate',desc:'Chocolate ao leite e morangos, broto',preco:3290},
+    {id:'s2',nome:'Pudim',desc:'Fatia individual',preco:1190}]}
+];
+/* ===== Lógica ===== */
+const $=id=>document.getElementById(id);
+const brl=c=>(c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const todos=CARDAPIO.flatMap(c=>c.itens);
+let cart=[]; // {id,qtd,obs}
+let tipo='entrega', pag='Pix';
+function aberto(){
+  const d=new Date(),h=LOJA.horario[d.getDay()];
+  if(!h)return false;
+  const agora=d.getHours()+d.getMinutes()/60;
+  return agora>=h[0]&&agora<h[1];
+}
+function totais(){
+  const sub=cart.reduce((s,l)=>s+todos.find(i=>i.id===l.id).preco*l.qtd,0);
+  const taxa=tipo==='entrega'&&sub?LOJA.taxaEntrega:0;
+  return {sub,taxa,total:sub+taxa,qtd:cart.reduce((s,l)=>s+l.qtd,0)};
+}
+function base(){
+  $('nome').textContent=LOJA.nome;$('hora').textContent=LOJA.horarioTexto;
+  const a=aberto();$('st').textContent=a?'● Aberto agora':'● Fechado';$('st').className='st '+(a?'on':'off');
+  $('nav').innerHTML=CARDAPIO.map((c,i)=>`<button data-go="c${i}">${esc(c.cat)}</button>`).join('');
+  $('main').innerHTML=CARDAPIO.map((c,i)=>`<section id="c${i}"><h2>${esc(c.cat)}</h2>${c.itens.map(it=>
+    `<div class="item"><div><b>${esc(it.nome)}</b><span>${esc(it.desc)}</span><strong>${brl(it.preco)}</strong></div><button class="add" data-item="${it.id}" aria-label="Adicionar ${esc(it.nome)}">Adicionar</button></div>`).join('')}</section>`).join('');
+}
+function barra(){const t=totais();$('bar').hidden=!t.qtd;$('barQ').textContent=t.qtd+(t.qtd===1?' item':' itens')+' · Ver carrinho';$('barT').textContent=brl(t.sub);}
+let aberta=null,sel=null;
+function abrir(id){fechar();aberta=id;$(id).classList.add('on');$('scrim').classList.add('on');}
+function fechar(){if(aberta)$(aberta).classList.remove('on');aberta=null;$('scrim').classList.remove('on');}
+function telaItem(id){
+  const it=todos.find(i=>i.id===id);sel={id,qtd:1};
+  $('sItem').innerHTML=`<h3>${esc(it.nome)}<button class="x" data-x aria-label="Fechar">✕</button></h3><p style="color:var(--mute)">${esc(it.desc)}</p>
+    <div class="qty"><button data-q="-1" aria-label="Diminuir">−</button><b id="q">1</b><button data-q="1" aria-label="Aumentar">+</button></div>
+    <label>Observação<textarea id="obs" placeholder="Ex.: sem cebola"></textarea></label>
+    <button class="pri" id="conf">Adicionar · <span id="qt">${brl(it.preco)}</span></button>`;
+  abrir('sItem');
+}
+function msg(){
+  const t=totais(),v=id=>($(id)?$(id).value.trim():'');
+  let m='*Novo pedido — '+LOJA.nome+'*\n\n'+cart.map(l=>{const it=todos.find(i=>i.id===l.id);return l.qtd+'x '+it.nome+' — '+brl(it.preco*l.qtd)+(l.obs?'\n   Obs.: '+l.obs:'');}).join('\n');
+  m+='\n\nSubtotal: '+brl(t.sub)+(t.taxa?'\nEntrega: '+brl(t.taxa):'')+'\n*Total: '+brl(t.total)+'*';
+  m+='\n\nNome: '+v('fNome')+'\n'+(tipo==='entrega'?'Entrega: '+v('fEnd'):'Retirada no local')+'\nPagamento: '+pag+(pag==='Dinheiro'&&v('fTroco')?' (troco para R$ '+v('fTroco')+')':'');
+  return m;
+}
+function telaCart(keep){
+  const t=totais(),a=aberto();
+  const vals=keep?{n:$('fNome')&&$('fNome').value,e:$('fEnd')&&$('fEnd').value,tr:$('fTroco')&&$('fTroco').value}:{};
+  if(!cart.length){$('sCart').innerHTML=`<h3>Carrinho<button class="x" data-x aria-label="Fechar">✕</button></h3><p style="color:var(--mute);padding:20px 0">Seu carrinho está vazio.</p>`;return;}
+  $('sCart').innerHTML=`<h3>Carrinho<button class="x" data-x aria-label="Fechar">✕</button></h3>
+    ${cart.map((l,i)=>{const it=todos.find(x=>x.id===l.id);return `<div class="ci"><div><b>${esc(it.nome)}</b><small>${brl(it.preco*l.qtd)}${l.obs?' · '+esc(l.obs):''}</small></div><button data-c="${i}" data-d="-1" aria-label="Diminuir">−</button><b>${l.qtd}</b><button data-c="${i}" data-d="1" aria-label="Aumentar">+</button></div>`;}).join('')}
+    <div class="row"><span>Subtotal</span><span>${brl(t.sub)}</span></div>
+    ${tipo==='entrega'?`<div class="row"><span>Taxa de entrega</span><span>${brl(t.taxa)}</span></div>`:''}
+    <div class="row t"><span>Total</span><span>${brl(t.total)}</span></div>
+    <label>Seu nome<input id="fNome" autocomplete="name" value="${esc(vals.n||'')}"></label>
+    <label>Como quer receber?<select id="fTipo"><option value="entrega"${tipo==='entrega'?' selected':''}>Entrega</option><option value="retirada"${tipo==='retirada'?' selected':''}>Retirada no local</option></select></label>
+    ${tipo==='entrega'?`<label>Endereço completo<input id="fEnd" autocomplete="street-address" value="${esc(vals.e||'')}"></label>`:''}
+    <label>Pagamento<select id="fPag">${['Pix','Dinheiro','Cartão na entrega'].map(p=>`<option${p===pag?' selected':''}>${p}</option>`).join('')}</select></label>
+    ${pag==='Dinheiro'?`<label>Troco para quanto? (opcional)<input id="fTroco" inputmode="decimal" placeholder="Ex.: 100,00" value="${esc(vals.tr||'')}"></label>`:''}
+    ${a?'':'<div class="warn">Estamos fechados agora. Os pedidos voltam no próximo horário de funcionamento.</div>'}
+    <div class="warn" id="erro" hidden></div>
+    <a class="pri" id="enviar" target="_blank" rel="noopener" href="#" aria-disabled="${!a}">Enviar pedido pelo WhatsApp</a>`;
+}
+document.addEventListener('click',e=>{
+  const env=e.target.closest('#enviar');
+  if(env){
+    const falta=!$('fNome').value.trim()?'Informe seu nome.':(tipo==='entrega'&&!$('fEnd').value.trim()?'Informe o endereço de entrega.':'');
+    if(falta||!aberto()){e.preventDefault();$('erro').hidden=!falta;$('erro').textContent=falta;return;}
+    env.href='https://wa.me/'+LOJA.whatsapp+'?text='+encodeURIComponent(msg());return;
+  }
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.go){const y=$(d.go).getBoundingClientRect().top+window.scrollY-64;window.scrollTo({top:y,behavior:'smooth'});}
+  else if(d.item)telaItem(d.item);
+  else if('x' in d)fechar();
+  else if(d.q){sel.qtd=Math.max(1,sel.qtd+ +d.q);$('q').textContent=sel.qtd;$('qt').textContent=brl(todos.find(i=>i.id===sel.id).preco*sel.qtd);}
+  else if(b.id==='conf'){
+    const obs=$('obs').value.trim(),ex=cart.find(l=>l.id===sel.id&&l.obs===obs);
+    if(ex)ex.qtd+=sel.qtd;else cart.push({id:sel.id,qtd:sel.qtd,obs});
+    fechar();barra();
+  }
+  else if(b.id==='openCart'){telaCart();abrir('sCart');}
+  else if(d.c){const l=cart[+d.c];l.qtd+= +d.d;if(l.qtd<1)cart.splice(+d.c,1);telaCart(true);barra();}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='fTipo'){tipo=e.target.value;telaCart(true);}
+  if(e.target.id==='fPag'){pag=e.target.value;telaCart(true);}
+});
+$('scrim').addEventListener('click',fechar);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fechar();});
+base();barra();
+</script>
+</body>
+</html>
