@@ -244,10 +244,41 @@ body.hasbar .fab{bottom:calc(132px + env(safe-area-inset-bottom))}
 .sent{text-align:center;padding:10px 0}
 .sent h3{font-size:19px;font-weight:800;margin:10px 0 6px}
 .sent p{color:var(--mute);font-size:14px;margin-bottom:8px}
+.intro{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,#4c1d95,#6d28d9 55%,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;padding:32px;cursor:pointer;transition:opacity .45s,visibility .45s}
+.intro.out{opacity:0;visibility:hidden;pointer-events:none}
+.intro-in{width:100%;max-width:340px}
+.intro-logo svg{width:76px;height:76px;display:block;animation:ipop .6s cubic-bezier(.2,1.2,.3,1) both}
+.intro-name{font-size:34px;font-weight:800;letter-spacing:-1.2px;margin:16px 0 30px;animation:iup .5s .25s both}
+.intro-name b{font-weight:500;opacity:.75}
+.intro ul{list-style:none;display:grid;gap:16px}
+.intro li{display:flex;align-items:center;gap:14px;font-size:18px;opacity:0;animation:iup .5s both}
+.intro li:nth-child(1){animation-delay:.7s}.intro li:nth-child(2){animation-delay:1.25s}.intro li:nth-child(3){animation-delay:1.8s}
+.intro li i{flex:none;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.2)}
+.intro li b{font-weight:800}
+.intro li span{opacity:.95}
+.intro-skip{position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom));text-align:center;font-size:13px;opacity:0;animation:ifade .5s 2.3s forwards}
+@keyframes ipop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes iup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ifade{to{opacity:.7}}
+@media (prefers-reduced-motion:reduce){.intro *{animation:none!important;opacity:1!important}.intro-skip{opacity:.7!important}}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
+
+<!-- Abertura -->
+<div class="intro" id="intro" role="button" tabindex="0" aria-label="Abertura da Dev Marketing. Toque para continuar.">
+  <div class="intro-in">
+    <div class="intro-logo"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#fff"/><g fill="none" stroke="#6d28d9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.500 10.500 7 16l5.500 5.500"/><path d="M16.500 21.500 25 11.500M19 11h6v6"/></g></svg></div>
+    <div class="intro-name">dev<b>marketing</b></div>
+    <ul>
+      <li><i></i><span><b>Confiança.</b> Garantia de 7 dias.</span></li>
+      <li><i></i><span><b>Rapidez.</b> Seu site em minutos.</span></li>
+      <li><i></i><span><b>Simplicidade.</b> Sem programar.</span></li>
+    </ul>
+  </div>
+  <div class="intro-skip">Toque para continuar</div>
+</div>
 
 <!-- Portão de entrada -->
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gt">
@@ -887,6 +918,18 @@ document.addEventListener('keydown',e=>{
     else if(!e.shiftKey&&cur===b){e.preventDefault();a.focus();}
   }
 });
+
+/* ===== Abertura (uma vez por visita; toque para pular) ===== */
+(function(){
+  const el=$('intro');let seen=false;
+  try{seen=sessionStorage.getItem('sm_intro')==='1';}catch(e){}
+  if(seen){el.remove();return;}
+  let done=false;
+  const close=()=>{if(done)return;done=true;try{sessionStorage.setItem('sm_intro','1');}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),500);};
+  el.addEventListener('click',close);
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='Escape')close();});
+  setTimeout(close,3600);
+})();
 
 /* ===== Portão ===== */
 const gates=['g18','gterms'].map($);

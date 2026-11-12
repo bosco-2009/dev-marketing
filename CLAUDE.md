@@ -16,6 +16,7 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 - Enviar o pedido não conclui a compra: a entrega só acontece após o Pix cair na conta. O site nunca deve sugerir o contrário.
 - Os arquivos de prompt (o produto) nunca entram no site nem neste repositório.
 - Portão de entrada: maior de 18 (autodeclaração) + aceite dos termos.
+- Abertura (`#intro`): tela de marca com três frases, uma vez por visita (sessionStorage), some sozinha em 3,6 s ou ao toque. As frases só podem afirmar o que a loja cumpre.
 - Pacotes não entram no combo de 15%; pacote no carrinho substitui os avulsos que ele contém.
 - Identidade própria: não copiar marca ou layout de outras empresas.
 
