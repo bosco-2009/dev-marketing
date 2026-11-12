@@ -17,6 +17,7 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 - Os arquivos de prompt (o produto) nunca entram no site nem neste repositório.
 - Portão de entrada: maior de 18 (autodeclaração) + aceite dos termos.
 - Abertura (`#intro`): tela de marca com três frases, uma vez por visita (sessionStorage), some sozinha em 6 s (pedido do dono) ou ao toque. As frases só podem afirmar o que a loja cumpre.
+- Destaque rotativo (`hero`): 5 quadros em `HERO`, 2,5 s cada (`HERO_MS`, pedido do dono), arrasta com o dedo, volta contínua com clones; pausa ao tocar, com janela aberta ou aba oculta.
 - Pacotes não entram no combo de 15%; pacote no carrinho substitui os avulsos que ele contém.
 - Identidade própria: não copiar marca ou layout de outras empresas.
 
