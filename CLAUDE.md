@@ -16,7 +16,7 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 - Enviar o pedido não conclui a compra: a entrega só acontece após o Pix cair na conta. O site nunca deve sugerir o contrário.
 - Os arquivos de prompt (o produto) nunca entram no site nem neste repositório.
 - Portão de entrada: maior de 18 (autodeclaração) + aceite dos termos.
-- Abertura (`#intro`): tela de marca com três frases, uma vez por visita (sessionStorage), some sozinha em 3,6 s ou ao toque. As frases só podem afirmar o que a loja cumpre.
+- Abertura (`#intro`): tela de marca com três frases, uma vez por visita (sessionStorage), some sozinha em 6 s (pedido do dono) ou ao toque. As frases só podem afirmar o que a loja cumpre.
 - Pacotes não entram no combo de 15%; pacote no carrinho substitui os avulsos que ele contém.
 - Identidade própria: não copiar marca ou layout de outras empresas.
 
@@ -26,7 +26,7 @@ pagamento (QR aparece), tela "aguardando pagamento", Meus pedidos, comparar prom
 
 ## Pendências
 1. Dono vai criar conta em plataforma de vendas (Kiwify/Hotmart) e enviar links de checkout → preencher `link` em `PRODUCTS`.
-2. Publicação: GitHub Pages a partir da branch `main`, pasta raiz. Endereço esperado: https://bosco-2009.github.io/dev-marketing/ (`STORE.url` já preenchido). O dono precisa tornar o repositório público e ativar o Pages nas configurações.
+2. Publicação: GitHub Pages a partir da branch `main`, pasta raiz. Endereço esperado: https://bosco-2009.github.io/dev-marketing/ (`STORE.url` já preenchido). Já publicado e no ar.
 3. Atualizar Termos e FAQ para entrega automática nos produtos com `link`.
 4. Ideias: uma imagem de divulgação por prompt, roteiros de Reels, prompts novos (blog, institucional, convite digital).
 

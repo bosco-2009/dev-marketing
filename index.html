@@ -928,7 +928,7 @@ document.addEventListener('keydown',e=>{
   const close=()=>{if(done)return;done=true;try{sessionStorage.setItem('sm_intro','1');}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),500);};
   el.addEventListener('click',close);
   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='Escape')close();});
-  setTimeout(close,3600);
+  setTimeout(close,6000);
 })();
 
 /* ===== Portão ===== */
