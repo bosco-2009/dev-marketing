@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="pt-BR" class="sem-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Portfólio BR — Sites profissionais para pequenos negócios</title>
+  <meta name="description" content="Sites profissionais, rápidos e feitos para o celular, para pequenos negócios de todo o Brasil. Escolha o plano, pague com segurança e receba seu site pronto.">
+  <!-- Rascunho: remover esta linha na Fase 5 (junto com rascunho: false no config.js) -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://bosco-2009.github.io/empresa-jp/">
+  <meta name="theme-color" content="#0B1630">
+
+  <!-- Open Graph / redes sociais -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Portfólio BR">
+  <meta property="og:title" content="Portfólio BR — Sites profissionais para pequenos negócios">
+  <meta property="og:description" content="Sites rápidos, bonitos e feitos para o celular. Escolha o plano, pague com segurança e receba seu site pronto.">
+  <meta property="og:url" content="https://bosco-2009.github.io/empresa-jp/">
+  <meta property="og:image" content="https://bosco-2009.github.io/empresa-jp/assets/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Portfólio BR: sites profissionais para pequenos negócios">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Ícones e manifest -->
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/chat.css">
+
+  <script src="config.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/supabase-client.js" defer></script>
+  <script src="assets/js/chat.js" defer></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Portfólio BR",
+    "description": "Criação de sites profissionais para pequenos negócios de todo o Brasil.",
+    "url": "https://bosco-2009.github.io/empresa-jp/",
+    "logo": "https://bosco-2009.github.io/empresa-jp/assets/img/icon-512.png",
+    "areaServed": "BR",
+    "sameAs": ["https://www.instagram.com/portifolio_br/"]
+  }
+  </script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Faixa de rascunho: exibida pelo main.js enquanto config.rascunho === true -->
+  <aside class="aviso-rascunho" aria-label="Aviso de rascunho" data-aviso-rascunho hidden>
+    Versão de rascunho: textos e preços marcados como provisórios ainda serão confirmados.
+  </aside>
+
+  <!-- Ícones (sprite SVG) -->
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+    <symbol id="i-pagina" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 13h6M7 16h4"/></symbol>
+    <symbol id="i-sacola" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-conversa" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+    <symbol id="i-pincel" viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 10 19l-5.5 1 1-5.5 9-10Z"/><path d="m12.5 6.5 5 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6L12 3Z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-ajuste" viewBox="0 0 24 24"><path d="M20 11.5A8 8 0 0 0 5.6 6.8L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 12.5a8 8 0 0 0 14.4 4.7l1.6-1.7"/><path d="M20 20v-4.5h-4.5"/></symbol>
+    <symbol id="i-devolver" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5 4.8 16A8.5 8.5 0 1 1 8 19.2l-4.5 1.3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 1c-1.2-.4-2.5-1.7-2.9-2.9l1-1-1-2L9 8.5Z"/></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </svg>
+
+  <header class="topo" data-topo>
+    <div class="container topo__barra">
+      <a class="marca" href="#inicio" aria-label="Portfólio BR, voltar ao início">
+        <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+        <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+      </a>
+
+      <button class="topo__menu-botao" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-botao>
+        <svg class="icone" aria-hidden="true"><use href="#i-menu"/></svg>
+        <span class="visualmente-oculto" data-menu-rotulo>Abrir menu</span>
+      </button>
+
+      <nav class="topo__nav" id="menu-principal" aria-label="Principal" data-menu>
+        <ul class="topo__links">
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#planos">Planos</a></li>
+          <li><a href="#duvidas">Dúvidas</a></li>
+        </ul>
+        <a class="botao botao--primario botao--pequeno topo__cta" href="#planos">Ver planos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="inicio" aria-labelledby="hero-titulo">
+      <div class="container hero__grade">
+        <div class="hero__texto" data-evitar-flutuante>
+          <p class="selo">Sites para pequenos negócios de todo o Brasil</p>
+          <h1 id="hero-titulo" class="hero__titulo">
+            Seu negócio com um site profissional,
+            <span class="sublinhado">pronto para vender</span> pelo celular.
+          </h1>
+          <p class="hero__subtitulo">
+            Criamos sites rápidos, bonitos e fáceis de encontrar no Google.
+            Você escolhe o plano, conta como é o seu negócio e a gente cuida do resto.
+          </p>
+          <div class="hero__acoes">
+            <a class="botao botao--primario botao--grande" href="#planos">
+              Ver planos e preços
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+            </a>
+            <a class="botao botao--contorno-claro botao--grande" href="#como-funciona">Como funciona</a>
+          </div>
+          <ul class="hero__beneficios" role="list">
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg> Feito para o celular</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg> Pagamento seguro pelo Mercado Pago</li>
+            <li><svg class="icone" aria-hidden="true"><use href="#i-check"/></svg> Você aprova antes de publicar</li>
+          </ul>
+        </div>
+
+        <!-- Ilustração decorativa (não representa um cliente real) -->
+        <div class="hero__visual" aria-hidden="true">
+          <div class="celular">
+            <div class="celular__tela">
+              <div class="mock__barra">
+                <span class="mock__marca"><span class="mock__marca-icone"></span>Seu Negócio</span>
+                <span class="mock__hamburguer"><i></i><i></i><i></i></span>
+              </div>
+              <div class="mock__capa">
+                <span class="mock__etiqueta">Aberto hoje · 9h às 18h</span>
+                <span class="mock__titulo">Qualidade e atenção que você merece</span>
+                <span class="mock__texto">Atendimento com hora marcada no centro da cidade.</span>
+                <span class="mock__acoes">
+                  <span class="mock__botao mock__botao--zap">Chamar no WhatsApp</span>
+                  <span class="mock__botao mock__botao--claro">Ver serviços</span>
+                </span>
+              </div>
+              <span class="mock__secao">Nossos serviços</span>
+              <div class="mock__cards">
+                <span class="mock__card"><span class="mock__card-icone"><svg class="icone"><use href="#i-pincel"/></svg></span><b>Serviços</b><small>Veja o que fazemos</small></span>
+                <span class="mock__card"><span class="mock__card-icone"><svg class="icone"><use href="#i-olho"/></svg></span><b>Galeria</b><small>Fotos dos trabalhos</small></span>
+                <span class="mock__card"><span class="mock__card-icone"><svg class="icone"><use href="#i-busca"/></svg></span><b>Onde estamos</b><small>Mapa e horários</small></span>
+                <span class="mock__card"><span class="mock__card-icone"><svg class="icone"><use href="#i-conversa"/></svg></span><b>Contato</b><small>Resposta rápida</small></span>
+              </div>
+              <span class="mock__mapa"><span class="mock__pino"></span>Como chegar · ver no mapa</span>
+            </div>
+          </div>
+          <div class="flutuante flutuante--a"><svg class="icone" aria-hidden="true"><use href="#i-busca"/></svg> Pronto para o Google</div>
+          <div class="flutuante flutuante--b"><svg class="icone" aria-hidden="true"><use href="#i-celular"/></svg> Perfeito no celular</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SERVIÇOS ===================== -->
+    <section class="secao" id="servicos" aria-labelledby="servicos-titulo">
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">O que fazemos</p>
+          <h2 id="servicos-titulo" class="secao__titulo">Tudo o que seu negócio precisa para ser encontrado e chamado</h2>
+          <p class="secao__descricao">
+            Um site profissional passa confiança, aparece no Google e leva o cliente direto para o seu WhatsApp.
+          </p>
+        </header>
+
+        <ul class="grade-cards" role="list">
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-pagina"/></svg></span>
+            <h3 class="card__titulo">Sites e landing pages</h3>
+            <p class="card__texto">De uma página objetiva até um site completo com várias páginas para apresentar seus serviços.</p>
+          </li>
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-celular"/></svg></span>
+            <h3 class="card__titulo">Pensado para o celular</h3>
+            <p class="card__texto">A maioria dos seus clientes vai abrir o site pelo telefone. Por isso começamos por ele.</p>
+          </li>
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-conversa"/></svg></span>
+            <h3 class="card__titulo">WhatsApp e redes sociais</h3>
+            <p class="card__texto">Botões que levam o visitante direto para a conversa, além de Instagram e mapa do Google.</p>
+          </li>
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-sacola"/></svg></span>
+            <h3 class="card__titulo">Catálogo e cardápio</h3>
+            <p class="card__texto">Mostre produtos, serviços ou o cardápio, com pedido simples pelo WhatsApp.</p>
+          </li>
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-busca"/></svg></span>
+            <h3 class="card__titulo">SEO básico</h3>
+            <p class="card__texto">Títulos, descrições e estrutura organizados para o Google entender o seu negócio.</p>
+          </li>
+          <li class="card">
+            <span class="card__icone"><svg class="icone" aria-hidden="true"><use href="#i-pincel"/></svg></span>
+            <h3 class="card__titulo">Design com a sua cara</h3>
+            <p class="card__texto">Cores, fotos e textos alinhados à identidade do seu negócio, sem cara de modelo pronto.</p>
+          </li>
+        </ul>
+
+        <div class="segmentos">
+          <p class="segmentos__titulo" id="segmentos-titulo">Ideal para</p>
+          <ul class="segmentos__lista" role="list" aria-labelledby="segmentos-titulo">
+            <li>Salões e barbearias</li>
+            <li>Restaurantes e lanchonetes</li>
+            <li>Lojas e confeitarias</li>
+            <li>Consultórios e clínicas</li>
+            <li>Oficinas e serviços</li>
+            <li>Autônomos e profissionais liberais</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COMO FUNCIONA ===================== -->
+    <section class="secao secao--suave" id="como-funciona" aria-labelledby="como-titulo">
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Como funciona</p>
+          <h2 id="como-titulo" class="secao__titulo">Do pagamento ao site no ar em 4 passos</h2>
+          <p class="secao__descricao">Tudo online, sem reunião longa e sem complicação.</p>
+        </header>
+
+        <ol class="passos" role="list">
+          <li class="passo">
+            <span class="passo__numero" aria-hidden="true">1</span>
+            <h3 class="passo__titulo">Escolha o plano</h3>
+            <p class="passo__texto">Compare os planos e pague com segurança pelo Mercado Pago.</p>
+          </li>
+          <li class="passo">
+            <span class="passo__numero" aria-hidden="true">2</span>
+            <h3 class="passo__titulo">Conte sobre o seu negócio</h3>
+            <p class="passo__texto">Preencha um briefing rápido com informações, contatos, logo e fotos.</p>
+          </li>
+          <li class="passo">
+            <span class="passo__numero" aria-hidden="true">3</span>
+            <h3 class="passo__titulo">Aprove e peça ajustes</h3>
+            <p class="passo__texto">Você recebe o site para revisar e pede os ajustes incluídos no plano.</p>
+          </li>
+          <li class="passo">
+            <span class="passo__numero" aria-hidden="true">4</span>
+            <h3 class="passo__titulo">Site no ar</h3>
+            <p class="passo__texto">Publicamos o site e você já pode divulgar o link para os clientes.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================== PLANOS (conteúdo vem do config.js) ===================== -->
+    <section class="secao" id="planos" aria-labelledby="planos-titulo">
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Planos</p>
+          <h2 id="planos-titulo" class="secao__titulo">Escolha o plano ideal para o seu negócio</h2>
+          <p class="secao__descricao">Pagamento único. <span data-texto-parcelamento></span></p>
+        </header>
+
+        <ul class="planos" role="list" data-lista-planos></ul>
+        <noscript>
+          <p class="aviso-noscript">Ative o JavaScript para ver os planos ou fale com a gente pelo
+            <a href="https://www.instagram.com/portifolio_br/">Instagram @portifolio_br</a>.</p>
+        </noscript>
+      </div>
+    </section>
+
+    <!-- ===================== PORTFÓLIO (oculto até haver projetos reais) ===================== -->
+    <section class="secao secao--suave" id="portfolio" aria-labelledby="portfolio-titulo" hidden data-secao-portfolio>
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Portfólio</p>
+          <h2 id="portfolio-titulo" class="secao__titulo">Sites que já criamos</h2>
+        </header>
+        <ul class="grade-portfolio" role="list" data-lista-portfolio></ul>
+      </div>
+    </section>
+
+    <!-- ===================== DEPOIMENTOS (oculto até haver depoimentos reais) ===================== -->
+    <section class="secao" id="depoimentos" aria-labelledby="depoimentos-titulo" hidden data-secao-depoimentos>
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Depoimentos</p>
+          <h2 id="depoimentos-titulo" class="secao__titulo">O que dizem nossos clientes</h2>
+        </header>
+        <ul class="grade-depoimentos" role="list" data-lista-depoimentos></ul>
+      </div>
+    </section>
+
+    <!-- ===================== GARANTIAS ===================== -->
+    <section class="secao secao--escura" id="garantias" aria-labelledby="garantias-titulo">
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Compra sem susto</p>
+          <h2 id="garantias-titulo" class="secao__titulo">Garantias para você contratar com tranquilidade</h2>
+        </header>
+        <ul class="garantias" role="list" data-lista-garantias></ul>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section class="secao" id="duvidas" aria-labelledby="duvidas-titulo">
+      <div class="container container--estreito">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Dúvidas frequentes</p>
+          <h2 id="duvidas-titulo" class="secao__titulo">Perguntas que todo mundo faz</h2>
+        </header>
+        <div class="faq" data-lista-faq></div>
+      </div>
+    </section>
+
+    <!-- ===================== CTA FINAL ===================== -->
+    <section class="secao cta-final" id="contato" aria-labelledby="cta-titulo">
+      <div class="container">
+        <div class="cta-final__caixa">
+          <h2 id="cta-titulo" class="cta-final__titulo">Pronto para colocar seu negócio na internet?</h2>
+          <p class="cta-final__texto">Escolha seu plano agora ou tire suas dúvidas com a gente. Respondemos rapidinho.</p>
+          <div class="cta-final__acoes">
+            <a class="botao botao--primario botao--grande" href="#planos">Escolher meu plano</a>
+            <a class="botao botao--contorno botao--grande" data-link-contato href="https://ig.me/m/portifolio_br" target="_blank" rel="noopener">
+              <svg class="icone" aria-hidden="true" data-contato-icone><use href="#i-instagram"/></svg>
+              <span data-contato-rotulo>Falar pelo Instagram</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__grade">
+      <div class="rodape__marca">
+        <a class="marca marca--clara" href="#inicio" aria-label="Portfólio BR, voltar ao início">
+          <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+          <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+        </a>
+        <p class="rodape__descricao">Sites profissionais para pequenos negócios de todo o Brasil.</p>
+      </div>
+
+      <nav class="rodape__coluna" aria-label="Rodapé">
+        <h2 class="rodape__titulo">Navegação</h2>
+        <ul role="list">
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#planos">Planos</a></li>
+          <li><a href="#duvidas">Dúvidas</a></li>
+        </ul>
+      </nav>
+
+      <div class="rodape__coluna">
+        <h2 class="rodape__titulo">Contato</h2>
+        <ul role="list" data-lista-contatos>
+          <li>
+            <a href="https://www.instagram.com/portifolio_br/" target="_blank" rel="noopener">
+              <svg class="icone" aria-hidden="true"><use href="#i-instagram"/></svg> @portifolio_br
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="rodape__base">
+        <p>&copy; <span data-ano></span> Portfólio BR. Todos os direitos reservados.</p>
+        <p data-dados-empresa hidden></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

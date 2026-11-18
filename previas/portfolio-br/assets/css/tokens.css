@@ -1,0 +1,147 @@
+/*
+ * tokens.css — identidade visual da Portfólio BR.
+ * Use SOMENTE estas variáveis para cor, tipografia, espaçamento, raio, sombra e movimento.
+ *
+ * Paleta:
+ *  - Azul-noite: confiança e seriedade (texto e fundos escuros).
+ *  - Verde-mata: crescimento e "pode seguir" (ação principal, links). Remete ao Brasil sem clichê.
+ *  - Amarelo-sol: destaque pontual (selos, sublinhados, foco). Nunca como fundo de texto longo.
+ *  - Neutros frios levemente azulados para fundos e bordas.
+ */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/plus-jakarta-sans-latin-wght.woff2') format('woff2-variations'),
+       url('../fonts/plus-jakarta-sans-latin-wght.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+                 U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+                 U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* ---------- Cores de marca ---------- */
+  --cor-noite-950: #070F22;
+  --cor-noite-900: #0B1630;
+  --cor-noite-800: #13224A;
+  --cor-noite-700: #1F3366;
+  --cor-noite-300: #A9B7D6;
+
+  --cor-verde-800: #04563E;
+  --cor-verde-700: #05694B;
+  --cor-verde-600: #077A57;
+  --cor-verde-400: #34C38F;
+  --cor-verde-100: #E2F5EC;
+
+  --cor-sol-500: #F5B301;
+  --cor-sol-400: #FFC83D;
+  --cor-sol-100: #FFF4D1;
+
+  /* ---------- Neutros ---------- */
+  --cor-branco: #FFFFFF;
+  --cor-cinza-50: #F6F7FA;
+  --cor-cinza-100: #EDF0F5;
+  --cor-cinza-200: #DCE1EA;
+  --cor-cinza-500: #566074;
+  --cor-cinza-700: #2F3747;
+
+  /* ---------- Papéis semânticos (use estes nos componentes) ---------- */
+  --cor-fundo: var(--cor-branco);
+  --cor-fundo-suave: var(--cor-cinza-50);
+  --cor-fundo-escuro: var(--cor-noite-900);
+  --cor-superficie: var(--cor-branco);
+  --cor-borda: var(--cor-cinza-200);
+
+  --cor-texto: var(--cor-noite-900);
+  --cor-texto-suave: var(--cor-cinza-500);
+  --cor-texto-invertido: var(--cor-branco);
+  --cor-texto-invertido-suave: var(--cor-noite-300);
+
+  --cor-acao: var(--cor-verde-600);
+  --cor-acao-hover: var(--cor-verde-700);
+  --cor-acao-ativa: var(--cor-verde-800);
+  --cor-acao-texto: var(--cor-branco);
+  --cor-acao-fundo-suave: var(--cor-verde-100);
+  --cor-acao-no-escuro: var(--cor-verde-400);
+
+  --cor-destaque: var(--cor-sol-400);
+  --cor-destaque-forte: var(--cor-sol-500);
+  --cor-destaque-suave: var(--cor-sol-100);
+
+  --cor-foco: var(--cor-sol-500);
+  --cor-erro: #B42318;
+  --cor-erro-suave: #FEF3F2;
+  --cor-sucesso: var(--cor-verde-600);
+  --cor-whatsapp: #167A43; /* verde escurecido para contraste AA com texto branco */
+
+  /* ---------- Tipografia ---------- */
+  --fonte-base: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  /* Escala fluida (320px → 1280px) */
+  --texto-xs: 0.8125rem;                                   /* 13px */
+  --texto-sm: 0.9375rem;                                   /* 15px */
+  --texto-base: 1rem;                                      /* 16px */
+  --texto-md: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);  /* 17→19px */
+  --texto-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);     /* 20→24px */
+  --texto-xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);           /* 24→32px */
+  --texto-2xl: clamp(1.875rem, 1.5rem + 1.9vw, 2.75rem);   /* 30→44px */
+  --texto-3xl: clamp(2.125rem, 1.6rem + 2.8vw, 3.75rem);   /* 34→60px */
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 600;
+  --peso-negrito: 700;
+  --peso-extra: 800;
+
+  --altura-linha-titulo: 1.12;
+  --altura-linha-base: 1.6;
+  --espacamento-letra-titulo: -0.02em;
+
+  /* ---------- Espaçamento (base 4px) ---------- */
+  --esp-1: 0.25rem;  /* 4px */
+  --esp-2: 0.5rem;   /* 8px */
+  --esp-3: 0.75rem;  /* 12px */
+  --esp-4: 1rem;     /* 16px */
+  --esp-5: 1.5rem;   /* 24px */
+  --esp-6: 2rem;     /* 32px */
+  --esp-7: 3rem;     /* 48px */
+  --esp-8: 4rem;     /* 64px */
+  --esp-9: 6rem;     /* 96px */
+
+  --esp-secao: clamp(3.5rem, 2.5rem + 5vw, 6.5rem);
+  --margem-lateral: clamp(1rem, 0.5rem + 2.5vw, 2rem);
+  --largura-max: 72rem;     /* 1152px */
+  --largura-texto: 42rem;   /* ~70 caracteres */
+
+  /* ---------- Raios, sombras e bordas ---------- */
+  --raio-sm: 0.5rem;
+  --raio-md: 0.875rem;
+  --raio-lg: 1.25rem;
+  --raio-pilula: 999px;
+
+  --sombra-sm: 0 1px 2px rgb(11 22 48 / 0.06), 0 1px 3px rgb(11 22 48 / 0.08);
+  --sombra-md: 0 4px 12px rgb(11 22 48 / 0.08), 0 2px 4px rgb(11 22 48 / 0.05);
+  --sombra-lg: 0 18px 40px rgb(11 22 48 / 0.14), 0 6px 12px rgb(11 22 48 / 0.06);
+
+  /* ---------- Movimento ---------- */
+  --duracao-rapida: 150ms;
+  --duracao-media: 250ms;
+  --curva-padrao: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Altura reservada para o botão flutuante (botão 3.5rem + margem 1rem + área segura do aparelho) */
+  --area-botao-flutuante: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+
+  /* ---------- Camadas ---------- */
+  --z-header: 50;
+  --z-flutuante: 80;
+  --z-aviso: 90;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duracao-rapida: 0ms;
+    --duracao-media: 0ms;
+  }
+}

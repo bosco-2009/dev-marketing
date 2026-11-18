@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Painel — Portfólio BR</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0B1630">
+  <link rel="icon" href="../favicon.ico" sizes="32x32">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <script src="../config.js" defer></script>
+  <script src="../assets/js/supabase-client.js" defer></script>
+  <script src="../assets/js/admin.js" defer></script>
+</head>
+<body class="admin">
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5 4.8 16A8.5 8.5 0 1 1 8 19.2l-4.5 1.3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 1c-1.2-.4-2.5-1.7-2.9-2.9l1-1-1-2L9 8.5Z"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-som" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
+  </svg>
+
+  <header class="admin-topo">
+    <div class="admin-topo__marca">
+      <img src="../assets/img/logo-icone.svg" width="32" height="32" alt="">
+      <span>Painel <strong>Portfólio BR</strong></span>
+    </div>
+    <div class="admin-topo__acoes" data-acoes-sessao hidden>
+      <span class="admin-conexao" data-conexao role="status">Conectando…</span>
+      <button class="admin-botao-icone" type="button" aria-pressed="true" data-botao-som>
+        <svg class="icone" aria-hidden="true"><use href="#i-som"/></svg>
+        <span class="visualmente-oculto">Som de nova mensagem</span>
+      </button>
+      <button class="botao botao--contorno botao--pequeno" type="button" data-sair>Sair</button>
+    </div>
+  </header>
+
+  <main id="conteudo" class="admin-principal">
+    <!-- Supabase não configurado -->
+    <section class="admin-caixa" data-tela="sem-config" hidden aria-labelledby="sem-config-titulo">
+      <h1 id="sem-config-titulo" class="admin-caixa__titulo">Painel ainda não configurado</h1>
+      <p>Preencha <code>supabase.url</code> e <code>supabase.anonKey</code> no arquivo <code>config.js</code>.</p>
+    </section>
+
+    <!-- Login -->
+    <section class="admin-caixa" data-tela="login" hidden aria-labelledby="login-titulo">
+      <h1 id="login-titulo" class="admin-caixa__titulo">Entrar no painel</h1>
+      <form class="admin-form" data-form-login novalidate>
+        <div class="admin-form__campo">
+          <label for="login-email">E-mail</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required>
+        </div>
+        <div class="admin-form__campo">
+          <label for="login-senha">Senha</label>
+          <input id="login-senha" name="senha" type="password" autocomplete="current-password" required>
+        </div>
+        <p class="admin-erro" data-erro-login role="alert" hidden></p>
+        <button class="botao botao--primario" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <!-- Sem permissão -->
+    <section class="admin-caixa" data-tela="negado" hidden aria-labelledby="negado-titulo">
+      <h1 id="negado-titulo" class="admin-caixa__titulo">Acesso não autorizado</h1>
+      <p>Esta conta entrou, mas não está cadastrada como administradora.</p>
+      <button class="botao botao--contorno" type="button" data-sair>Sair</button>
+    </section>
+
+    <!-- Carregando -->
+    <section class="admin-caixa" data-tela="carregando" aria-live="polite">
+      <p>Carregando…</p>
+    </section>
+
+    <!-- Chat -->
+    <section class="admin-chat" data-tela="chat" hidden aria-labelledby="chat-admin-titulo">
+      <h1 id="chat-admin-titulo" class="visualmente-oculto">Conversas do chat</h1>
+
+      <div class="admin-lista" data-painel-lista>
+        <div class="admin-lista__filtros" role="group" aria-label="Filtrar conversas">
+          <button type="button" class="admin-filtro" aria-pressed="true" data-filtro="aberta">Abertas</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="fechada">Fechadas</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="todas">Todas</button>
+        </div>
+        <ul class="admin-lista__itens" role="list" data-lista-conversas></ul>
+        <p class="admin-vazio" data-lista-vazia hidden>Nenhuma conversa aqui ainda.</p>
+      </div>
+
+      <div class="admin-conversa" data-painel-conversa>
+        <p class="admin-vazio admin-conversa__vazia" data-conversa-vazia>Escolha uma conversa para ler e responder.</p>
+
+        <div class="admin-conversa__conteudo" data-conversa-conteudo hidden>
+          <header class="admin-conversa__cabecalho">
+            <button class="admin-botao-icone admin-conversa__voltar" type="button" data-voltar>
+              <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+              <span class="visualmente-oculto">Voltar para a lista</span>
+            </button>
+            <div class="admin-conversa__quem">
+              <h2 class="admin-conversa__nome" data-conversa-nome tabindex="-1"></h2>
+              <p class="admin-conversa__detalhes" data-conversa-detalhes></p>
+            </div>
+            <a class="botao botao--whatsapp botao--pequeno" data-conversa-whatsapp target="_blank" rel="noopener" hidden>
+              <svg class="icone" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+              WhatsApp<span class="visualmente-oculto"> (abre em nova aba)</span>
+            </a>
+            <button class="botao botao--contorno botao--pequeno" type="button" data-alternar-status></button>
+          </header>
+
+          <div class="admin-mensagens" role="log" aria-live="polite" aria-label="Mensagens" tabindex="0" data-mensagens></div>
+
+          <form class="admin-resposta" data-form-resposta novalidate>
+            <label class="visualmente-oculto" for="resposta-texto">Resposta</label>
+            <textarea id="resposta-texto" rows="2" maxlength="2000" placeholder="Escreva a resposta… (Enter envia, Shift+Enter quebra linha)" required data-resposta-texto></textarea>
+            <button class="botao botao--primario" type="submit" data-resposta-enviar>
+              Enviar <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+            </button>
+            <p class="admin-erro" data-erro-resposta role="alert" hidden></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

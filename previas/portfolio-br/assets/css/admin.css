@@ -1,0 +1,249 @@
+/*
+ * admin.css — painel do dono (/admin/). Mobile-first: no celular mostra a lista OU a conversa;
+ * a partir de 56rem, lista e conversa lado a lado.
+ */
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--cor-fundo-suave);
+}
+
+/* ---------------- Topo ---------------- */
+.admin-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--margem-lateral);
+  padding-top: calc(var(--esp-3) + env(safe-area-inset-top, 0px));
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-texto-invertido);
+}
+.admin-topo__marca { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); }
+.admin-topo__marca img { width: 2rem; height: 2rem; }
+.admin-topo__acoes { display: flex; align-items: center; gap: var(--esp-2); }
+.admin-topo__acoes[hidden] { display: none; }
+.admin-topo .botao--contorno { border-color: rgb(255 255 255 / 0.5); color: var(--cor-texto-invertido); }
+.admin-topo .botao--contorno:hover { background: rgb(255 255 255 / 0.1); }
+
+.admin-conexao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-invertido-suave);
+}
+.admin-conexao::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--cor-destaque);
+}
+.admin-conexao[data-estado='ok']::before { background: var(--cor-acao-no-escuro); }
+.admin-conexao[data-estado='erro']::before { background: var(--cor-erro); }
+
+.admin-botao-icone {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+}
+.admin-botao-icone[aria-pressed='false'] { opacity: 0.7; }
+
+/* ---------------- Caixas (login, avisos) ---------------- */
+.admin-principal { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.admin-caixa {
+  width: min(26rem, calc(100% - 2 * var(--margem-lateral)));
+  margin: var(--esp-8) auto;
+  padding: var(--esp-6) var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-md);
+}
+.admin-caixa[hidden] { display: none; }
+.admin-caixa__titulo { font-size: var(--texto-xl); margin-bottom: var(--esp-4); }
+.admin-caixa p + .botao { margin-top: var(--esp-4); }
+.admin-caixa code { overflow-wrap: anywhere; }
+
+.admin-form { display: grid; gap: var(--esp-4); }
+.admin-form__campo { display: grid; gap: var(--esp-1); }
+.admin-form__campo label { font-weight: var(--peso-semi); font-size: var(--texto-sm); }
+.admin-form input,
+.admin-resposta textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-cinza-500);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie);
+  font-size: var(--texto-base);
+}
+
+.admin-erro {
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-erro-suave);
+  color: var(--cor-erro);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+.admin-erro[hidden] { display: none; }
+
+.admin-vazio { padding: var(--esp-6) var(--esp-4); color: var(--cor-texto-suave); text-align: center; }
+.admin-vazio[hidden] { display: none; }
+
+/* ---------------- Chat: lista + conversa ---------------- */
+.admin-chat {
+  flex: 1;
+  display: grid;
+  min-height: 0;
+  height: calc(100dvh - 4rem);
+}
+.admin-chat[hidden] { display: none; }
+
+.admin-lista { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; background: var(--cor-superficie); }
+.admin-conversa { display: none; flex-direction: column; min-height: 0; }
+.admin-chat.mostrando-conversa .admin-lista { display: none; }
+.admin-chat.mostrando-conversa .admin-conversa { display: flex; }
+
+@media (min-width: 56rem) {
+  .admin-chat { grid-template-columns: 22rem 1fr; }
+  .admin-lista,
+  .admin-chat.mostrando-conversa .admin-lista { display: flex; border-right: 1px solid var(--cor-borda); }
+  .admin-conversa { display: flex; }
+  .admin-conversa__voltar { display: none !important; }
+}
+
+.admin-lista__filtros {
+  position: sticky;
+  top: 0;
+  display: flex;
+  gap: var(--esp-2);
+  padding: var(--esp-3);
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+.admin-filtro {
+  padding: var(--esp-1) var(--esp-3);
+  min-height: 2.25rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+.admin-filtro[aria-pressed='true'] { background: var(--cor-noite-900); border-color: var(--cor-noite-900); color: var(--cor-texto-invertido); }
+
+.admin-lista__itens { margin: 0; }
+.admin-item {
+  display: grid;
+  gap: var(--esp-1);
+  width: 100%;
+  padding: var(--esp-3) var(--esp-4);
+  border: 0;
+  border-bottom: 1px solid var(--cor-borda);
+  background: transparent;
+  text-align: left;
+}
+.admin-item:hover { background: var(--cor-fundo-suave); }
+.admin-item[aria-current='true'] { background: var(--cor-acao-fundo-suave); box-shadow: inset 3px 0 0 var(--cor-acao); }
+.admin-item:focus-visible { outline-offset: -3px; }
+.admin-item__linha { display: flex; align-items: center; gap: var(--esp-2); min-width: 0; }
+.admin-item__nome { flex: 1; min-width: 0; font-weight: var(--peso-semi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-item--nova .admin-item__nome { font-weight: var(--peso-extra); }
+.admin-item__hora { color: var(--cor-texto-suave); font-size: var(--texto-xs); }
+.admin-item__previa {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-sm);
+}
+.admin-item__selo {
+  min-width: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-acao);
+  color: var(--cor-acao-texto);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-extra);
+  text-align: center;
+}
+.admin-item__tag {
+  padding: 0 var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-cinza-100);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+}
+
+.admin-conversa__vazia { margin: auto; }
+.admin-conversa__conteudo { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.admin-conversa__conteudo[hidden] { display: none; }
+
+.admin-conversa__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+.admin-conversa__voltar { border-color: var(--cor-borda); color: var(--cor-texto); }
+.admin-conversa__quem { flex: 1 1 12rem; min-width: 0; }
+.admin-conversa__nome { font-size: var(--texto-lg); letter-spacing: 0; }
+.admin-conversa__nome:focus { outline: none; }
+.admin-conversa__detalhes { color: var(--cor-texto-suave); font-size: var(--texto-xs); overflow-wrap: anywhere; }
+
+.admin-mensagens {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: var(--esp-4);
+  list-style: none;
+}
+.admin-mensagens:focus-visible { outline-offset: -3px; }
+
+.admin-msg {
+  max-width: min(36rem, 85%);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  box-shadow: var(--sombra-sm);
+}
+.admin-msg--visitante { align-self: flex-start; background: var(--cor-superficie); border-bottom-left-radius: var(--esp-1); }
+.admin-msg--admin { align-self: flex-end; background: var(--cor-acao); color: var(--cor-acao-texto); border-bottom-right-radius: var(--esp-1); }
+.admin-msg__hora { display: block; margin-top: var(--esp-1); font-size: 0.6875rem; opacity: 0.85; text-align: right; }
+
+.admin-resposta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+  padding-bottom: calc(var(--esp-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+.admin-resposta textarea { resize: vertical; max-height: 12rem; }
+.admin-resposta .admin-erro { grid-column: 1 / -1; }

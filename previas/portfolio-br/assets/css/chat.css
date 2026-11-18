@@ -1,0 +1,258 @@
+/*
+ * chat.css — widget de chat ao vivo. Mobile-first: no celular o painel ocupa a tela inteira;
+ * a partir de 48rem vira uma janela flutuante acima do botão.
+ * Usa apenas variáveis de tokens.css.
+ */
+
+.chat {
+  position: fixed;
+  right: calc(var(--esp-4) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--esp-4) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-flutuante);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--esp-3);
+  font-size: var(--texto-sm);
+}
+
+/* ---------------- Botão flutuante ---------------- */
+.chat__lancador {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cor-acao);
+  color: var(--cor-acao-texto);
+  box-shadow: var(--sombra-lg);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+              transform var(--duracao-rapida) var(--curva-padrao),
+              opacity var(--duracao-media) var(--curva-padrao),
+              visibility var(--duracao-media);
+}
+.chat__lancador:hover { background: var(--cor-acao-hover); transform: scale(1.04); }
+.chat__lancador .icone { width: 1.75rem; height: 1.75rem; }
+
+/* No celular, recolhe enquanto o texto do hero está visível (para não cobri-lo) */
+.chat[data-recolhido='true'] .chat__lancador { opacity: 0; visibility: hidden; }
+
+.chat__selo {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.2rem;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  border: 2px solid var(--cor-branco);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-destaque);
+  color: var(--cor-noite-900);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-extra);
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+/* ---------------- Painel (celular: tela cheia) ---------------- */
+.chat__painel {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+.chat__painel[hidden] { display: none; }
+
+/* Com o painel aberto em tela cheia, o botão flutuante sai de cena e a página não rola por trás */
+.chat[data-aberto='true'] .chat__lancador { display: none; }
+.chat-aberto body { overflow: hidden; }
+
+@media (min-width: 48rem) {
+  .chat__painel {
+    position: static;
+    width: 23rem;
+    height: min(40rem, calc(100vh - 6.5rem));
+    height: min(40rem, calc(100dvh - 6.5rem));
+    padding: 0;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-lg);
+    box-shadow: var(--sombra-lg);
+    overflow: hidden;
+  }
+  .chat[data-aberto='true'] .chat__lancador { display: grid; }
+  .chat-aberto body { overflow: auto; }
+}
+
+/* ---------------- Cabeçalho ---------------- */
+.chat__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-texto-invertido);
+}
+.chat__avatar { width: 2.5rem; height: 2.5rem; flex-shrink: 0; }
+.chat__identificacao { flex: 1; min-width: 0; }
+.chat__titulo { font-size: var(--texto-base); letter-spacing: 0; }
+.chat__status {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--cor-texto-invertido-suave);
+  font-size: var(--texto-xs);
+}
+.chat__ponto {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cor-cinza-500);
+}
+.chat[data-online='true'] .chat__ponto { background: var(--cor-acao-no-escuro); }
+
+.chat__fechar {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.1);
+  color: var(--cor-texto-invertido);
+}
+.chat__fechar:hover { background: rgb(255 255 255 / 0.2); }
+
+/* ---------------- Aviso fora do horário ---------------- */
+.chat__aviso {
+  display: grid;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+  background: var(--cor-destaque-suave);
+  color: var(--cor-noite-900);
+  border-bottom: 1px solid var(--cor-borda);
+}
+.chat__aviso[hidden] { display: none; }
+.chat__aviso p { font-size: var(--texto-xs); }
+.chat__aviso strong { display: block; font-size: var(--texto-sm); }
+.chat__whatsapp { justify-self: start; }
+
+/* ---------------- Mensagens ---------------- */
+.chat__mensagens {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  padding: var(--esp-4);
+  background: var(--cor-fundo-suave);
+}
+.chat__mensagens:focus-visible { outline-offset: -3px; }
+
+.chat__lista { display: flex; flex-direction: column; gap: var(--esp-2); margin: 0; }
+
+.chat__bolha {
+  position: relative;
+  max-width: 85%;
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  box-shadow: var(--sombra-sm);
+}
+.chat__bolha--admin {
+  align-self: flex-start;
+  background: var(--cor-superficie);
+  border-bottom-left-radius: var(--esp-1);
+}
+.chat__bolha--visitante {
+  align-self: flex-end;
+  background: var(--cor-acao);
+  color: var(--cor-acao-texto);
+  border-bottom-right-radius: var(--esp-1);
+}
+.chat__hora {
+  display: block;
+  margin-top: var(--esp-1);
+  font-size: 0.6875rem;
+  opacity: 0.8;
+  text-align: right;
+}
+.chat__bolha--admin .chat__hora { color: var(--cor-texto-suave); opacity: 1; }
+
+.chat__nota {
+  align-self: center;
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-cinza-100);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  text-align: center;
+}
+.chat__nota[hidden] { display: none; }
+
+/* ---------------- Rodapé: formulário inicial + compositor ---------------- */
+.chat__rodape {
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4) var(--esp-4);
+  border-top: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+
+.chat__inicio { display: grid; align-items: start; gap: var(--esp-2) var(--esp-3); }
+.chat__inicio[hidden] { display: none; }
+@media (min-width: 22rem) {
+  .chat__inicio { grid-template-columns: 1fr 1fr; }
+  .chat__privacidade { grid-column: 1 / -1; }
+}
+
+.chat__campo { display: grid; gap: var(--esp-1); min-width: 0; }
+.chat__rotulo { font-size: var(--texto-xs); font-weight: var(--peso-semi); }
+.chat__entrada,
+.chat__texto {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-cinza-500);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie);
+  font-size: var(--texto-base); /* 16px evita zoom automático no iOS */
+}
+.chat__entrada[aria-invalid='true'] { border-color: var(--cor-erro); }
+.chat__dica, .chat__privacidade { color: var(--cor-texto-suave); font-size: var(--texto-xs); }
+
+.chat__compositor { display: flex; align-items: flex-end; gap: var(--esp-2); }
+.chat__texto { flex: 1; resize: none; max-height: 8.75rem; line-height: 1.4; }
+.chat__enviar {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cor-acao);
+  color: var(--cor-acao-texto);
+}
+.chat__enviar:hover { background: var(--cor-acao-hover); }
+.chat__enviar:disabled { opacity: 0.6; cursor: progress; }
+
+.chat__erro {
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-erro-suave);
+  color: var(--cor-erro);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+.chat__erro[hidden] { display: none; }
