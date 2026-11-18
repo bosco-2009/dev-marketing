@@ -19,6 +19,14 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 - Cadastro público deve ficar desligado no Supabase; o único usuário é o dono.
 - Mudança de banco: sempre por migration e rodar os advisors de segurança depois.
 
+## Agência: lojas virtuais para moda (`agencia/` e `moda/`)
+- Novo serviço: montar loja virtual para lojas de roupa de todo o Brasil. Planos (iguais em `agencia/index.html` → `PLANOS` e `admin/index.html` → `PACOTES`):
+  Vitrine R$ 300 + R$ 50/mês · Loja Completa R$ 800 + R$ 90/mês · Loja + Divulgação R$ 800 + R$ 190/mês. Mudou preço? Mude nos dois.
+- `agencia/index.html`: página de vendas. Sem depoimentos/números inventados. `agencia/comecar.html`: formulário → tabela `solicitacoes` (`?plano=` pré-marca o plano, `?origem=` registra de onde veio, ex.: nome do atacado parceiro).
+- `solicitacoes`: visitante só INSERE (status 'nova'); só a equipe lê/altera (`privado.eh_equipe()`, tabela `equipe`). No painel, aba Contatos → "Converter em cliente + orçamento".
+- `moda/index.html`: loja demo (marca fictícia Aurora Moda) e MODELO para clientes: trocar o bloco CONFIGURAÇÃO (`LOJA`, `CATEGORIAS`, `PRODUTOS`), pôr `demo:false` e `whats` da cliente. Fotos hoje são ilustrações SVG; loja real usa fotos da cliente.
+- Roteiros de prospecção: doc "Roteiros de prospecção — Dev Marketing" (Claude Docs).
+
 ## Regras do negócio que não podem ser quebradas
 - Nada de dados inventados: sem avaliações falsas, sem "mais vendidos", sem preço "de/por" fictício. `REVIEWS` vazio oculta a seção.
 - Enviar o pedido não conclui a compra: a entrega só acontece após o Pix cair na conta. O site nunca deve sugerir o contrário.
@@ -36,6 +44,10 @@ pagamento (QR aparece), tela "aguardando pagamento", Meus pedidos, comparar prom
 ## Como testar o painel
 Servir a pasta (`python3 -m http.server`) e abrir `/admin/` em 390×844. Conferir: login (erro e acerto), cadastro de cliente,
 projeto, parcela, "Recebi", resumo, botão voltar fechando a janela, exclusão com toque duplo, sair.
+
+## Como testar a agência
+`/moda/`: filtros, produto (cor esgotada desabilita tamanhos), sacola, limite de estoque, pedido demo mostra a mensagem. `#produto-N` abre direto.
+`/agencia/comecar.html`: validação, envio, e o contato aparecendo na aba Contatos do painel. Apagar os registros de teste depois.
 
 ## Pendências
 1. Dono vai criar conta em plataforma de vendas (Kiwify/Hotmart) e enviar links de checkout → preencher `link` em `PRODUCTS`.

@@ -50,6 +50,16 @@ h2.titulo{font-size:20px;letter-spacing:-.4px;margin:4px 2px 12px}
 .tabs button{flex:1;padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--mute)}
 .tabs button svg{width:22px;height:22px}
 .tabs button[aria-current="page"]{color:var(--p)}
+.tabs button{position:relative}
+.tabs .bdg{position:absolute;top:5px;left:calc(50% + 6px);background:#b42335;color:#fff;font-size:10.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
+.alerta-novas{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff3dc;border:1px solid #f3d9a6;color:#7a4a00;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;font-weight:600}
+.alerta-novas b{font-size:20px}
+.det-lista{display:grid;gap:8px}
+.det-lista div{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:7px}
+.det-lista div:last-child{border:0;padding:0}
+.det-lista span{color:var(--mute);flex:none}
+.det-lista b{text-align:right;font-weight:600;word-break:break-word}
+.texto{white-space:pre-wrap;font-size:14px;margin-top:4px}
 .fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:calc(76px + env(safe-area-inset-bottom));z-index:21;background:var(--p);color:#fff;height:52px;padding:0 20px 0 16px;border-radius:999px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 8px 22px rgba(109,40,217,.38)}
 .fab svg{width:22px;height:22px}
 
@@ -164,6 +174,7 @@ h2.titulo{font-size:20px;letter-spacing:-.4px;margin:4px 2px 12px}
     <button data-act="tab" data-tab="resumo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumo</button>
     <button data-act="tab" data-tab="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.6.8 2.6 2.6 3 5.2"/></svg>Clientes</button>
     <button data-act="tab" data-tab="projetos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m8 10-2.5 2.5L8 15M16 10l2.5 2.5L16 15M13.5 9l-3 7"/></svg>Projetos</button>
+    <button data-act="tab" data-tab="contatos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Contatos<span class="bdg" id="bdg-novas" hidden></span></button>
   </div></nav>
 </div>
 
@@ -194,8 +205,19 @@ const STATUS = { orcamento:'Orçamento', aprovado:'Aprovado', em_andamento:'Em a
 const METODOS = { pix:'Pix', cartao:'Cartão', boleto:'Boleto', transferencia:'Transferência', dinheiro:'Dinheiro', outro:'Outro' };
 const ATIVOS = ['aprovado','em_andamento','revisao'];
 const FILTROS = { ativos:'Ativos', orcamento:'Orçamentos', entregue:'Entregues', todos:'Todos' };
+// Planos da agência (mesmos valores da página agencia/): usados ao converter um contato em cliente
+const PACOTES = {
+  vitrine:{ nome:'Vitrine', implantacao:300, mensal:50 },
+  completa:{ nome:'Loja Completa', implantacao:800, mensal:90 },
+  divulgacao:{ nome:'Loja + Divulgação', implantacao:800, mensal:190 },
+  nao_sei:{ nome:'Ainda não sabe', implantacao:0, mensal:0 }
+};
+const ST_CONTATO = { nova:'Nova', em_contato:'Em contato', convertida:'Virou cliente', descartada:'Descartada' };
+const FILTROS_CONTATO = { abertas:'Abertas', nova:'Novas', em_contato:'Em contato', convertida:'Viraram cliente', descartada:'Descartadas', todas:'Todas' };
+const QTD = { ate_30:'Até 30', '31_100':'31 a 100', '101_300':'101 a 300', mais_300:'Mais de 300' };
+const CANAIS = { instagram:'Instagram', whatsapp:'WhatsApp', loja_fisica:'Loja física', marketplace:'Shopee/ML', site:'Já tem site', revenda:'Revenda' };
 
-const S = { tab:'resumo', filtro:'ativos', busca:'', clientes:[], projetos:[], pagamentos:[], resumo:[], logado:false };
+const S = { tab:'resumo', filtro:'ativos', filtroContato:'abertas', busca:'', clientes:[], projetos:[], pagamentos:[], resumo:[], contatos:[], logado:false };
 
 /* ===== Utilidades ===== */
 const $ = s => document.querySelector(s);
@@ -245,30 +267,38 @@ function situacao(pg){
 
 /* ===== Dados ===== */
 async function carregar(){
-  const [c, p, g, r] = await Promise.all([
+  const [c, p, g, r, s] = await Promise.all([
     sb.from('clientes').select('*').order('nome'),
     sb.from('projetos').select('*').order('created_at', { ascending:false }),
     sb.from('pagamentos').select('*').order('vencimento', { ascending:true, nullsFirst:false }),
-    sb.from('resumo_projetos').select('*')
+    sb.from('resumo_projetos').select('*'),
+    sb.from('solicitacoes').select('*').order('created_at', { ascending:false })
   ]);
-  const falha = [c, p, g, r].find(x => x.error);
+  const falha = [c, p, g, r, s].find(x => x.error);
   if (falha) { toast('Erro ao carregar: ' + traduzErro(falha.error), true); return false; }
-  S.clientes = c.data; S.projetos = p.data; S.pagamentos = g.data; S.resumo = r.data;
+  S.clientes = c.data; S.projetos = p.data; S.pagamentos = g.data; S.resumo = r.data; S.contatos = s.data;
   return true;
 }
 
 /* ===== Telas ===== */
 function render(){
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === S.tab ? 'page' : 'false'));
-  $('#main').innerHTML = S.tab === 'clientes' ? vClientes() : S.tab === 'projetos' ? vProjetos() : vResumo();
+  $('#main').innerHTML = S.tab === 'clientes' ? vClientes() : S.tab === 'projetos' ? vProjetos() : S.tab === 'contatos' ? vContatos() : vResumo();
+  const novas = S.contatos.filter(x => x.status === 'nova').length, bdg = $('#bdg-novas');
+  bdg.hidden = !novas; bdg.textContent = novas;
   const fab = $('#fab');
   const novoCliente = S.tab === 'clientes' || !S.clientes.length;
   fab.dataset.act = novoCliente ? 'novo-cliente' : 'novo-projeto';
   fab.querySelector('span').textContent = novoCliente ? 'Cliente' : 'Projeto';
+  fab.hidden = S.tab === 'contatos';
 }
 
+function alertaNovas(){
+  const n = S.contatos.filter(x => x.status === 'nova').length;
+  return n ? `<button class="alerta-novas" data-act="tab" data-tab="contatos"><b>${n}</b>${n === 1 ? 'nova solicitação pelo formulário' : 'novas solicitações pelo formulário'} →</button>` : '';
+}
 function vResumo(){
-  if (!S.clientes.length) return `
+  if (!S.clientes.length) return alertaNovas() + `
     <div class="boas">
       <h3>Bem-vindo à gestão da Dev Marketing</h3>
       <p>Cadastre seu primeiro cliente. Depois crie os projetos e as parcelas de pagamento de cada um.</p>
@@ -289,6 +319,7 @@ function vResumo(){
 
   return `
     <h2 class="titulo">Resumo</h2>
+    ${alertaNovas()}
     <div class="stats">
       <div class="stat dest"><span>A receber</span><b>${brl(aReceber)}</b></div>
       <div class="stat ${atrasado > 0 ? 'alerta' : ''}"><span>Atrasado</span><b>${brl(atrasado)}</b></div>
@@ -357,6 +388,79 @@ function vProjetos(){
       ${Object.entries(FILTROS).map(([k, v]) => `<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${S.filtro === k}">${v}</button>`).join('')}
     </div>
     ${lista.length ? lista.map(projetoItem).join('') : `<p class="vazio">${S.projetos.length ? 'Nenhum projeto neste filtro.' : 'Nenhum projeto ainda.'}</p>`}`;
+}
+
+/* ===== Contatos (formulário da agência) ===== */
+function vContatos(){
+  const f = S.filtroContato;
+  const lista = S.contatos.filter(x => f === 'todas' ? true : f === 'abertas' ? ['nova','em_contato'].includes(x.status) : x.status === f);
+  return `
+    <h2 class="titulo">Contatos</h2>
+    <div class="chips" role="group" aria-label="Filtrar contatos">
+      ${Object.entries(FILTROS_CONTATO).map(([k, v]) => `<button class="chip" data-act="filtro-contato" data-f="${k}" aria-pressed="${f === k}">${v}</button>`).join('')}
+    </div>
+    ${lista.length ? lista.map(contatoItem).join('') : `<p class="vazio">${S.contatos.length ? 'Nenhum contato neste filtro.' : 'Ainda não chegou ninguém pelo formulário. O link para divulgar é bosco-2009.github.io/dev-marketing/agencia/'}</p>`}`;
+}
+function contatoItem(x){
+  const cls = { nova:'atrasado', em_contato:'aberto', convertida:'pago', descartada:'st-cancelado' }[x.status];
+  return `<button class="item" data-act="ver-contato" data-id="${x.id}">
+    <div class="meio"><div class="t">${esc(x.loja)}</div><div class="s">${esc(x.nome)}${x.cidade || x.uf ? ' · ' + esc([x.cidade, x.uf].filter(Boolean).join('/')) : ''}</div></div>
+    <div class="dir"><span class="tag ${cls}">${ST_CONTATO[x.status]}</span><div>${fmtData(x.created_at.slice(0, 10))}</div></div>
+  </button>`;
+}
+function formContato(x){
+  const wa = waLink(x.whatsapp), pac = PACOTES[x.pacote];
+  const saudacao = `Oi, ${x.nome.split(' ')[0]}! Aqui é da Dev Marketing, recebi seu formulário sobre a loja virtual da ${x.loja}. Podemos conversar?`;
+  const linha = (r, v) => v ? `<div><span>${r}</span><b>${esc(v)}</b></div>` : '';
+  abrirSheet(x.loja, `
+    ${wa ? `<a class="btn wa" href="${wa}?text=${encodeURIComponent(saudacao)}" target="_blank" rel="noopener">Chamar no WhatsApp</a>` : ''}
+    <div class="box det-lista">
+      ${linha('Nome', x.nome)}${linha('WhatsApp', x.whatsapp)}
+      ${x.instagram ? `<div><span>Instagram</span><b><a href="https://instagram.com/${encodeURIComponent(x.instagram)}" target="_blank" rel="noopener">@${esc(x.instagram)}</a></b></div>` : ''}
+      ${linha('Cidade', [x.cidade, x.uf].filter(Boolean).join('/'))}
+      ${linha('Plano', pac?.nome)}${linha('Peças', QTD[x.qtd_produtos])}
+      ${linha('Vende em', (x.canais || []).map(c => CANAIS[c] || c).join(', '))}
+      ${linha('Origem', x.origem)}${linha('Recebido em', fmtData(x.created_at.slice(0, 10)))}
+    </div>
+    ${x.estilo ? `<div class="sec"><div class="sec-h"><h3>Como imagina a loja</h3></div><div class="box texto">${esc(x.estilo)}</div></div>` : ''}
+    ${x.observacoes ? `<div class="sec"><div class="sec-h"><h3>Observações</h3></div><div class="box texto">${esc(x.observacoes)}</div></div>` : ''}
+    <div class="sec box">
+      <label class="f"><span>Situação</span><select data-act-change="status-contato" data-id="${x.id}">${opcoes(ST_CONTATO, x.status)}</select></label>
+      <div class="acoes">
+        ${x.cliente_id && cliente(x.cliente_id)
+          ? `<button class="btn ghost" data-act="ver-cliente" data-id="${x.cliente_id}">Ver cliente</button>`
+          : `<button class="btn" data-act="converter" data-id="${x.id}">Converter em cliente + orçamento</button>`}
+        <button class="btn perigo" data-act="excluir" data-tabela="solicitacoes" data-id="${x.id}" data-aviso="Toque de novo para excluir">Excluir contato</button>
+      </div>
+    </div>`);
+}
+async function mudarStatusContato(id, status){
+  const { error } = await sb.from('solicitacoes').update({ status }).eq('id', id);
+  if (error) return toast(traduzErro(error), true);
+  await carregar(); render(); toast('Situação atualizada');
+  const x = S.contatos.find(c => c.id === id); if (x) formContato(x);
+}
+async function converter(id, btn){
+  const x = S.contatos.find(c => c.id === id); if (!x) return;
+  btn.disabled = true;
+  const pac = PACOTES[x.pacote] || PACOTES.nao_sei;
+  const obs = [
+    x.instagram && 'Instagram: @' + x.instagram, pac && 'Plano de interesse: ' + pac.nome + (pac.mensal ? ` (mensal ${brl(pac.mensal)})` : ''),
+    x.qtd_produtos && 'Peças: ' + QTD[x.qtd_produtos], x.estilo && 'Estilo: ' + x.estilo, x.observacoes && 'Obs.: ' + x.observacoes
+  ].filter(Boolean).join('\n');
+  const { data: cli, error: e1 } = await sb.from('clientes').insert({
+    nome: x.nome, empresa: x.loja, whatsapp: x.whatsapp, cidade: [x.cidade, x.uf].filter(Boolean).join('/') || null, observacoes: obs || null
+  }).select().single();
+  if (e1) { btn.disabled = false; return toast(traduzErro(e1), true); }
+  const { error: e2 } = await sb.from('projetos').insert({
+    cliente_id: cli.id, titulo: 'Loja virtual — ' + x.loja, tipo: 'loja_virtual', status: 'orcamento',
+    valor: pac.implantacao || 0, descricao: pac.mensal ? `Plano ${pac.nome}: implantação ${brl(pac.implantacao)} + ${brl(pac.mensal)}/mês.` : null
+  });
+  const { error: e3 } = await sb.from('solicitacoes').update({ status:'convertida', cliente_id: cli.id }).eq('id', x.id);
+  await carregar(); render();
+  if (e2 || e3) toast('Cliente criado, mas houve um erro: ' + traduzErro(e2 || e3), true);
+  else toast('Cliente e orçamento criados');
+  formCliente(cliente(cli.id));
 }
 
 /* ===== Janela (sheet) — o botão voltar do celular fecha ===== */
@@ -557,6 +661,9 @@ document.addEventListener('click', async e => {
   else if (act === 'novo-projeto') formProjeto({}, el.dataset.cliente);
   else if (act === 'ver-projeto') { const p = projeto(id); if (p) formProjeto(p); }
   else if (act === 'filtro') { S.filtro = el.dataset.f; render(); }
+  else if (act === 'filtro-contato') { S.filtroContato = el.dataset.f; render(); }
+  else if (act === 'ver-contato') { const x = S.contatos.find(c => c.id === id); if (x) formContato(x); }
+  else if (act === 'converter') await converter(id, el);
   else if (act === 'pago') { el.disabled = true; await marcarPago(id, el.dataset.v === '1'); }
   else if (act === 'excluir') await excluir(el);
   else if (act === 'sair') { await sb.auth.signOut(); sair(); }
@@ -569,6 +676,10 @@ document.addEventListener('submit', async e => {
   const btn = f.querySelector('[type=submit]');
   btn.disabled = true;
   try { await salvar(f); } finally { if (btn.isConnected) btn.disabled = false; }
+});
+
+document.addEventListener('change', e => {
+  if (e.target.dataset.actChange === 'status-contato') mudarStatusContato(e.target.dataset.id, e.target.value);
 });
 
 document.addEventListener('input', e => {
@@ -607,7 +718,7 @@ async function entrar(){
 }
 function sair(){
   S.logado = false;
-  Object.assign(S, { clientes:[], projetos:[], pagamentos:[], resumo:[], busca:'', tab:'resumo' });
+  Object.assign(S, { clientes:[], projetos:[], pagamentos:[], resumo:[], contatos:[], busca:'', tab:'resumo' });
   if (!$('#sheet').hidden) esconderSheet();
   $('#app').hidden = true;
   $('#login').hidden = false;
