@@ -34,6 +34,7 @@ a{color:inherit}
 .top .wrap{display:flex;align-items:center;gap:6px;padding:10px 12px}
 .marca{flex:1;text-align:center;font-size:23px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ac-d)}
 .marca svg{width:30px;height:30px;flex:none}
+.marca span{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:500;color:#5b5560;letter-spacing:-.4px;text-transform:lowercase}
 .ib{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;position:relative;flex:none}
 .ib svg{width:23px;height:23px}
 .cnt{position:absolute;top:3px;right:2px;background:var(--ac);color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
@@ -209,13 +210,14 @@ footer a{font-weight:600}
    ========================================================= */
 const LOJA = {
   nome: 'Rosa Chic',
-  slogan: 'Moda feminina com charme para todos os momentos',
+  slogan: 'Buscamos a essência do seu dia e transformamos em peças que vão te deixar ainda mais bonita!',
+  lojas: ['Bingen', 'Rua Teresa 01', 'Rua Teresa 02', 'Feirão das Malhas', 'Três Rios'],
   whats: '5521971101835',            // WhatsApp que recebe os pedidos (com 55 + DDD)
-  instagram: '',      // sem @
-  cidade: 'Atendimento e pedidos pelo WhatsApp',
+  instagram: 'rosachicoficiall',      // sem @
+  cidade: '5 lojas físicas e pedidos pelo WhatsApp',
   descontoPix: 5,                    // % de desconto no Pix (0 = sem desconto)
   parcelas: 3,                       // parcelas sem juros no cartão (0 = não mostrar)
-  beneficios: ['5% off no Pix', 'Até 3x sem juros', 'Envio para todo o Brasil', 'Troca em até 7 dias'],
+  beneficios: ['5 lojas físicas', 'Retire na loja mais perto', '5% off no Pix', 'Até 3x sem juros'],
   destaque: { selo: 'Nova coleção', titulo: 'Coleção Verão', texto: 'Peças leves e femininas, com aquele toque chic para o calor.', botao: 'Ver novidades' },
   // Modo demonstração: o pedido não vai para o WhatsApp da loja; mostra como chegaria.
   demo: true,
@@ -337,13 +339,13 @@ function toast(m){ const t = $('#toast'); t.textContent = m; t.className = 'show
 
 /* ===== montagem fixa ===== */
 document.title = LOJA.demo ? `${LOJA.nome} — prévia da loja virtual` : LOJA.nome;
-$('#marca').innerHTML = LOGO + '<span>' + esc(LOJA.nome) + '</span>';
+$('#marca').innerHTML = LOGO + '<span>rosachic</span>';
 if (LOJA.demo) { $('#demo').hidden = false; $('#demo-link').href = LOJA.demoLink; }
 $('#zap').href = `https://wa.me/${LOJA.demo ? LOJA.demoWhats : LOJA.whats}?text=${encodeURIComponent(LOJA.demo ? 'Olá! Vi a prévia do site da Rosa Chic e quero saber mais.' : `Olá, ${LOJA.nome}! Vim pelo site.`)}`;
 const D = LOJA.destaque;
 $('#hero').innerHTML = `${peca('vestido', '#c2185b')}<small>${esc(D.selo)}</small><h1 class="serif">${esc(D.titulo)}</h1><p>${esc(D.texto)}</p><button data-act="novidades">${esc(D.botao)}</button>`;
 $('#benef').innerHTML = LOJA.beneficios.map(b => `<span>${esc(b)}</span>`).join('');
-$('#rodape').innerHTML = `<span class="marca serif">${esc(LOJA.nome)}</span>${esc(LOJA.slogan)}<br>${esc(LOJA.cidade)}
+$('#rodape').innerHTML = `<span class="marca serif">${esc(LOJA.nome)}</span>${esc(LOJA.slogan)}<br>${esc(LOJA.cidade)}<br><small>Lojas: ${LOJA.lojas.map(esc).join(' · ')}</small>
   <p style="margin-top:10px">${LOJA.instagram ? `<a href="https://instagram.com/${esc(LOJA.instagram)}" target="_blank" rel="noopener">@${esc(LOJA.instagram)}</a> · ` : ''}<a href="${$('#zap').href}" target="_blank" rel="noopener">WhatsApp</a></p>
   <p class="credito">Loja criada pela <a href="${esc(LOJA.demoLink)}" target="_blank" rel="noopener">Portfólio BR</a></p>`;
 
@@ -463,6 +465,7 @@ function htmlSacola(){
       <div class="f"><span>Entrega</span><div class="opc" style="grid-template-columns:1fr 1fr">
         <label><input type="radio" name="entrega" value="Envio pelos Correios/transportadora" checked><span>Receber em casa</span></label>
         <label><input type="radio" name="entrega" value="Retirar na loja"><span>Retirar na loja</span></label></div></div>
+      <label class="f"><span>Qual loja vai atender você?</span><select name="loja" required style="height:46px;border-radius:12px;border:1px solid var(--line);padding:0 12px;background:var(--card)">${LOJA.lojas.map(l => `<option>${esc(l)}</option>`).join('')}</select></label>
       <div class="f"><span>Pagamento</span><div class="opc">
         <label><input type="radio" name="pag" value="Pix" checked><span>Pix${LOJA.descontoPix ? `<br>−${LOJA.descontoPix}%` : ''}</span></label>
         <label><input type="radio" name="pag" value="Cartão"><span>Cartão</span></label>
@@ -475,7 +478,7 @@ function mensagem(dados){
   const t = totais(), cod = 'PED-' + Date.now().toString(36).slice(-5).toUpperCase();
   const pix = dados.pag === 'Pix' && LOJA.descontoPix;
   return [
-    `Olá! Quero fazer este pedido na *${LOJA.nome}* (${cod}):`, '',
+    `Olá! Quero fazer este pedido na *${LOJA.nome} — loja ${dados.loja}* (${cod}):`, '',
     ...S.sacola.map(i => { const p = prod(i.id); return `• ${i.q}x ${p.nome} — ${i.cor}, ${i.tam} — ${brl(p.preco * i.q)}`; }), '',
     `Subtotal: ${brl(t.sub)}`,
     `Pagamento: ${dados.pag}${pix ? ` (${LOJA.descontoPix}% off) — *${brl(t.pix)}*` : ''}`,
@@ -495,7 +498,7 @@ function enviarPedido(f){
   const msg = mensagem(d);
   if (!LOJA.demo) { window.open(`https://wa.me/${LOJA.whats}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener'); return; }
   abrir('Pedido pronto!', `
-    <p class="explica">Na loja de verdade, ao tocar em enviar, <b>esta mensagem chega no WhatsApp da lojista</b>, já com peça, cor, tamanho, total e forma de pagamento. Sem perguntas repetidas no direct.</p>
+    <p class="explica">No site de verdade, ao tocar em enviar, <b>esta mensagem chega direto no WhatsApp da loja ${esc(d.loja)}</b>, já com peça, cor, tamanho, total e forma de pagamento. A cliente não precisa escolher número nem repetir nada no direct.</p>
     <div class="zapbg"><div class="balao">${esc(msg).replace(/\*([^*]+)\*/g, '<b>$1</b>')}</div></div>
     <div class="pad" style="margin-top:16px;display:grid;gap:10px">
       <a class="btn ac" href="${esc(LOJA.demoLink)}" target="_blank" rel="noopener">Quero minha loja assim</a>
