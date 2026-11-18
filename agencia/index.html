@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Loja virtual para lojas de roupa — Dev Marketing</title>
+<meta name="description" content="Montamos a loja virtual da sua marca de roupas: catálogo com tamanho e cor, pedido direto no seu WhatsApp, Pix e cartão. Atendemos todo o Brasil.">
+<meta name="theme-color" content="#6d28d9">
+<meta property="og:title" content="Sua loja de roupas vendendo pelo site — Dev Marketing">
+<meta property="og:description" content="A cliente escolhe tamanho e cor sozinha e o pedido chega pronto no seu WhatsApp. Atendemos todo o Brasil.">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#6d28d9;--p-dark:#4c1d95;--p-soft:#ede9fe;--p-tint:#f6f3ff;--ink:#1c1530;--mute:#554d6b;--line:#e7e2f3;--bg:#fbfaff;--card:#fff;--ok:#0f7a55}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
+a{color:inherit}
+:focus-visible{outline:3px solid #c4b5fd;outline-offset:2px}
+.w{max-width:680px;margin:0 auto;padding:0 18px}
+section{padding:44px 0}
+h2{font-size:26px;line-height:1.15;letter-spacing:-.6px}
+.lead{color:var(--mute);margin-top:8px}
+.kicker{font-size:12.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--p)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:0 22px;border-radius:14px;font-weight:700;text-decoration:none;border:0;font-size:16px;cursor:pointer}
+.btn.pri{background:var(--p);color:#fff;box-shadow:0 10px 24px rgba(109,40,217,.28)}
+.btn.sec{background:var(--card);color:var(--p-dark);border:1px solid var(--line)}
+.btn.zap{background:#25d366;color:#0b3d22}
+.btns{display:grid;gap:10px;margin-top:22px}
+@media(min-width:560px){.btns{grid-template-columns:1fr 1fr}}
+
+/* topo */
+.nav{position:sticky;top:0;z-index:10;background:rgba(251,250,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .w{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;letter-spacing:-.4px;text-decoration:none}
+.logo svg{width:30px;height:30px}.logo b{font-weight:500;opacity:.7}
+.nav a.cta{font-size:14px;font-weight:700;background:var(--p);color:#fff;padding:9px 14px;border-radius:999px;text-decoration:none}
+
+/* hero */
+.hero{background:linear-gradient(160deg,#2e1065,#5b21b6 55%,#7c3aed);color:#fff;padding:46px 0 52px}
+.hero .kicker{color:#d8ccff}
+.hero h1{font-size:34px;line-height:1.08;letter-spacing:-1px;margin-top:10px}
+.hero p{margin-top:14px;color:#e6defe;font-size:17px;max-width:32ch}
+.hero .btn.sec{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+.selos{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.selos span{font-size:13px;font-weight:600;background:rgba(255,255,255,.12);padding:6px 11px;border-radius:999px}
+
+/* dores */
+.dores{display:grid;gap:10px;margin-top:20px}
+.dor{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.dor i{font-style:normal;flex:none;width:30px;height:30px;border-radius:50%;background:#fde8eb;color:#b42335;display:grid;place-items:center;font-weight:800}
+.dor b{display:block}
+.dor span{color:var(--mute);font-size:14.5px}
+
+/* recursos */
+.rec{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.rec div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.rec b{display:block;font-size:15px;margin-top:6px}
+.rec span{font-size:13.5px;color:var(--mute)}
+.rec svg{width:26px;height:26px;color:var(--p)}
+
+/* demo */
+.demo-box{background:var(--p-tint);border-radius:24px;padding:26px 18px;text-align:center}
+.celular{width:300px;max-width:100%;height:600px;margin:20px auto 0;border-radius:36px;border:10px solid var(--ink);overflow:hidden;background:#fff;box-shadow:0 24px 50px rgba(28,21,48,.25)}
+.celular iframe{width:100%;height:100%;border:0;display:block}
+
+/* passos */
+.passos{list-style:none;margin-top:20px;display:grid;gap:12px;counter-reset:p}
+.passos li{counter-increment:p;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 14px 60px;position:relative}
+.passos li::before{content:counter(p);position:absolute;left:16px;top:14px;width:30px;height:30px;border-radius:50%;background:var(--p);color:#fff;font-weight:800;display:grid;place-items:center}
+.passos b{display:block}
+.passos span{color:var(--mute);font-size:14.5px}
+
+/* planos */
+.planos{display:grid;gap:14px;margin-top:22px}
+.plano{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;position:relative}
+.plano.dest{border:2px solid var(--p);box-shadow:0 14px 34px rgba(109,40,217,.14)}
+.plano .tag{position:absolute;top:-12px;left:20px;background:var(--p);color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px}
+.plano h3{font-size:20px}
+.plano .pr{margin-top:8px;font-size:30px;font-weight:800;letter-spacing:-.8px}
+.plano .pr small{font-size:15px;font-weight:600;color:var(--mute);letter-spacing:0}
+.plano .imp{font-size:14px;color:var(--mute)}
+.plano ul{list-style:none;margin:14px 0 18px;display:grid;gap:7px}
+.plano li{padding-left:26px;position:relative;font-size:15px}
+.plano li::before{content:'';position:absolute;left:2px;top:5px;width:14px;height:8px;border-left:2.5px solid var(--ok);border-bottom:2.5px solid var(--ok);transform:rotate(-45deg)}
+.obs{font-size:13.5px;color:var(--mute);margin-top:14px}
+
+/* faq */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 16px;margin-top:10px}
+summary{font-weight:700;padding:15px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';color:var(--p);font-size:22px;line-height:1}
+details[open] summary::after{content:'−'}
+details p{color:var(--mute);padding-bottom:15px;font-size:15px}
+
+.final{background:var(--ink);color:#fff;text-align:center;border-radius:24px;padding:34px 20px}
+.final p{color:#cfc8e6;margin-top:8px}
+footer{text-align:center;color:var(--mute);font-size:13.5px;padding:24px 18px calc(30px + env(safe-area-inset-bottom))}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="w">
+  <a class="logo" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#6d28d9"/><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 10.5 7 16l5.5 5.5"/><path d="M16.5 21.5 25 11.5M19 11h6v6"/></g></svg><span>dev<b>marketing</b></span></a>
+  <a class="cta" href="comecar.html">Quero minha loja</a>
+</div></nav>
+
+<header class="hero"><div class="w">
+  <div class="kicker">Para lojas de roupa · todo o Brasil</div>
+  <h1>Sua loja de roupas vendendo pelo site, não só pelo direct.</h1>
+  <p>A cliente escolhe a peça, o tamanho e a cor sozinha, e o pedido chega pronto no seu WhatsApp. A gente monta tudo: você só manda as fotos.</p>
+  <div class="btns">
+    <a class="btn pri" style="background:#fff;color:var(--p-dark)" href="../moda/">Ver loja de exemplo</a>
+    <a class="btn sec" href="comecar.html">Quero minha loja</a>
+  </div>
+  <div class="selos"><span>Feita para celular</span><span>Pix e cartão</span><span>Estoque por tamanho e cor</span><span>100% online</span></div>
+</div></header>
+
+<section><div class="w">
+  <div class="kicker">Parece familiar?</div>
+  <h2>Vender só pelo direct dá trabalho e perde venda.</h2>
+  <div class="dores">
+    <div class="dor"><i>!</i><div><b>"Qual o valor?" o dia inteiro</b><span>Você responde preço, tamanho e cor uma por uma, e muita gente some antes de comprar.</span></div></div>
+    <div class="dor"><i>!</i><div><b>Estoque no caderno ou na cabeça</b><span>Vende um M que já tinha acabado e precisa desmarcar com a cliente.</span></div></div>
+    <div class="dor"><i>!</i><div><b>Cliente de madrugada sem resposta</b><span>Quem chega fora do horário não tem onde ver as peças e comprar na hora.</span></div></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="kicker">O que você recebe</div>
+  <h2>Uma loja com a cara da sua marca.</h2>
+  <div class="rec">
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><b>Feita para celular</b><span>Rápida e fácil para quem vem do Instagram.</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4M20 12H4M20 17H4"/></svg><b>Tamanho e cor</b><span>Estoque separado por variação; esgotado some sozinho.</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-4-7.5L21 3v5h-5"/></svg><b>Pedido no WhatsApp</b><span>Chega organizado: peça, tamanho, total e pagamento.</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><b>Pix e cartão</b><span>No plano Completa, pagamento direto na loja.</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 16l4-4 3 3 5-6"/></svg><b>Link de cada peça</b><span>Mande no direct ou no story o link direto do produto.</span></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg><b>A gente cuida</b><span>Cadastro das peças, ajustes e suporte pelo WhatsApp.</span></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="demo-box">
+    <div class="kicker">Teste agora</div>
+    <h2>Veja como fica no celular</h2>
+    <p class="lead">Loja de exemplo com marca fictícia. Escolha uma peça e faça um pedido de teste.</p>
+    <div class="celular"><iframe src="../moda/" title="Loja de exemplo" loading="lazy"></iframe></div>
+    <div class="btns" style="grid-template-columns:1fr"><a class="btn sec" href="../moda/">Abrir em tela cheia</a></div>
+  </div>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="kicker">Como funciona</div>
+  <h2>Tudo pela internet, sem sair da sua loja.</h2>
+  <ol class="passos">
+    <li><b>Você preenche o formulário</b><span>Leva 2 minutos: nome da loja, Instagram e o que você vende.</span></li>
+    <li><b>Conversamos no WhatsApp</b><span>Combinamos o plano, as cores e você manda as fotos e os preços.</span></li>
+    <li><b>Montamos a sua loja</b><span>Você recebe o link para conferir no celular e pedir ajustes.</span></li>
+    <li><b>Loja no ar</b><span>Coloque o link na bio e comece a mandar para as clientes.</span></li>
+  </ol>
+</div></section>
+
+<section style="padding-top:0" id="planos"><div class="w">
+  <div class="kicker">Planos</div>
+  <h2>Escolha o tamanho certo para agora.</h2>
+  <div class="planos" id="planos-lista"></div>
+  <p class="obs">Implantação paga uma vez. Mensalidade inclui hospedagem, suporte e ajustes. Domínio próprio (.com.br) é opcional e pago à parte, direto no Registro.br. Cancele quando quiser.</p>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="kicker">Dúvidas</div>
+  <h2>Perguntas frequentes</h2>
+  <details><summary>Vocês atendem a minha cidade?</summary><p>Atendemos lojas de todo o Brasil. Todo o processo é feito pela internet e pelo WhatsApp.</p></details>
+  <details><summary>Quem cadastra as roupas?</summary><p>A gente. Você manda as fotos, os preços, os tamanhos e as cores, e nós cadastramos. Nos planos mensais também atualizamos quando chega coleção nova.</p></details>
+  <details><summary>Preciso ter CNPJ?</summary><p>Não para a loja com pedido pelo WhatsApp. Para receber cartão direto na loja (plano Completa), você precisa de uma conta no Mercado Pago, que aceita CPF ou CNPJ.</p></details>
+  <details><summary>Vocês cobram porcentagem das vendas?</summary><p>Não. Você paga só a implantação e a mensalidade. No pagamento online, o Mercado Pago cobra a taxa dele por venda, como em qualquer loja.</p></details>
+  <details><summary>Posso cancelar?</summary><p>Pode, quando quiser, sem multa. É só avisar com 30 dias de antecedência.</p></details>
+  <details><summary>Já tenho Instagram. Por que ter uma loja?</summary><p>O Instagram atrai a cliente; a loja fecha a venda. Ela mostra preço, tamanho e estoque sem você precisar responder cada mensagem, inclusive fora do horário.</p></details>
+</div></section>
+
+<section style="padding-top:0"><div class="w">
+  <div class="final">
+    <h2>Vamos montar a loja da sua marca?</h2>
+    <p>Preencha o formulário e a gente te chama no WhatsApp.</p>
+    <div class="btns">
+      <a class="btn pri" href="comecar.html">Quero minha loja</a>
+      <a class="btn zap" id="zap-final" target="_blank" rel="noopener">Falar no WhatsApp</a>
+    </div>
+  </div>
+</div></section>
+
+<footer>Dev Marketing · Lojas virtuais para moda · Atendimento em todo o Brasil</footer>
+
+<script>
+/* ===== Configuração: planos e contato ===== */
+const AGENCIA = { whats:'5521971101835' };
+const PLANOS = [
+  { id:'vitrine', nome:'Vitrine', implantacao:300, mensal:50,
+    itens:['Catálogo com fotos, preços, tamanhos e cores','Pedido chega pronto no seu WhatsApp','Até 30 peças cadastradas','Link de cada peça para mandar no direct','Suporte pelo WhatsApp'] },
+  { id:'completa', nome:'Loja Completa', implantacao:800, mensal:90, destaque:'Mais completo',
+    itens:['Tudo do Vitrine','Pagamento por Pix e cartão na própria loja','Estoque por tamanho e cor','Até 150 peças cadastradas','Painel para você acompanhar os pedidos'] },
+  { id:'divulgacao', nome:'Loja + Divulgação', implantacao:800, mensal:190,
+    itens:['Tudo da Loja Completa','8 posts por mês para o Instagram','Atualização das coleções todo mês','Prioridade no suporte'] }
+];
+/* ========================================== */
+
+const brl = n => Number(n).toLocaleString('pt-BR', { style:'currency', currency:'BRL', minimumFractionDigits:0 });
+document.getElementById('planos-lista').innerHTML = PLANOS.map(p => `
+  <div class="plano${p.destaque ? ' dest' : ''}">
+    ${p.destaque ? `<span class="tag">${p.destaque}</span>` : ''}
+    <h3>${p.nome}</h3>
+    <div class="pr">${brl(p.mensal)}<small>/mês</small></div>
+    <div class="imp">+ ${brl(p.implantacao)} de implantação (uma vez)</div>
+    <ul>${p.itens.map(i => `<li>${i}</li>`).join('')}</ul>
+    <a class="btn ${p.destaque ? 'pri' : 'sec'}" href="comecar.html?plano=${p.id}">Quero o ${p.nome}</a>
+  </div>`).join('');
+document.getElementById('zap-final').href = `https://wa.me/${AGENCIA.whats}?text=${encodeURIComponent('Olá! Vi a página da Dev Marketing e quero uma loja virtual para a minha marca de roupas.')}`;
+</script>
+</body>
+</html>
