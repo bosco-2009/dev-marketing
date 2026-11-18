@@ -3,6 +3,7 @@
 Loja de prompts para criar sites com IA. Site estático, feito para celular, em roxo e branco.
 
 - `index.html` — a loja (catálogo, filtros, carrinho, Pix com QR Code, pedido pelo WhatsApp)
+- `admin/` — painel de gestão interno (clientes, projetos e pagamentos), com login e dados no Supabase
 - `demo/` — 9 sites de demonstração, um por prompt
 - `divulgacao/` — imagens para Instagram
 - `manifest.webmanifest` e ícones — atalho na tela inicial do celular

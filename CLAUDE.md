@@ -11,6 +11,14 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 - Preços em reais no catálogo; `totals()` calcula em centavos.
 - Pix: `pixCode()` gera o BR Code estático com CRC16 e o código do pedido como txid.
 
+## Painel de gestão (`admin/`)
+- `admin/index.html`: CRM interno do dono (clientes, projetos, parcelas). Mesmo padrão: um arquivo, sem build, mobile-first.
+- Dados no Supabase, projeto `dev-marketing` (id `ziqjnqtjktzlhqktlday`, região São Paulo). supabase-js v2 via jsDelivr.
+- Tabelas `clientes`, `projetos`, `pagamentos` + view `resumo_projetos` (security_invoker). Todas com RLS: só o dono logado (`owner_id = auth.uid()`) lê e altera.
+- A chave no HTML é a publishable (pública por natureza). Nunca colocar a service_role/secret no site.
+- Cadastro público deve ficar desligado no Supabase; o único usuário é o dono.
+- Mudança de banco: sempre por migration e rodar os advisors de segurança depois.
+
 ## Regras do negócio que não podem ser quebradas
 - Nada de dados inventados: sem avaliações falsas, sem "mais vendidos", sem preço "de/por" fictício. `REVIEWS` vazio oculta a seção.
 - Enviar o pedido não conclui a compra: a entrega só acontece após o Pix cair na conta. O site nunca deve sugerir o contrário.
@@ -24,6 +32,10 @@ Idioma do site e das respostas: português do Brasil. Público acessa pelo celul
 ## Como testar
 Abrir `index.html` num navegador em 390×844. Conferir: portão, filtros, produto, carrinho, cupom BEMVINDO10,
 pagamento (QR aparece), tela "aguardando pagamento", Meus pedidos, comparar prompts, modo escuro, demos.
+
+## Como testar o painel
+Servir a pasta (`python3 -m http.server`) e abrir `/admin/` em 390×844. Conferir: login (erro e acerto), cadastro de cliente,
+projeto, parcela, "Recebi", resumo, botão voltar fechando a janela, exclusão com toque duplo, sair.
 
 ## Pendências
 1. Dono vai criar conta em plataforma de vendas (Kiwify/Hotmart) e enviar links de checkout → preencher `link` em `PRODUCTS`.
