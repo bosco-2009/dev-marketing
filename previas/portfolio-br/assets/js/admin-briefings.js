@@ -57,6 +57,7 @@
       window.PBRAdminPedidos.abrirPorId(b.pedido_id);
     };
 
+    if (window.PBRAvisos) window.PBRAvisos.acompanharAba('briefings', contarNovosNaoVistos);
     carregar();
     estado.canal = sb.channel('painel-briefings')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'briefings' }, function () { clearTimeout(timer); timer = setTimeout(carregar, 300); })
@@ -86,10 +87,20 @@
           if (novidade) {
             if (estado.avisos.tocarSom) estado.avisos.tocarSom();
             if (estado.avisos.atento && !estado.avisos.atento() && estado.avisos.piscarTitulo) estado.avisos.piscarTitulo();
+            var b0 = lista.filter(function (b) { return b.status === 'novo' && estado.conhecidos[b.id] !== b.atualizado_em; })[0];
+            if (estado.avisos.notificar) {
+              estado.avisos.notificar({
+                titulo: estado.conhecidos[b0.id] ? 'Briefing atualizado' : 'Briefing novo!',
+                corpo: 'Pedido ' + ((b0.pedidos && b0.pedidos.codigo) || '') + ((b0.pedidos && b0.pedidos.nome) ? ' · ' + b0.pedidos.nome : ''),
+                aba: 'briefings',
+                tag: 'pbr-briefing-' + b0.id
+              });
+            }
           }
         }
         estado.conhecidos = ids;
         estado.lista = lista;
+        contarNovosNaoVistos();
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
       })
@@ -98,6 +109,14 @@
         vazio.textContent = 'Não foi possível carregar os briefings.';
         vazio.hidden = false;
       });
+  }
+
+  // Contador do título/favicon: briefings "novo" enviados ou editados depois da última visita à aba.
+  function contarNovosNaoVistos() {
+    if (!estado || !window.PBRAvisos) return;
+    window.PBRAvisos.contarNovos('briefings',
+      estado.lista.filter(function (b) { return b.status === 'novo'; }),
+      function (b) { return b.atualizado_em; });
   }
 
   function atual() { return estado && estado.lista.filter(function (b) { return b.id === estado.selecionado; })[0]; }

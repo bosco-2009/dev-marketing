@@ -118,6 +118,22 @@
       }
     ],
 
+    // Comparativo de planos (planos.html#comparativo). Cada linha tem um valor por id de config.planos:
+    // true = incluído, false = não incluído, texto = detalhe. Preço e prazo vêm de config.planos.
+    // [PROVISÓRIO] manter coerente com os "itens" de cada plano acima.
+    comparativo: [
+      { recurso: 'Páginas', valores: { essencial: '1 página (até 6 seções)', profissional: 'Até 5 páginas', premium: 'Até 10 páginas' } },
+      { recurso: 'Design sob medida, pensado para o celular', valores: { essencial: true, profissional: true, premium: true } },
+      { recurso: 'Botão de WhatsApp, Instagram e mapa do Google', valores: { essencial: true, profissional: true, premium: true } },
+      { recurso: 'SEO básico para aparecer no Google', valores: { essencial: true, profissional: true, premium: true } },
+      { recurso: 'Publicação do site', valores: { essencial: true, profissional: true, premium: true } },
+      { recurso: 'Formulário de contato', valores: { essencial: false, profissional: true, premium: true } },
+      { recurso: 'Galeria de fotos dos seus trabalhos', valores: { essencial: false, profissional: true, premium: true } },
+      { recurso: 'Catálogo de produtos ou cardápio com pedido pelo WhatsApp', valores: { essencial: false, profissional: false, premium: true } },
+      { recurso: 'Textos revisados para venda', valores: { essencial: false, profissional: false, premium: true } },
+      { recurso: 'Rodadas de ajustes', valores: { essencial: '1', profissional: '2', premium: '3' } }
+    ],
+
     // [PROVISÓRIO] confirmar cada garantia/política antes de publicar.
     garantias: [
       {

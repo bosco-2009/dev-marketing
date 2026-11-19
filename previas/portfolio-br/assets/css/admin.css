@@ -59,6 +59,8 @@
   color: inherit;
 }
 .admin-botao-icone[aria-pressed='false'] { opacity: 0.7; }
+.admin-botao-icone[hidden] { display: none; }
+.admin-botao-icone[data-estado='bloqueado'] { border-style: dashed; }
 
 /* ---------------- Caixas (login, avisos) ---------------- */
 .admin-principal { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -149,6 +151,7 @@
   flex: 1;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr); /* a linha de respostas rápidas não alarga a coluna */
   min-height: 0;
 }
 .admin-chat[hidden],
@@ -156,7 +159,7 @@
 .admin-briefings[hidden] { display: none; }
 
 .admin-lista { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; background: var(--cor-superficie); }
-.admin-conversa { display: none; flex-direction: column; min-height: 0; }
+.admin-conversa { display: none; flex-direction: column; min-width: 0; min-height: 0; }
 .mostrando-conversa .admin-lista { display: none; }
 .mostrando-conversa .admin-conversa { display: flex; }
 
@@ -375,3 +378,89 @@
   font-size: var(--texto-sm);
 }
 .admin-arquivos__nome { flex: 1 1 10rem; min-width: 0; overflow-wrap: anywhere; }
+
+/* ---------------- Respostas rápidas (melhoria 7) ---------------- */
+.admin-rapidas {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-4) 0;
+  border-top: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+.admin-rapidas[hidden] { display: none; }
+.admin-rapidas + .admin-resposta { border-top: 0; }
+/* uma linha que rola na horizontal dentro da própria caixa (a página não ganha rolagem) */
+.admin-rapidas__lista { display: flex; flex: 1; gap: var(--esp-2); min-width: 0; overflow-x: auto; padding: 3px; scrollbar-width: thin; }
+.admin-rapidas__botao {
+  flex: none;
+  min-height: 2.25rem;
+  padding: var(--esp-1) var(--esp-3);
+  border: 1px solid var(--cor-acao);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-acao-fundo-suave);
+  color: var(--cor-verde-800);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+}
+.admin-rapidas__botao:hover { background: var(--cor-acao); color: var(--cor-acao-texto); }
+.admin-rapidas__editar {
+  flex: none;
+  min-height: 2.25rem;
+  padding: 0 var(--esp-2);
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+}
+
+.admin-dialogo {
+  width: min(36rem, calc(100% - 2 * var(--esp-4)));
+  max-height: calc(100dvh - 2 * var(--esp-4));
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-lg);
+}
+.admin-dialogo::backdrop { background: rgb(11 22 48 / 0.6); }
+.admin-dialogo__form { display: grid; gap: var(--esp-4); padding: var(--esp-5); }
+.admin-dialogo__titulo { font-size: var(--texto-lg); }
+.admin-dialogo__dica { color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.admin-dialogo__itens { display: grid; gap: var(--esp-3); margin: 0; padding: 0; }
+.admin-dialogo__item {
+  display: grid;
+  gap: var(--esp-1);
+  padding: var(--esp-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+}
+.admin-dialogo__rotulo { font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.admin-dialogo__item input,
+.admin-dialogo__item textarea {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-cinza-500);
+  border-radius: var(--raio-sm);
+  font-size: var(--texto-base);
+}
+.admin-dialogo__item textarea { resize: vertical; }
+.admin-dialogo__remover,
+.admin-dialogo__restaurar {
+  justify-self: start;
+  min-height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cor-erro);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+}
+.admin-dialogo__restaurar { margin-right: auto; color: var(--cor-texto); }
+.admin-dialogo__acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--esp-2); }

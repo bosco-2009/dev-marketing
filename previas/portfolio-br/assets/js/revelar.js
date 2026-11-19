@@ -18,7 +18,7 @@
   var ALVOS = [
     ['.secao__cabecalho', false],
     ['.grade-cards > li', true],
-    ['.segmentos', false],
+    ['.grade-segmentos > li', true],
     ['.passos > li', true],
     ['.planos > li', true],
     ['.grade-portfolio > li', true],

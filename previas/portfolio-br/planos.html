@@ -50,6 +50,7 @@
   <script src="assets/js/supabase-client.js" defer></script>
   <script src="assets/js/chat.js" defer></script>
   <script src="assets/js/planos.js" defer></script>
+  <script src="assets/js/comparativo.js" defer></script>
 </head>
 <body>
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -79,6 +80,14 @@
     <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-pausa" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5L8 5.5Z"/></symbol>
+    <symbol id="i-tesoura" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.2 7.3 20 17.5M8.2 16.7 20 6.5"/></symbol>
+    <symbol id="i-prato" viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5"/><path d="M17.5 21V3c-2 1.2-3 3.6-3 6.5V13h3"/></symbol>
+    <symbol id="i-loja" viewBox="0 0 24 24"><path d="M4 10v10h16V10"/><path d="M3 10 5 4h14l2 6c0 1.4-1.1 2.5-2.5 2.5S16 11.4 16 10c0 1.4-1.8 2.5-4 2.5S8 11.4 8 10c0 1.4-1.1 2.5-2.5 2.5S3 11.4 3 10Z"/><path d="M10 20v-4.5h4V20"/></symbol>
+    <symbol id="i-saude" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><path d="M14.5 4.2a4.5 4.5 0 0 0 5.3 5.3L9.4 19.9a2 2 0 0 1-2.8 0l-2.5-2.5a2 2 0 0 1 0-2.8L14.5 4.2Z"/><path d="m14.5 4.2 2.4 2.9"/></symbol>
+    <symbol id="i-pata" viewBox="0 0 24 24"><ellipse cx="12" cy="16.2" rx="4.2" ry="3.6"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.6" cy="6.3" r="1.8"/><circle cx="14.4" cy="6.3" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></symbol>
+    <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></symbol>
+    <symbol id="i-traco" viewBox="0 0 24 24"><path d="M7 12h10"/></symbol>
     <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
@@ -126,6 +135,7 @@
           <fieldset class="checkout__grupo">
             <legend class="checkout__legenda"><span class="checkout__passo" aria-hidden="true">1</span> Escolha o plano</legend>
             <div class="opcoes-plano" data-opcoes-plano></div>
+            <p class="checkout__comparar" data-link-comparativo hidden><a href="#comparativo">Compare tudo o que cada plano inclui</a></p>
             <noscript>
               <p class="aviso-noscript">Ative o JavaScript para contratar online ou fale com a gente pelo
                 <a href="https://www.instagram.com/portifolio_br/">Instagram @portifolio_br</a>.</p>
@@ -185,6 +195,19 @@
             </ol>
           </div>
         </section>
+      </div>
+    </section>
+
+    <!-- Comparativo (linhas em config.js → comparativo). Celular: abas; a partir de 48rem: tabela. Sem JS fica oculto. -->
+    <section class="secao secao--compacta comparativo" id="comparativo" aria-labelledby="comparativo-titulo" tabindex="-1" hidden data-comparativo>
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Comparativo</p>
+          <h2 id="comparativo-titulo" class="secao__titulo">Compare os planos</h2>
+          <p class="secao__descricao">Tudo o que cada plano inclui, lado a lado.</p>
+        </header>
+        <div class="comparativo__abas" data-comparativo-abas></div>
+        <div class="comparativo__tabela" data-comparativo-tabela></div>
       </div>
     </section>
   </main>

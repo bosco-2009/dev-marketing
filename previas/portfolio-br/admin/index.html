@@ -20,7 +20,9 @@
 
   <script src="../config.js" defer></script>
   <script src="../assets/js/supabase-client.js" defer></script>
+  <script src="../assets/js/admin-avisos.js" defer></script>
   <script src="../assets/js/admin.js" defer></script>
+  <script src="../assets/js/admin-respostas.js" defer></script>
   <script src="../assets/js/admin-pedidos.js" defer></script>
   <script src="../assets/js/admin-briefings.js" defer></script>
 </head>
@@ -30,6 +32,8 @@
     <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
     <symbol id="i-som" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-sino-mudo" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="m4 4 16 16"/></symbol>
     <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
   </svg>
 
@@ -44,6 +48,11 @@
         <svg class="icone" aria-hidden="true"><use href="#i-som"/></svg>
         <span class="visualmente-oculto">Som de nova mensagem</span>
       </button>
+      <button class="admin-botao-icone" type="button" aria-pressed="false" data-botao-notificacoes>
+        <svg class="icone" aria-hidden="true"><use href="#i-sino-mudo"/></svg>
+        <span class="visualmente-oculto">Notificações do navegador</span>
+      </button>
+      <span class="visualmente-oculto" role="status" data-notificacoes-dica></span>
       <button class="botao botao--contorno botao--pequeno" type="button" data-sair>Sair</button>
     </div>
   </header>
@@ -129,6 +138,12 @@
 
           <div class="admin-mensagens" role="log" aria-live="polite" aria-label="Mensagens" tabindex="0" data-mensagens></div>
 
+          <!-- Respostas rápidas (admin-respostas.js): modelos salvos só neste navegador (localStorage) -->
+          <div class="admin-rapidas" data-rapidas hidden>
+            <div class="admin-rapidas__lista" role="group" aria-label="Respostas rápidas (inserem o texto na resposta)" data-rapidas-lista></div>
+            <button type="button" class="admin-rapidas__editar" aria-haspopup="dialog" data-rapidas-editar>Editar respostas</button>
+          </div>
+
           <form class="admin-resposta" data-form-resposta novalidate>
             <label class="visualmente-oculto" for="resposta-texto">Resposta</label>
             <textarea id="resposta-texto" rows="2" maxlength="2000" placeholder="Escreva a resposta… (Enter envia, Shift+Enter quebra linha)" required data-resposta-texto></textarea>
@@ -140,6 +155,21 @@
         </div>
       </div>
     </section>
+
+    <dialog class="admin-dialogo" aria-labelledby="rapidas-titulo" data-rapidas-dialogo>
+      <form class="admin-dialogo__form" data-rapidas-form novalidate>
+        <h2 id="rapidas-titulo" class="admin-dialogo__titulo">Respostas rápidas</h2>
+        <p class="admin-dialogo__dica">Ficam salvas só neste navegador. Use <code>{nome}</code> para o primeiro nome do visitante.</p>
+        <ol class="admin-dialogo__itens" role="list" data-rapidas-itens></ol>
+        <button type="button" class="botao botao--contorno botao--pequeno" data-rapidas-adicionar>Adicionar resposta</button>
+        <p class="admin-erro" role="alert" data-rapidas-erro hidden></p>
+        <div class="admin-dialogo__acoes">
+          <button type="button" class="admin-dialogo__restaurar" data-rapidas-restaurar>Restaurar padrões</button>
+          <button type="button" class="botao botao--contorno botao--pequeno" data-rapidas-cancelar>Cancelar</button>
+          <button type="submit" class="botao botao--primario botao--pequeno">Salvar</button>
+        </div>
+      </form>
+    </dialog>
 
     <!-- Pedidos -->
     <section class="admin-pedidos" data-aba="pedidos" hidden aria-labelledby="pedidos-titulo">

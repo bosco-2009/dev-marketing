@@ -62,6 +62,7 @@
       if (item) item.focus();
     };
 
+    if (window.PBRAvisos) window.PBRAvisos.acompanharAba('pedidos', contarPagosNaoVistos);
     carregar();
     // Tempo real (RLS do admin); sem conexão, atualiza a cada 30 s.
     estado.canal = sb.channel('painel-pedidos')
@@ -106,13 +107,31 @@
     var aprovadosAgora = {};
     novos.forEach(function (p) { if (p.status === 'aprovado') aprovadosAgora[p.id] = true; });
     if (estado.conhecidos) {
-      var houveNovo = Object.keys(aprovadosAgora).some(function (id) { return !estado.conhecidos[id]; });
-      if (houveNovo) {
+      var recemPagos = novos.filter(function (p) { return aprovadosAgora[p.id] && !estado.conhecidos[p.id]; });
+      if (recemPagos.length) {
         if (estado.avisos.tocarSom) estado.avisos.tocarSom();
         if (estado.avisos.atento && !estado.avisos.atento() && estado.avisos.piscarTitulo) estado.avisos.piscarTitulo();
+        if (estado.avisos.notificar) {
+          var p0 = recemPagos[0];
+          estado.avisos.notificar({
+            titulo: recemPagos.length === 1 ? 'Pedido pago!' : recemPagos.length + ' pedidos pagos!',
+            corpo: recemPagos.length === 1 ? p0.codigo + ' · ' + (p0.plano_nome || 'plano') + ' · ' + fReal.format(p0.valor_centavos / 100) : 'Veja os pedidos aprovados no painel.',
+            aba: 'pedidos',
+            tag: 'pbr-pedido-' + p0.id
+          });
+        }
       }
     }
     estado.conhecidos = aprovadosAgora;
+    contarPagosNaoVistos();
+  }
+
+  // Contador do título/favicon: pedidos pagos depois da última visita à aba Pedidos.
+  function contarPagosNaoVistos() {
+    if (!estado || !window.PBRAvisos) return;
+    window.PBRAvisos.contarNovos('pedidos',
+      estado.pedidos.filter(function (p) { return p.status === 'aprovado'; }),
+      function (p) { return p.pago_em || p.atualizado_em; });
   }
 
   function filtrados() {

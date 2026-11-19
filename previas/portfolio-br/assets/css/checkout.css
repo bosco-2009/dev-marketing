@@ -263,3 +263,105 @@
   background: var(--cor-superficie);
   font-size: var(--texto-xs);
 }
+
+/* ===================== Comparativo de planos (planos.html#comparativo) ===================== */
+.checkout__comparar { margin-top: var(--esp-3); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.checkout__comparar[hidden], .comparativo[hidden] { display: none; }
+.comparativo { background: var(--cor-fundo-suave); }
+.comparativo:focus { outline: none; }
+
+/* Celular: abas */
+.comparativo__lista-abas {
+  display: flex;
+  gap: var(--esp-1);
+  padding: var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+.comparativo__aba {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--esp-2) var(--esp-2);
+  border: 0;
+  border-radius: var(--raio-pilula);
+  background: transparent;
+  color: var(--cor-texto);
+  font: inherit;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-negrito);
+  cursor: pointer;
+}
+.comparativo__aba[aria-selected="true"] { background: var(--cor-fundo-escuro); color: var(--cor-texto-invertido); }
+.comparativo__aba:focus-visible { outline: 3px solid var(--cor-foco); outline-offset: 2px; }
+.comparativo__painel {
+  margin-top: var(--esp-4);
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-sm);
+}
+.comparativo__painel--destaque { border: 2px solid var(--cor-acao); }
+.comparativo__painel[hidden] { display: none; }
+.comparativo__painel:focus-visible { outline: 3px solid var(--cor-foco); outline-offset: 2px; }
+.comparativo__painel-topo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.comparativo__painel-nome { font-size: var(--texto-lg); font-weight: var(--peso-extra); }
+.comparativo__itens { margin: var(--esp-4) 0 var(--esp-5); }
+.comparativo__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  padding: var(--esp-3) 0;
+  border-top: 1px solid var(--cor-borda);
+  font-size: var(--texto-sm);
+}
+.comparativo__item:first-child { border-top: 0; }
+.comparativo__item--nao .comparativo__recurso { color: var(--cor-texto-suave); }
+.comparativo__recurso { min-width: 0; }
+.comparativo__valor { flex: none; max-width: 50%; font-weight: var(--peso-negrito); text-align: right; }
+.comparativo__valor--sim { color: var(--cor-acao); }
+.comparativo__valor--nao { color: var(--cor-texto-suave); }
+.comparativo__valor .icone { width: 1.25rem; height: 1.25rem; }
+.comparativo__escolher { width: 100%; }
+.tabela-comparativa__selo {
+  display: inline-block;
+  padding: 0.15rem var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-destaque);
+  color: var(--cor-noite-900);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-negrito);
+}
+
+/* A partir de 48rem: tabela (as abas somem) */
+.comparativo__tabela { display: none; }
+@media (min-width: 48rem) {
+  .comparativo__abas { display: none; }
+  .comparativo__tabela { display: block; }
+}
+.tabela-comparativa {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-sm);
+  font-size: var(--texto-sm);
+}
+.tabela-comparativa th,
+.tabela-comparativa td { padding: var(--esp-3) var(--esp-4); border-top: 1px solid var(--cor-borda); vertical-align: middle; }
+.tabela-comparativa thead th,
+.tabela-comparativa thead td { border-top: 0; }
+.tabela-comparativa tbody th { width: 34%; font-weight: var(--peso-semi); text-align: left; }
+.tabela-comparativa td { text-align: center; }
+.tabela-comparativa td .comparativo__valor { display: inline-flex; justify-content: center; max-width: none; text-align: center; }
+.tabela-comparativa__plano { padding-top: var(--esp-5); text-align: center; vertical-align: bottom; }
+.tabela-comparativa__plano .tabela-comparativa__selo { margin-bottom: var(--esp-2); }
+.tabela-comparativa__nome { display: block; font-size: var(--texto-lg); font-weight: var(--peso-extra); }
+.tabela-comparativa__plano--destaque,
+.tabela-comparativa__destaque { background: var(--cor-acao-fundo-suave); }
+.tabela-comparativa__acoes td { padding-block: var(--esp-4) var(--esp-5); }
+.tabela-comparativa__acoes .botao { width: 100%; }

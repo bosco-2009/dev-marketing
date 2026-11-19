@@ -106,7 +106,7 @@
     resumo.appendChild(ul);
     var url = new URL(location.href);
     url.searchParams.set('plano', p.id);
-    history.replaceState(null, '', url.pathname + url.search);
+    history.replaceState(null, '', url.pathname + url.search + url.hash); // mantém #comparativo
   }
   opcoes.addEventListener('change', atualizarResumo);
   atualizarResumo();

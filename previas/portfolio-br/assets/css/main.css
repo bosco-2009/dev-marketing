@@ -657,17 +657,49 @@ a:hover { color: var(--cor-acao-hover); }
 .card__titulo { font-size: var(--texto-lg); }
 .card__texto { margin-top: var(--esp-2); color: var(--cor-texto-suave); }
 
-.segmentos { margin-top: var(--esp-7); }
-.segmentos__titulo { font-weight: var(--peso-negrito); margin-bottom: var(--esp-3); }
-.segmentos__lista { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
-.segmentos__lista li {
-  padding: var(--esp-2) var(--esp-4);
-  border-radius: var(--raio-pilula);
+/* ===================== Para quem é (segmentos) ===================== */
+.grade-segmentos { display: grid; gap: var(--esp-4); }
+@media (min-width: 40rem) { .grade-segmentos { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .grade-segmentos { grid-template-columns: repeat(4, 1fr); gap: var(--esp-5); } }
+.segmento {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--esp-5);
+  border-radius: var(--raio-lg);
   background: var(--cor-fundo-suave);
   border: 1px solid var(--cor-borda);
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-semi);
 }
+.segmento__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--esp-4);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-destaque);
+}
+.segmento__icone .icone { width: 1.5rem; height: 1.5rem; }
+.segmento__titulo { font-size: var(--texto-md); }
+.segmento__texto { margin-top: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.segmento__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  min-height: 2.75rem;
+  margin-top: auto;
+  padding-top: var(--esp-3);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-negrito);
+}
+.segmento--outro { background: var(--cor-fundo-escuro); border-color: var(--cor-fundo-escuro); color: var(--cor-texto-invertido); }
+.segmento--outro .segmento__icone { background: var(--cor-destaque); color: var(--cor-noite-900); }
+.segmento--outro .segmento__texto { color: var(--cor-texto-invertido-suave); }
+.segmento--outro .segmento__link { color: var(--cor-destaque); }
+.segmento--outro .segmento__link:hover { color: var(--cor-texto-invertido); }
+.segmento__link .icone { width: 1rem; height: 1rem; transition: transform var(--duracao-rapida) var(--curva-padrao); }
+.segmento__link:hover .icone { transform: translateX(3px); }
 
 /* ===================== Passos ===================== */
 .passos { display: grid; gap: var(--esp-4); counter-reset: passo; }
@@ -963,3 +995,6 @@ a:hover { color: var(--cor-acao-hover); }
   border-top: 1px solid rgb(255 255 255 / 0.1);
   font-size: var(--texto-xs);
 }
+
+/* Link da home para o comparativo de planos (item 5) */
+.planos__comparar { margin-top: var(--esp-6); font-weight: var(--peso-semi); text-align: center; }

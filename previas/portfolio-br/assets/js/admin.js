@@ -11,6 +11,11 @@
   var LIMITE_MENSAGENS = 500;
   var CHAVE_SOM = 'pbr_admin_som';
   var TITULO_ORIGINAL = document.title;
+  // Contador no título/favicon e notificações do navegador (admin-avisos.js); sem ele, só o título original.
+  var AVISOS = window.PBRAvisos || {
+    definir: function () {}, tituloBase: function () { return TITULO_ORIGINAL; },
+    notificar: function () {}, limpar: function () {}, piscando: function () {}
+  };
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -98,7 +103,7 @@
         if (r.data !== true) { encerrarChat(); encerrarPedidos(); mostrarTela('negado'); return; }
         mostrarTela('painel');
         iniciarChat();
-        var avisos = { tocarSom: tocarSom, piscarTitulo: piscarTitulo, atento: atento };
+        var avisos = { tocarSom: tocarSom, piscarTitulo: piscarTitulo, atento: atento, notificar: AVISOS.notificar };
         if (window.PBRAdminPedidos) window.PBRAdminPedidos.iniciar(sb, avisos);
         if (window.PBRAdminBriefings) window.PBRAdminBriefings.iniciar(sb, avisos);
       }).catch(function () {
@@ -203,19 +208,20 @@
     function piscarTitulo() {
       novasNoTitulo += 1;
       if (timerTitulo) return;
+      AVISOS.piscando(true);
       var alterna = false;
       timerTitulo = setInterval(function () {
         alterna = !alterna;
         document.title = alterna
           ? '(' + novasNoTitulo + ') ' + (novasNoTitulo === 1 ? 'Nova mensagem!' : 'Novas mensagens!')
-          : TITULO_ORIGINAL;
+          : AVISOS.tituloBase();
       }, 1000);
     }
     function pararTitulo() {
       clearInterval(timerTitulo);
       timerTitulo = null;
       novasNoTitulo = 0;
-      document.title = TITULO_ORIGINAL;
+      AVISOS.piscando(false); // volta ao título base, com o contador de não lidas se houver
     }
     function atento() { return !document.hidden && document.hasFocus(); }
     window.addEventListener('focus', function () {
@@ -258,6 +264,7 @@
       conversaVazia.hidden = false;
       secaoChat.classList.remove('mostrando-conversa');
       pararTitulo();
+      AVISOS.limpar();
     }
 
     function ligarRealtime() {
@@ -331,6 +338,7 @@
       var visiveis = estado.conversas.filter(function (c) { return estado.filtro === 'todas' || c.status === estado.filtro; });
       lista.textContent = '';
       listaVazia.hidden = visiveis.length > 0;
+      AVISOS.definir('conversas', totalNaoLidas());
 
       visiveis.forEach(function (c) {
         var li = el('li');
@@ -461,6 +469,11 @@
         notificadas[m.id] = true;
         var vendo = atento() && m.conversa_id === estado.selecionada && secaoChat.classList.contains('mostrando-conversa');
         if (!vendo) { tocarSom(); if (!atento()) piscarTitulo(); }
+        // Notificação do navegador (só fora de foco): sem o texto da mensagem, que pode aparecer na tela bloqueada.
+        var conversa = conversaPorId(m.conversa_id);
+        AVISOS.notificar(conversa
+          ? { titulo: 'Nova mensagem no chat', corpo: 'De ' + (conversa.nome || 'visitante sem nome') + '. Toque para responder.', aba: 'conversas', tag: 'pbr-conversa-' + m.conversa_id }
+          : { titulo: 'Nova conversa no chat', corpo: 'Um visitante começou uma conversa no site.', aba: 'conversas', tag: 'pbr-conversa-' + m.conversa_id });
       }
       agendarRecarga();
     }

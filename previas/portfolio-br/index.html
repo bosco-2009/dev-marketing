@@ -120,6 +120,14 @@
     <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-pausa" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5L8 5.5Z"/></symbol>
+    <symbol id="i-tesoura" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.2 7.3 20 17.5M8.2 16.7 20 6.5"/></symbol>
+    <symbol id="i-prato" viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5"/><path d="M17.5 21V3c-2 1.2-3 3.6-3 6.5V13h3"/></symbol>
+    <symbol id="i-loja" viewBox="0 0 24 24"><path d="M4 10v10h16V10"/><path d="M3 10 5 4h14l2 6c0 1.4-1.1 2.5-2.5 2.5S16 11.4 16 10c0 1.4-1.8 2.5-4 2.5S8 11.4 8 10c0 1.4-1.1 2.5-2.5 2.5S3 11.4 3 10Z"/><path d="M10 20v-4.5h4V20"/></symbol>
+    <symbol id="i-saude" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><path d="M14.5 4.2a4.5 4.5 0 0 0 5.3 5.3L9.4 19.9a2 2 0 0 1-2.8 0l-2.5-2.5a2 2 0 0 1 0-2.8L14.5 4.2Z"/><path d="m14.5 4.2 2.4 2.9"/></symbol>
+    <symbol id="i-pata" viewBox="0 0 24 24"><ellipse cx="12" cy="16.2" rx="4.2" ry="3.6"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.6" cy="6.3" r="1.8"/><circle cx="14.4" cy="6.3" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></symbol>
+    <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></symbol>
+    <symbol id="i-traco" viewBox="0 0 24 24"><path d="M7 12h10"/></symbol>
     <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   </svg>
 
@@ -294,18 +302,74 @@
             <p class="card__texto">Cores, fotos e textos alinhados à identidade do seu negócio, sem cara de modelo pronto.</p>
           </li>
         </ul>
+      </div>
+    </section>
 
-        <div class="segmentos">
-          <p class="segmentos__titulo" id="segmentos-titulo">Ideal para</p>
-          <ul class="segmentos__lista" role="list" aria-labelledby="segmentos-titulo">
-            <li>Salões e barbearias</li>
-            <li>Restaurantes e lanchonetes</li>
-            <li>Lojas e confeitarias</li>
-            <li>Consultórios e clínicas</li>
-            <li>Oficinas e serviços</li>
-            <li>Autônomos e profissionais liberais</li>
-          </ul>
-        </div>
+    <!-- ===================== PARA QUEM É (links para os sites de EXEMPLO, item 3) ===================== -->
+    <section class="secao" id="para-quem" aria-labelledby="para-quem-titulo">
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Para quem é</p>
+          <h2 id="para-quem-titulo" class="secao__titulo">Feito para pequenos negócios como o seu</h2>
+          <p class="secao__descricao">Cada segmento tem um jeito de vender. O site é pensado para o seu.</p>
+        </header>
+
+        <ul class="grade-segmentos" role="list">
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-tesoura"/></svg></span>
+            <h3 class="segmento__titulo">Salões e barbearias</h3>
+            <p class="segmento__texto">Mostre seus cortes e serviços e deixe o cliente chamar no WhatsApp para marcar horário.</p>
+            <a class="segmento__link" href="exemplos/beleza.html">Ver exemplo<span class="visualmente-oculto"> de site de salão de beleza</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-prato"/></svg></span>
+            <h3 class="segmento__titulo">Restaurantes e lanchonetes</h3>
+            <p class="segmento__texto">Cardápio sempre à mão no celular do cliente, com pedido direto pelo WhatsApp.</p>
+            <a class="segmento__link" href="exemplos/restaurante.html">Ver exemplo<span class="visualmente-oculto"> de site de restaurante</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-loja"/></svg></span>
+            <h3 class="segmento__titulo">Lojas e confeitarias</h3>
+            <p class="segmento__texto">Uma vitrine dos seus produtos aberta o dia todo, com encomenda pelo WhatsApp.</p>
+            <a class="segmento__link" href="exemplos/moda.html">Ver exemplo<span class="visualmente-oculto"> de site de loja</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-saude"/></svg></span>
+            <h3 class="segmento__titulo">Consultórios e clínicas</h3>
+            <p class="segmento__texto">Especialidades, horários e localização num só lugar, passando a confiança que o paciente procura.</p>
+            <a class="segmento__link" href="exemplos/saude.html">Ver exemplo<span class="visualmente-oculto"> de site de clínica</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-chave"/></svg></span>
+            <h3 class="segmento__titulo">Oficinas e serviços</h3>
+            <p class="segmento__texto">Mostre o que você faz e receba pedidos de orçamento sem complicação.</p>
+            <a class="segmento__link" href="exemplos/servicos.html">Ver exemplo<span class="visualmente-oculto"> de site de serviços</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-pata"/></svg></span>
+            <h3 class="segmento__titulo">Pet shops</h3>
+            <p class="segmento__texto">Banho, tosa e produtos apresentados com carinho, com agendamento pelo WhatsApp.</p>
+            <a class="segmento__link" href="exemplos/pet.html">Ver exemplo<span class="visualmente-oculto"> de site de pet shop</span>
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+          <li class="segmento">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-pessoa"/></svg></span>
+            <h3 class="segmento__titulo">Autônomos e profissionais liberais</h3>
+            <p class="segmento__texto">Um cartão de visitas profissional para enviar a quem pede o seu contato.</p>
+          </li>
+          <li class="segmento segmento--outro">
+            <span class="segmento__icone"><svg class="icone" aria-hidden="true"><use href="#i-conversa"/></svg></span>
+            <h3 class="segmento__titulo">Não achou o seu?</h3>
+            <p class="segmento__texto">Atendemos pequenos negócios de qualquer área. Responda 4 perguntas e veja o plano indicado.</p>
+            <a class="segmento__link" href="#simulador">Qual plano é para mim?
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -416,6 +480,7 @@
         </header>
 
         <ul class="planos" role="list" data-lista-planos></ul>
+        <p class="planos__comparar"><a href="planos.html#comparativo">Compare tudo o que cada plano inclui</a></p>
         <noscript>
           <p class="aviso-noscript">Ative o JavaScript para ver os planos ou fale com a gente pelo
             <a href="https://www.instagram.com/portifolio_br/">Instagram @portifolio_br</a>.</p>
