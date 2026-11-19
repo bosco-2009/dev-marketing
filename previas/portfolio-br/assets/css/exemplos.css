@@ -1,0 +1,183 @@
+/*
+ * exemplos.css — página exemplos.html (cartões) e os sites de EXEMPLO em exemplos/*.html.
+ * Cada exemplo tem uma paleta própria (tokens --exemplo-* em tokens.css), aplicada pela classe ex--<tema>.
+ */
+
+/* ---------- Paletas ---------- */
+.ex--moda { --ex-1: var(--exemplo-moda-1); --ex-2: var(--exemplo-moda-2); --ex-3: var(--exemplo-moda-3); --ex-fundo: var(--exemplo-moda-fundo); }
+.ex--restaurante { --ex-1: var(--exemplo-restaurante-1); --ex-2: var(--exemplo-restaurante-2); --ex-3: var(--exemplo-restaurante-3); --ex-fundo: var(--exemplo-restaurante-fundo); }
+.ex--salao { --ex-1: var(--exemplo-salao-1); --ex-2: var(--exemplo-salao-2); --ex-3: var(--exemplo-salao-3); --ex-fundo: var(--exemplo-salao-fundo); }
+.ex--saude { --ex-1: var(--exemplo-saude-1); --ex-2: var(--exemplo-saude-2); --ex-3: var(--exemplo-saude-3); --ex-fundo: var(--exemplo-saude-fundo); }
+.ex--servicos { --ex-1: var(--exemplo-servicos-1); --ex-2: var(--exemplo-servicos-2); --ex-3: var(--exemplo-servicos-3); --ex-fundo: var(--exemplo-servicos-fundo); }
+.ex--pet { --ex-1: var(--exemplo-pet-1); --ex-2: var(--exemplo-pet-2); --ex-3: var(--exemplo-pet-3); --ex-fundo: var(--exemplo-pet-fundo); }
+
+/* =====================================================================================
+   exemplos.html — cartões com miniatura
+   ===================================================================================== */
+.ex-cartoes { display: grid; gap: var(--esp-5); }
+@media (min-width: 40rem) { .ex-cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .ex-cartoes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.ex-cartao {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  transition: box-shadow var(--duracao-media) var(--curva-padrao), transform var(--duracao-media) var(--curva-padrao);
+}
+.ex-cartao:hover, .ex-cartao:focus-within { box-shadow: var(--sombra-lg); transform: translateY(-3px); }
+
+/* Miniatura desenhada em CSS (decorativa) */
+.ex-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto 1fr auto;
+  gap: var(--esp-2);
+  aspect-ratio: 16 / 10;
+  padding: var(--esp-4);
+  background: var(--ex-fundo);
+}
+.ex-mini__barra { grid-column: 1 / -1; height: 0.6rem; border-radius: var(--raio-pilula); background: linear-gradient(90deg, var(--ex-1) 0 18%, transparent 18% 60%, var(--ex-3) 60% 100%); opacity: 0.9; }
+.ex-mini__capa { grid-column: 1 / -1; border-radius: var(--raio-md); background: radial-gradient(10rem 6rem at 90% 0%, rgb(255 255 255 / 0.25), transparent 70%), linear-gradient(135deg, var(--ex-1), var(--ex-2)); }
+.ex-mini__bloco { height: 2.25rem; border-radius: var(--raio-sm); background: var(--cor-branco); box-shadow: var(--sombra-sm); }
+
+.ex-cartao__texto { display: grid; gap: var(--esp-2); padding: var(--esp-5); }
+.ex-cartao__rotulo {
+  justify-self: start;
+  padding: 0 var(--esp-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-negrito);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ex-cartao__titulo { font-size: var(--texto-lg); }
+.ex-cartao__resumo { color: var(--cor-texto-suave); }
+.ex-cartao__link { font-weight: var(--peso-negrito); }
+/* o cartão inteiro é clicável (link "esticado"), mantendo o texto do link para leitores de tela */
+.ex-cartao__link::after { content: ''; position: absolute; inset: 0; border-radius: var(--raio-lg); }
+/* foco: o anel padrão do site no próprio link; o cartão também se eleva (:focus-within acima) */
+
+.ex-chamada {
+  display: grid;
+  justify-items: start;
+  gap: var(--esp-4);
+  margin-top: var(--esp-7);
+  padding: var(--esp-6) var(--esp-5);
+  border-radius: var(--raio-lg);
+  background: var(--cor-acao-fundo-suave);
+  font-size: var(--texto-md);
+}
+
+/* =====================================================================================
+   exemplos/*.html — o site de exemplo
+   ===================================================================================== */
+.ex { background: var(--cor-branco); }
+
+.ex-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-1) var(--esp-4);
+  padding: var(--esp-2) var(--margem-lateral);
+  background: var(--cor-noite-900);
+  color: var(--cor-texto-invertido);
+  font-size: var(--texto-xs);
+  text-align: center;
+}
+.ex-aviso a { color: var(--cor-destaque); font-weight: var(--peso-negrito); }
+.ex-aviso a:hover { color: var(--cor-texto-invertido); }
+.ex-aviso__links { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--esp-1) var(--esp-4); }
+
+.ex-topo { border-bottom: 1px solid var(--cor-borda); background: var(--cor-branco); }
+.ex-topo__barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-2) var(--esp-5); min-height: 4rem; padding-block: var(--esp-2); }
+.ex-marca { display: inline-flex; align-items: center; gap: var(--esp-2); color: var(--cor-noite-900); font-weight: var(--peso-extra); text-decoration: none; }
+.ex-marca:hover { color: var(--cor-noite-900); }
+.ex-marca__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--raio-sm);
+  background: var(--ex-1);
+  color: var(--cor-branco);
+}
+.ex-marca__exemplo {
+  padding: 0 var(--esp-2);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+.ex-topo__links { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-4); }
+.ex-topo__links a { display: inline-block; padding: var(--esp-2) 0; color: var(--cor-noite-900); font-weight: var(--peso-semi); text-decoration: none; }
+.ex-topo__links a:hover { color: var(--ex-1); text-decoration: underline; }
+
+.ex-hero { padding-block: var(--esp-8); background: radial-gradient(40rem 22rem at 100% 0%, var(--ex-3), transparent 60%), var(--ex-fundo); }
+.ex-hero__grade { display: grid; gap: var(--esp-7); align-items: center; }
+@media (min-width: 56rem) { .ex-hero__grade { grid-template-columns: 1.2fr 0.8fr; } }
+.ex-etiqueta {
+  display: inline-block;
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-branco);
+  color: var(--ex-2);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-negrito);
+}
+.ex-hero__titulo { margin-top: var(--esp-4); color: var(--ex-2); font-size: var(--texto-3xl); }
+.ex-hero__texto { margin-top: var(--esp-4); max-width: 36rem; color: var(--cor-cinza-700); font-size: var(--texto-md); }
+.ex-hero__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); margin-top: var(--esp-6); }
+
+.ex-botao { background: var(--ex-1); color: var(--cor-branco); }
+.ex-botao:hover { background: var(--ex-2); color: var(--cor-branco); }
+.ex-botao--contorno { border-color: var(--ex-2); background: transparent; color: var(--ex-2); }
+.ex-botao--contorno:hover { background: var(--ex-2); color: var(--cor-branco); }
+.ex-botao--grande { min-height: 3.5rem; padding: var(--esp-4) var(--esp-6); }
+
+/* arte decorativa do hero: blocos com a paleta */
+.ex-hero__arte { position: relative; aspect-ratio: 1; max-width: 22rem; width: 100%; justify-self: center; }
+.ex-hero__arte span { position: absolute; border-radius: var(--raio-lg); box-shadow: var(--sombra-lg); }
+.ex-hero__arte span:nth-child(1) { inset: 6% 18% 22% 4%; background: linear-gradient(140deg, var(--ex-1), var(--ex-2)); }
+.ex-hero__arte span:nth-child(2) { inset: 40% 2% 6% 46%; background: var(--ex-3); }
+.ex-hero__arte span:nth-child(3) { inset: 62% 52% 14% 16%; border-radius: 50%; background: var(--cor-branco); }
+
+.ex-secao { padding-block: var(--esp-8); }
+.ex-secao--suave { background: var(--ex-fundo); }
+.ex-secao__titulo { color: var(--ex-2); font-size: var(--texto-2xl); }
+.ex-secao__texto { margin-top: var(--esp-3); max-width: 40rem; color: var(--cor-texto-suave); font-size: var(--texto-md); }
+
+.ex-itens { display: grid; gap: var(--esp-4); margin-top: var(--esp-6); }
+@media (min-width: 30rem) { .ex-itens { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 56rem) { .ex-itens { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.ex-item { padding: var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-branco); }
+.ex-item__amostra { display: block; height: 5rem; margin-bottom: var(--esp-3); border-radius: var(--raio-sm); background: linear-gradient(135deg, var(--ex-1), var(--ex-2)); }
+.ex-item__amostra--2 { background: linear-gradient(135deg, var(--ex-3), var(--ex-1)); }
+.ex-item__amostra--3 { background: linear-gradient(135deg, var(--ex-2), var(--ex-3)); }
+.ex-item__nome { font-size: var(--texto-base); letter-spacing: 0; }
+.ex-item__info { color: var(--ex-2); font-weight: var(--peso-negrito); }
+
+.ex-passos { display: grid; gap: var(--esp-4); margin-top: var(--esp-6); }
+@media (min-width: 48rem) { .ex-passos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.ex-passo { padding: var(--esp-5); border-radius: var(--raio-md); background: var(--cor-branco); box-shadow: var(--sombra-sm); }
+.ex-passo__num { display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; margin-bottom: var(--esp-3); border-radius: 50%; background: var(--ex-1); color: var(--cor-branco); font-weight: var(--peso-extra); }
+.ex-passo__titulo { font-size: var(--texto-lg); }
+
+.ex-sobre { display: grid; gap: var(--esp-6); }
+@media (min-width: 48rem) { .ex-sobre { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+.ex-info { display: grid; gap: var(--esp-3); margin: 0; padding: var(--esp-5); border-radius: var(--raio-md); background: var(--ex-fundo); }
+.ex-info dt { color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-negrito); text-transform: uppercase; letter-spacing: 0.06em; }
+.ex-info dd { margin: 0; font-weight: var(--peso-semi); }
+
+.ex-contato { background: linear-gradient(135deg, var(--ex-fundo), var(--cor-branco)); }
+.ex-contato p + p { margin-top: var(--esp-5); }
+
+.ex-rodape { padding-block: var(--esp-6) calc(var(--esp-6) + var(--area-botao-flutuante)); background: var(--cor-noite-950); color: var(--cor-texto-invertido-suave); font-size: var(--texto-sm); }
+.ex-rodape a { color: var(--cor-texto-invertido); }

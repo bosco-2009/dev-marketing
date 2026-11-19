@@ -1,0 +1,126 @@
+<!doctype html>
+<!-- SITE DE EXEMPLO (fictício) gerado para exemplos.html. Não é um cliente real. -->
+<html lang="pt-BR" class="sem-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Segurança (CSP). Ao trocar o projeto Supabase ou a versão do supabase-js, atualizar aqui e em todas as páginas (ver PUBLICAR.md).
+       localhost:54321 é o Supabase local usado só em desenvolvimento/testes. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/; style-src 'self'; img-src 'self' data:; font-src 'self'; manifest-src 'self'; connect-src 'self' https://mqjpccrxsyajcgbdifld.supabase.co wss://mqjpccrxsyajcgbdifld.supabase.co http://localhost:54321 ws://localhost:54321; object-src 'none'; frame-src 'none'; worker-src 'none'; media-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Sua Clínica (site de exemplo) — Portfólio BR</title>
+  <meta name="description" content="Site de exemplo de saúde e bem-estar criado pela Portfólio BR. Negócio fictício, para mostrar como seu site pode ficar.">
+  <!-- Site de exemplo (negócio fictício): nunca indexar -->
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#0B1630">
+  <link rel="icon" href="../favicon.ico" sizes="32x32">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/chat.css">
+  <link rel="stylesheet" href="../assets/css/exemplos.css">
+  <script src="../config.js"></script>
+  <script src="../assets/js/inicio.js"></script>
+  <script src="../assets/js/supabase-client.js" defer></script>
+  <script src="../assets/js/chat.js" defer></script>
+</head>
+<body class="ex ex--saude">
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-conversa" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5 4.8 16A8.5 8.5 0 1 1 8 19.2l-4.5 1.3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 1c-1.2-.4-2.5-1.7-2.9-2.9l1-1-1-2L9 8.5Z"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  </svg>
+
+  <aside class="ex-aviso" aria-label="Aviso: site de exemplo">
+    <p><strong>Site de exemplo</strong> criado pela Portfólio BR. O negócio, os preços e os textos são fictícios.</p>
+    <p class="ex-aviso__links"><a href="../planos.html">Quero um site assim</a> <a href="../exemplos.html">Ver outros exemplos</a></p>
+  </aside>
+
+  <header class="ex-topo">
+    <div class="container ex-topo__barra">
+      <a class="ex-marca" href="#conteudo"><span class="ex-marca__icone" aria-hidden="true">C</span>Sua Clínica<span class="ex-marca__exemplo">exemplo</span></a>
+      <nav aria-label="Seções do site de exemplo">
+        <ul class="ex-topo__links" role="list">
+          <li><a href="#destaques">Especialidades</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <section class="ex-hero" aria-labelledby="ex-titulo">
+      <div class="container ex-hero__grade">
+        <div>
+          <p class="ex-etiqueta">Atendimento com hora marcada</p>
+          <h1 id="ex-titulo" class="ex-hero__titulo">Cuidado próximo, do primeiro contato ao acompanhamento</h1>
+          <p class="ex-hero__texto">Conheça as especialidades, saiba como funciona a primeira consulta e agende pelo WhatsApp.</p>
+          <p class="ex-hero__acoes">
+            <a class="botao ex-botao" href="#destaques">Ver especialidades</a>
+            <a class="botao ex-botao ex-botao--contorno" href="#contato">Chamar no WhatsApp</a>
+          </p>
+        </div>
+        <div class="ex-hero__arte" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+    </section>
+
+    <section class="ex-secao" id="destaques" aria-labelledby="ex-destaques">
+      <div class="container">
+        <h2 id="ex-destaques" class="ex-secao__titulo">Especialidades</h2>
+        <p class="ex-secao__texto">Exemplo de como apresentar os atendimentos.</p>
+        <ul class="ex-itens" role="list">
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--1" aria-hidden="true"></span><h3 class="ex-item__nome">Fisioterapia</h3><p class="ex-item__info">Avaliação e sessões</p></li>
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--2" aria-hidden="true"></span><h3 class="ex-item__nome">Pilates</h3><p class="ex-item__info">Turmas reduzidas</p></li>
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--3" aria-hidden="true"></span><h3 class="ex-item__nome">Nutrição</h3><p class="ex-item__info">Plano alimentar</p></li>
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--1" aria-hidden="true"></span><h3 class="ex-item__nome">Psicologia</h3><p class="ex-item__info">Atendimento individual</p></li>
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--2" aria-hidden="true"></span><h3 class="ex-item__nome">Acupuntura</h3><p class="ex-item__info">Sessões semanais</p></li>
+          <li class="ex-item"><span class="ex-item__amostra ex-item__amostra--3" aria-hidden="true"></span><h3 class="ex-item__nome">Avaliação inicial</h3><p class="ex-item__info">Primeira consulta</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ex-secao ex-secao--suave" aria-labelledby="ex-passos">
+      <div class="container">
+        <h2 id="ex-passos" class="ex-secao__titulo">Primeira consulta</h2>
+        <ol class="ex-passos" role="list">
+          <li class="ex-passo"><span class="ex-passo__num" aria-hidden="true">1</span><h3 class="ex-passo__titulo">Agende</h3><p>Escolha a especialidade e o horário.</p></li>
+          <li class="ex-passo"><span class="ex-passo__num" aria-hidden="true">2</span><h3 class="ex-passo__titulo">Avaliação</h3><p>Conversa e avaliação inicial.</p></li>
+          <li class="ex-passo"><span class="ex-passo__num" aria-hidden="true">3</span><h3 class="ex-passo__titulo">Plano</h3><p>Você recebe as orientações do tratamento.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ex-secao" id="sobre" aria-labelledby="ex-sobre">
+      <div class="container ex-sobre">
+        <div>
+          <h2 id="ex-sobre" class="ex-secao__titulo">Sobre</h2>
+          <p class="ex-secao__texto">Em sites de saúde, mostramos o nome e o registro profissional do responsável técnico, como pedem os conselhos de classe. Aqui fica esse espaço.</p>
+        </div>
+        <dl class="ex-info">
+          <div><dt>Horário</dt><dd>Seg. a sex., das 8h às 18h</dd></div>
+          <div><dt>Onde</dt><dd>Consultório no centro · acessível</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="ex-secao ex-contato" id="contato" aria-labelledby="ex-contato">
+      <div class="container">
+        <h2 id="ex-contato" class="ex-secao__titulo">Contato</h2>
+        <p class="ex-secao__texto">Num site de verdade, este botão abre o WhatsApp do negócio com uma mensagem pronta. Como este é um exemplo, ele leva para os planos da Portfólio BR.</p>
+        <p><a class="botao ex-botao ex-botao--grande" href="../planos.html">Quero um site assim</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ex-rodape">
+    <div class="container">
+      <p>Sua Clínica é um negócio fictício. <a href="../index.html">Site de exemplo feito pela Portfólio BR</a> · <a href="../exemplos.html">Outros exemplos</a> · <a href="../privacidade.html">Privacidade</a></p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -170,6 +170,22 @@
       }
     ],
 
+    // Simulador "Qual plano é para mim?" da home. Usa os ids de config.planos.
+    // A recomendação é o MAIOR plano (na ordem de config.planos) entre as regras que se aplicam.
+    simulador: { // [PROVISÓRIO] confirmar as regras de recomendação
+      porPaginas: { uma: 'essencial', ate5: 'profissional', mais: 'premium', naoSei: 'profissional' },
+      vendeOnline: 'premium', // precisa de catálogo/cardápio com pedido online
+      motivos: {
+        uma: 'Uma página completa já apresenta bem o seu negócio.',
+        ate5: 'Até 5 páginas para apresentar serviços, galeria e contato com calma.',
+        mais: 'Mais de 5 páginas para organizar bastante conteúdo.',
+        naoSei: 'Na dúvida, um site com algumas páginas dá espaço para crescer.',
+        vendeOnline: 'Inclui catálogo de produtos ou cardápio com pedido pelo WhatsApp.',
+        dominioSim: 'Usamos o domínio que você já tem.',
+        dominioNao: 'Ajudamos você a registrar o domínio no seu nome (o valor anual é pago ao Registro.br).'
+      }
+    },
+
     // Usado em termos.html e privacidade.html. Revisar com um(a) advogado(a) antes de publicar.
     legal: {
       atualizadoEm: '19/11/2026', // [PROVISÓRIO] data da última revisão dos termos e da política

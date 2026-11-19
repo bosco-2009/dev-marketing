@@ -74,9 +74,9 @@
   --cor-erro: #B42318;
   --cor-erro-suave: #FEF3F2;
   --cor-sucesso: var(--cor-verde-600);
-  --cor-whatsapp: #167A43;
+  --cor-whatsapp: #167A43; /* verde escurecido para contraste AA com texto branco */
 
-  /* Paletas dos sites de EXEMPLO do mockup do hero (fictícios) */
+  /* Paletas dos sites de EXEMPLO (fictícios): mockup do hero e páginas em exemplos/ */
   --exemplo-moda-1: #B4436C;
   --exemplo-moda-2: #5B1F3A;
   --exemplo-moda-3: #E9B8A6;
@@ -89,7 +89,19 @@
   --exemplo-salao-1: #7C3AED;
   --exemplo-salao-2: #3B1D72;
   --exemplo-salao-3: #E5B8F4;
-  --exemplo-salao-fundo: #F7F3FF; /* verde escurecido para contraste AA com texto branco */
+  --exemplo-salao-fundo: #F7F3FF;
+  --exemplo-saude-1: #0E7490;
+  --exemplo-saude-2: #134E4A;
+  --exemplo-saude-3: #A5F3FC;
+  --exemplo-saude-fundo: #F0FDFF;
+  --exemplo-servicos-1: #1D4ED8;
+  --exemplo-servicos-2: #172554;
+  --exemplo-servicos-3: #FBBF24;
+  --exemplo-servicos-fundo: #F5F8FF;
+  --exemplo-pet-1: #B45309;
+  --exemplo-pet-2: #422006;
+  --exemplo-pet-3: #86EFAC;
+  --exemplo-pet-fundo: #FFFBEB;
 
   /* ---------- Tipografia ---------- */
   --fonte-base: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;

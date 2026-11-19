@@ -45,6 +45,7 @@
   <script src="assets/js/abertura.js" defer></script>
   <script src="assets/js/revelar.js" defer></script>
   <script src="assets/js/mockup.js" defer></script>
+  <script src="assets/js/simulador.js" defer></script>
   <script src="assets/js/supabase-client.js" defer></script>
   <script src="assets/js/chat.js" defer></script>
 
@@ -139,6 +140,7 @@
           <li><a href="#servicos">Serviços</a></li>
           <li><a href="#como-funciona">Como funciona</a></li>
           <li><a href="#planos">Planos</a></li>
+          <li><a href="exemplos.html">Exemplos</a></li>
           <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
           <li><a href="#duvidas">Dúvidas</a></li>
         </ul>
@@ -342,6 +344,69 @@
     </section>
 
     <!-- ===================== PLANOS (conteúdo vem do config.js) ===================== -->
+    <!-- ===================== SIMULADOR (regras em config.js → simulador; sem JS a seção fica oculta) ===================== -->
+    <section class="secao" id="simulador" aria-labelledby="simulador-titulo" hidden data-simulador>
+      <div class="container">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Simulador</p>
+          <h2 id="simulador-titulo" class="secao__titulo">Qual plano é para mim?</h2>
+          <p class="secao__descricao">Responda 4 perguntas rápidas e veja o plano que combina com o seu negócio.</p>
+        </header>
+        <div class="sim">
+          <form class="sim__perguntas" data-sim-form>
+          <fieldset class="sim-grupo">
+            <legend class="sim-grupo__legenda">1. Qual é o seu tipo de negócio? <span class="sim-grupo__opcional">(opcional)</span></legend>
+            <div class="sim-grupo__opcoes">
+              <label class="sim-opcao"><input type="radio" name="tipo" value="moda"><span>Loja ou moda</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="restaurante"><span>Restaurante ou comida</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="beleza"><span>Beleza ou estética</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="saude"><span>Saúde ou bem-estar</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="servicos"><span>Serviços ou reformas</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="pet"><span>Pet shop</span></label>
+              <label class="sim-opcao"><input type="radio" name="tipo" value="outro"><span>Outro</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="sim-grupo">
+            <legend class="sim-grupo__legenda">2. Você precisa mostrar produtos ou cardápio para o cliente pedir online?</legend>
+            <div class="sim-grupo__opcoes">
+              <label class="sim-opcao"><input type="radio" name="vende" value="sim"><span>Sim</span></label>
+              <label class="sim-opcao"><input type="radio" name="vende" value="nao"><span>Não</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="sim-grupo">
+            <legend class="sim-grupo__legenda">3. Quantas páginas o site precisa ter?</legend>
+            <div class="sim-grupo__opcoes">
+              <label class="sim-opcao"><input type="radio" name="paginas" value="uma"><span>Uma página basta</span></label>
+              <label class="sim-opcao"><input type="radio" name="paginas" value="ate5"><span>Até 5 páginas</span></label>
+              <label class="sim-opcao"><input type="radio" name="paginas" value="mais"><span>Mais de 5</span></label>
+              <label class="sim-opcao"><input type="radio" name="paginas" value="naoSei"><span>Não sei</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="sim-grupo">
+            <legend class="sim-grupo__legenda">4. Você já tem um domínio (ex.: seunegocio.com.br)? <span class="sim-grupo__opcional">(opcional)</span></legend>
+            <div class="sim-grupo__opcoes">
+              <label class="sim-opcao"><input type="radio" name="dominio" value="sim"><span>Sim</span></label>
+              <label class="sim-opcao"><input type="radio" name="dominio" value="nao"><span>Não</span></label>
+              <label class="sim-opcao"><input type="radio" name="dominio" value="naoSei"><span>Não sei</span></label>
+            </div>
+          </fieldset>
+          </form>
+          <div class="sim__resultado" data-sim-resultado aria-live="polite" aria-atomic="true">
+            <p class="sim__espera" data-sim-espera>Responda as perguntas 2 e 3 para ver a recomendação.</p>
+            <div class="sim__recomendacao" data-sim-recomendacao hidden>
+              <p class="sim__rotulo">Recomendamos</p>
+              <p class="sim__plano"><span data-sim-plano></span> <span class="sim__preco" data-sim-preco></span></p>
+              <ul class="sim__motivos" role="list" data-sim-motivos></ul>
+              <p class="sim__acoes">
+                <a class="botao botao--primario" href="planos.html" data-sim-cta>Contratar este plano</a>
+                <a class="sim__exemplo" href="exemplos.html" data-sim-exemplo hidden>Ver um site de exemplo</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="secao" id="planos" aria-labelledby="planos-titulo">
       <div class="container">
         <header class="secao__cabecalho">
@@ -436,6 +501,7 @@
           <li><a href="#servicos">Serviços</a></li>
           <li><a href="#como-funciona">Como funciona</a></li>
           <li><a href="#planos">Planos</a></li>
+          <li><a href="exemplos.html">Exemplos</a></li>
           <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
           <li><a href="#duvidas">Dúvidas</a></li>
           <li><a href="termos.html">Termos de uso</a></li>
