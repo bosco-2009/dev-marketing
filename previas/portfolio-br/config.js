@@ -1,7 +1,7 @@
 /*
  * config.js — ÚNICO lugar com textos, preços e contatos que dependem de decisão do dono.
  *
- * Tudo marcado com [PROVISÓRIO] precisa ser revisado/preenchido antes da publicação (Fase 5).
+ * Tudo marcado com [PROVISÓRIO] precisa ser revisado/preenchido antes da publicação (ver PUBLICAR.md).
  * Para encontrar todos: procure por "[PROVISÓRIO]" neste arquivo.
  *
  * Regras:
@@ -19,7 +19,7 @@
 
   var config = {
     // Enquanto true: mostra a faixa "rascunho" no topo das páginas.
-    // Mudar para false só na Fase 5, junto com a remoção do <meta name="robots" content="noindex">.
+    // Mudar para false só ao publicar, junto com a remoção do <meta name="robots" content="noindex"> (ver PUBLICAR.md).
     rascunho: true,
 
     // Supabase (Fase 2). Só a URL do projeto e a chave PÚBLICA (anon ou publishable "sb_publishable_...").

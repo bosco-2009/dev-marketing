@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  document.documentElement.classList.remove('sem-js');
+  // As classes "sem-js" e "modo-rascunho" do <html> são definidas pelo inicio.js, antes da primeira pintura.
 
   var config = window.PBR_CONFIG;
   if (!config) {
@@ -61,12 +61,6 @@
     a.rel = 'noopener';
     conteudo.forEach(function (n) { a.appendChild(typeof n === 'string' ? document.createTextNode(n) : n); });
     return a;
-  }
-
-  // ---------------- Rascunho ----------------
-  if (config.rascunho) {
-    var aviso = $('[data-aviso-rascunho]');
-    if (aviso) aviso.hidden = false;
   }
 
   // ---------------- Menu móvel ----------------
@@ -254,5 +248,47 @@
       dadosEmpresa.textContent = partes.join(' · ');
       dadosEmpresa.hidden = false;
     }
+  }
+
+  // ---------------- Dados estruturados (só na home) ----------------
+  // O JSON-LD fixo do index.html tem Organization e WebSite. Aqui entram, a partir do config.js,
+  // o Service com as ofertas (planos e preços) e os contatos reais. Sem avaliações nem números inventados.
+  if (listaPlanos && config.site && config.site.url) {
+    var urlSite = config.site.url.replace(/\/?$/, '/');
+    var idOrg = urlSite + '#organizacao';
+    var org = { '@type': 'Organization', '@id': idOrg };
+    if (config.contato.email) org.email = config.contato.email;
+    if (config.contato.whatsapp) org.telephone = '+' + config.contato.whatsapp;
+    if (config.empresa.razaoSocial) org.legalName = config.empresa.razaoSocial;
+    if (config.empresa.cnpj) org.taxID = config.empresa.cnpj;
+    var servico = {
+      '@type': 'Service',
+      '@id': urlSite + '#servico',
+      name: 'Criação de sites profissionais para pequenos negócios',
+      serviceType: 'Criação de sites',
+      provider: { '@id': idOrg },
+      areaServed: { '@type': 'Country', name: 'Brasil' },
+      url: urlSite + 'planos.html',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Planos',
+        itemListElement: config.planos.map(function (p) {
+          return {
+            '@type': 'Offer',
+            name: 'Plano ' + p.nome,
+            description: p.resumo,
+            price: (p.precoCentavos / 100).toFixed(2),
+            priceCurrency: 'BRL',
+            url: urlSite + 'planos.html?plano=' + encodeURIComponent(p.id),
+            availability: 'https://schema.org/InStock'
+          };
+        })
+      }
+    };
+    var ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.setAttribute('data-ld-servico', '');
+    ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': [org, servico] });
+    document.head.appendChild(ld);
   }
 })();

@@ -149,7 +149,10 @@ a:hover { color: var(--cor-acao-hover); }
 }
 .pular-link:focus { transform: none; color: var(--cor-texto-invertido); }
 
-.aviso-rascunho {
+.aviso-rascunho { display: none; }
+/* modo-rascunho é posto pelo inicio.js antes da primeira pintura (sem deslocar o layout) */
+.modo-rascunho .aviso-rascunho {
+  display: block;
   padding: var(--esp-2) var(--margem-lateral);
   background: var(--cor-destaque);
   color: var(--cor-noite-900);
@@ -217,7 +220,7 @@ a:hover { color: var(--cor-acao-hover); }
   letter-spacing: -0.03em;
 }
 .marca__br {
-  margin-left: 0.2em;
+  margin-left: 0.05em;
   padding: 0.05em 0.3em;
   border-radius: 0.3em;
   background: var(--cor-destaque);

@@ -50,6 +50,11 @@
 /* ---------------- Opções de plano (rádios) ---------------- */
 .opcoes-plano { display: grid; gap: var(--esp-3); }
 @media (min-width: 48rem) { .opcoes-plano { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Reserva o espaço das opções (montadas pelo planos.js a partir do config.js) para o resto do
+   formulário não "pular" quando elas aparecem (CLS). Valores = altura típica medida em cada faixa. */
+.opcoes-plano:empty { min-height: 30rem; }
+@media (min-width: 37.5rem) { .opcoes-plano:empty { min-height: 26rem; } }
+@media (min-width: 48rem) { .opcoes-plano:empty { min-height: 15rem; } }
 
 .opcao-plano {
   position: relative;

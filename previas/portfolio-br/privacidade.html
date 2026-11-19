@@ -3,9 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Segurança (CSP). Ao trocar o projeto Supabase ou a versão do supabase-js, atualizar aqui e em todas as páginas (ver PUBLICAR.md).
+       localhost:54321 é o Supabase local usado só em desenvolvimento/testes. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/; style-src 'self'; img-src 'self' data:; font-src 'self'; manifest-src 'self'; connect-src 'self' https://mqjpccrxsyajcgbdifld.supabase.co wss://mqjpccrxsyajcgbdifld.supabase.co http://localhost:54321 ws://localhost:54321; object-src 'none'; frame-src 'none'; worker-src 'none'; media-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Política de privacidade — Portfólio BR</title>
   <meta name="description" content="Como a Portfólio BR trata dados pessoais no site, no chat, nos pedidos e no briefing, de acordo com a LGPD.">
-  <!-- Rascunho: remover esta linha na Fase 5 (junto com rascunho: false no config.js) -->
+  <!-- Rascunho: remover esta linha ao publicar, junto com rascunho: false no config.js (ver PUBLICAR.md) -->
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="https://bosco-2009.github.io/empresa-jp/privacidade.html">
   <meta name="theme-color" content="#0B1630">
@@ -34,9 +37,14 @@
   <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/chat.css">
   <link rel="stylesheet" href="assets/css/legal.css">
+  <link rel="stylesheet" href="assets/css/movimento.css">
 
-  <script src="config.js" defer></script>
+  <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
+  <script src="config.js"></script>
+  <script src="assets/js/inicio.js"></script>
   <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/abertura.js" defer></script>
+  <script src="assets/js/revelar.js" defer></script>
   <script src="assets/js/supabase-client.js" defer></script>
   <script src="assets/js/chat.js" defer></script>
   <script src="assets/js/legal.js" defer></script>
@@ -45,7 +53,7 @@
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
 
   <!-- Faixa de rascunho: exibida pelo main.js enquanto config.rascunho === true -->
-  <aside class="aviso-rascunho" aria-label="Aviso de rascunho" data-aviso-rascunho hidden>
+  <aside class="aviso-rascunho" aria-label="Aviso de rascunho" data-aviso-rascunho>
     Versão de rascunho: textos e preços marcados como provisórios ainda serão confirmados.
   </aside>
 
@@ -75,9 +83,9 @@
 
   <header class="topo" data-topo>
     <div class="container topo__barra">
-      <a class="marca" href="index.html" aria-label="Portfólio BR, voltar ao início">
+      <a class="marca" href="index.html">
         <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
-        <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+        <span class="marca__nome">Portfólio <span class="marca__br">BR</span><span class="visualmente-oculto"> — página inicial</span></span>
       </a>
 
       <button class="topo__menu-botao" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-botao>
@@ -103,7 +111,7 @@
       <div class="container">
         <p class="secao__sobretitulo">Documentos</p>
         <h1 id="privacidade-titulo" class="pagina-topo__titulo">Política de privacidade</h1>
-        <p class="pagina-topo__texto">Última atualização: <span data-cfg="legal.atualizadoEm" data-cfg-rotulo="data">[PROVISÓRIO: data]</span></p>
+        <p class="pagina-topo__texto">Última atualização: <span class="legal__provisorio" data-cfg="legal.atualizadoEm" data-cfg-rotulo="data">[PROVISÓRIO: data]</span></p>
       </div>
     </section>
 
@@ -128,8 +136,8 @@
           briefing, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, LGPD).</p>
 
         <h2 id="p-controlador">1. Quem é o controlador</h2>
-        <p>O controlador dos dados é <span data-cfg="empresa.razaoSocial" data-cfg-rotulo="razão social">[PROVISÓRIO: razão social]</span>, CNPJ <span data-cfg="empresa.cnpj" data-cfg-rotulo="CNPJ">[PROVISÓRIO: CNPJ]</span>, com sede em <span data-cfg="empresa.cidade" data-cfg-rotulo="cidade/UF">[PROVISÓRIO: cidade/UF]</span> (“Portfólio BR”). Para qualquer assunto
-          sobre seus dados, inclusive para exercer seus direitos, fale com a gente pelo e-mail <a data-cfg-email href="#">[PROVISÓRIO: e-mail]</a> ou pelo WhatsApp <span data-cfg-whatsapp>[PROVISÓRIO: WhatsApp]</span>.</p>
+        <p>O controlador dos dados é <span class="legal__provisorio" data-cfg="empresa.razaoSocial" data-cfg-rotulo="razão social">[PROVISÓRIO: razão social]</span>, CNPJ <span class="legal__provisorio" data-cfg="empresa.cnpj" data-cfg-rotulo="CNPJ">[PROVISÓRIO: CNPJ]</span>, com sede em <span class="legal__provisorio" data-cfg="empresa.cidade" data-cfg-rotulo="cidade/UF">[PROVISÓRIO: cidade/UF]</span> (“Portfólio BR”). Para qualquer assunto
+          sobre seus dados, inclusive para exercer seus direitos, fale com a gente pelo e-mail <span class="legal__provisorio" data-cfg-email>[PROVISÓRIO: e-mail]</span> ou pelo WhatsApp <span class="legal__provisorio" data-cfg-whatsapp>[PROVISÓRIO: WhatsApp]</span>.</p>
 
         <h2 id="p-dados">2. Quais dados coletamos</h2>
         <div class="legal__tabela-rolagem" tabindex="0" role="region" aria-label="Tabela de dados coletados">
@@ -189,9 +197,9 @@
 
         <h2 id="p-retencao">6. Por quanto tempo guardamos</h2>
         <ul>
-          <li><strong>Conversas do chat:</strong> até <span data-cfg="legal.retencaoChatMeses" data-cfg-rotulo="meses">[PROVISÓRIO: meses]</span> meses depois da última mensagem.</li>
-          <li><strong>Briefing e arquivos enviados:</strong> até <span data-cfg="legal.retencaoBriefingMeses" data-cfg-rotulo="meses">[PROVISÓRIO: meses]</span> meses depois da entrega do site.</li>
-          <li><strong>Registros de pedidos e pagamentos:</strong> por <span data-cfg="legal.retencaoPedidosAnos" data-cfg-rotulo="anos">[PROVISÓRIO: anos]</span> anos, pelo prazo das obrigações
+          <li><strong>Conversas do chat:</strong> até <span class="legal__provisorio" data-cfg="legal.retencaoChatMeses" data-cfg-rotulo="meses">[PROVISÓRIO: meses]</span> meses depois da última mensagem.</li>
+          <li><strong>Briefing e arquivos enviados:</strong> até <span class="legal__provisorio" data-cfg="legal.retencaoBriefingMeses" data-cfg-rotulo="meses">[PROVISÓRIO: meses]</span> meses depois da entrega do site.</li>
+          <li><strong>Registros de pedidos e pagamentos:</strong> por <span class="legal__provisorio" data-cfg="legal.retencaoPedidosAnos" data-cfg-rotulo="anos">[PROVISÓRIO: anos]</span> anos, pelo prazo das obrigações
             fiscais e contábeis e dos prazos legais para reclamações.</li>
         </ul>
         <p>Depois desses prazos, os dados são apagados ou anonimizados, exceto quando a lei exigir que sejam mantidos por mais tempo.</p>
@@ -207,7 +215,7 @@
           <li>informação sobre com quem compartilhamos seus dados;</li>
           <li>revisão de decisões tomadas apenas com base em tratamento automatizado (não tomamos decisões assim).</li>
         </ul>
-        <p>Para exercer seus direitos, escreva para <a data-cfg-email href="#">[PROVISÓRIO: e-mail]</a> ou chame no WhatsApp <span data-cfg-whatsapp>[PROVISÓRIO: WhatsApp]</span>. Podemos pedir informações para confirmar que o
+        <p>Para exercer seus direitos, escreva para <span class="legal__provisorio" data-cfg-email>[PROVISÓRIO: e-mail]</span> ou chame no WhatsApp <span class="legal__provisorio" data-cfg-whatsapp>[PROVISÓRIO: WhatsApp]</span>. Podemos pedir informações para confirmar que o
           pedido é seu. Respondemos em até 15 dias. Você também pode apresentar reclamação à Autoridade Nacional de Proteção de Dados
           (<a href="https://www.gov.br/anpd" target="_blank" rel="noopener">ANPD</a>).</p>
 
@@ -229,9 +237,9 @@
   <footer class="rodape">
     <div class="container rodape__grade">
       <div class="rodape__marca">
-        <a class="marca marca--clara" href="index.html" aria-label="Portfólio BR, voltar ao início">
+        <a class="marca marca--clara" href="index.html">
           <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
-          <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+          <span class="marca__nome">Portfólio <span class="marca__br">BR</span><span class="visualmente-oculto"> — página inicial</span></span>
         </a>
         <p class="rodape__descricao">Sites profissionais para pequenos negócios de todo o Brasil.</p>
       </div>

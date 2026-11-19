@@ -22,13 +22,18 @@
   document.querySelectorAll('[data-cfg]').forEach(function (el) {
     var v = valor(el.getAttribute('data-cfg'));
     if (v === undefined || v === null || v === '') provisorio(el, el.getAttribute('data-cfg-rotulo') || 'a preencher');
-    else el.textContent = String(v);
+    else { el.textContent = String(v); el.classList.remove('legal__provisorio'); }
   });
 
   var email = config.contato && config.contato.email;
-  document.querySelectorAll('[data-cfg-email]').forEach(function (a) {
-    if (email) { a.textContent = email; a.href = 'mailto:' + email; }
-    else { a.removeAttribute('href'); provisorio(a, 'e-mail'); }
+  document.querySelectorAll('[data-cfg-email]').forEach(function (el) {
+    if (!email) { provisorio(el, 'e-mail'); return; }
+    var a = document.createElement('a');
+    a.href = 'mailto:' + email;
+    a.textContent = email;
+    el.classList.remove('legal__provisorio');
+    el.textContent = '';
+    el.appendChild(a);
   });
 
   var zap = config.contato && config.contato.whatsapp;
@@ -40,6 +45,7 @@
     a.target = '_blank';
     a.rel = 'noopener';
     a.textContent = m ? '(' + m[1] + ') ' + m[2] + '-' + m[3] : zap;
+    el.classList.remove('legal__provisorio');
     el.textContent = '';
     el.appendChild(a);
   });

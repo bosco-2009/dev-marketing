@@ -137,6 +137,7 @@
   --z-header: 50;
   --z-flutuante: 80;
   --z-aviso: 90;
+  --z-abertura: 200;
 }
 
 @media (prefers-reduced-motion: reduce) {
