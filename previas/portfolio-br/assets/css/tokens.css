@@ -74,7 +74,22 @@
   --cor-erro: #B42318;
   --cor-erro-suave: #FEF3F2;
   --cor-sucesso: var(--cor-verde-600);
-  --cor-whatsapp: #167A43; /* verde escurecido para contraste AA com texto branco */
+  --cor-whatsapp: #167A43;
+
+  /* Paletas dos sites de EXEMPLO do mockup do hero (fictícios) */
+  --exemplo-moda-1: #B4436C;
+  --exemplo-moda-2: #5B1F3A;
+  --exemplo-moda-3: #E9B8A6;
+  --exemplo-moda-4: #2F3747;
+  --exemplo-moda-fundo: #FBF4F2;
+  --exemplo-restaurante-1: #C2410C;
+  --exemplo-restaurante-2: #5A2A0C;
+  --exemplo-restaurante-3: #7C9A3C;
+  --exemplo-restaurante-fundo: #FFF7ED;
+  --exemplo-salao-1: #7C3AED;
+  --exemplo-salao-2: #3B1D72;
+  --exemplo-salao-3: #E5B8F4;
+  --exemplo-salao-fundo: #F7F3FF; /* verde escurecido para contraste AA com texto branco */
 
   /* ---------- Tipografia ---------- */
   --fonte-base: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;

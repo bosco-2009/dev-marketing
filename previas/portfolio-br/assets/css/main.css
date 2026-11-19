@@ -394,17 +394,77 @@ a:hover { color: var(--cor-acao-hover); }
 }
 
 .celular__tela {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   flex: 1;
-  gap: 0.6rem;
-  padding: 0.9rem;
   border-radius: 1.9rem;
   background: var(--cor-fundo-suave);
   overflow: hidden;
 }
 
-.mock__barra { display: flex; justify-content: space-between; align-items: center; }
+/* ---------- Telas de exemplo do mockup (alternadas pelo mockup.js) ---------- */
+.mock-tela {
+  --mock-acao: var(--cor-acao);
+  --mock-capa-1: var(--cor-verde-600);
+  --mock-capa-2: var(--cor-noite-800);
+  --mock-botao: var(--cor-destaque);
+  --mock-botao-texto: var(--cor-noite-900);
+  --mock-fundo: var(--cor-fundo-suave);
+  --mock-amostra-1: var(--cor-acao-fundo-suave);
+  --mock-amostra-2: var(--cor-acao-fundo-suave);
+  --mock-amostra-3: var(--cor-acao-fundo-suave);
+  --mock-amostra-4: var(--cor-acao-fundo-suave);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  background: var(--mock-fundo);
+  opacity: 0;
+  transform: translate3d(14%, 0, 0) scale(0.97);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mock-tela--ativa { opacity: 1; transform: none; }
+.mock-tela--saindo { opacity: 0; transform: translate3d(-14%, 0, 0) scale(0.97); }
+
+.mock-tela--moda {
+  --mock-acao: var(--exemplo-moda-1);
+  --mock-capa-1: var(--exemplo-moda-1);
+  --mock-capa-2: var(--exemplo-moda-2);
+  --mock-botao: var(--cor-branco);
+  --mock-botao-texto: var(--exemplo-moda-2);
+  --mock-fundo: var(--exemplo-moda-fundo);
+  --mock-amostra-1: var(--exemplo-moda-1);
+  --mock-amostra-2: var(--exemplo-moda-3);
+  --mock-amostra-3: var(--exemplo-moda-2);
+  --mock-amostra-4: var(--exemplo-moda-4);
+}
+.mock-tela--restaurante {
+  --mock-acao: var(--exemplo-restaurante-1);
+  --mock-capa-1: var(--exemplo-restaurante-1);
+  --mock-capa-2: var(--exemplo-restaurante-2);
+  --mock-botao: var(--cor-destaque);
+  --mock-botao-texto: var(--cor-noite-900);
+  --mock-fundo: var(--exemplo-restaurante-fundo);
+  --mock-amostra-1: var(--exemplo-restaurante-1);
+  --mock-amostra-2: var(--exemplo-restaurante-3);
+  --mock-amostra-3: var(--exemplo-restaurante-2);
+  --mock-amostra-4: var(--cor-destaque);
+}
+.mock-tela--salao {
+  --mock-acao: var(--exemplo-salao-1);
+  --mock-capa-1: var(--exemplo-salao-1);
+  --mock-capa-2: var(--exemplo-salao-2);
+  --mock-botao: var(--cor-branco);
+  --mock-botao-texto: var(--exemplo-salao-2);
+  --mock-fundo: var(--exemplo-salao-fundo);
+  --mock-amostra-1: var(--exemplo-salao-1);
+  --mock-amostra-2: var(--exemplo-salao-3);
+  --mock-amostra-3: var(--exemplo-salao-2);
+  --mock-amostra-4: var(--exemplo-salao-3);
+}
+
+.mock__barra { display: flex; justify-content: space-between; align-items: center; gap: 0.3rem; }
 .mock__marca {
   display: inline-flex;
   align-items: center;
@@ -413,8 +473,20 @@ a:hover { color: var(--cor-acao-hover); }
   font-size: 0.68rem;
   font-weight: var(--peso-extra);
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
-.mock__marca-icone { width: 0.85rem; height: 0.85rem; border-radius: 0.25rem; background: var(--cor-acao); }
+.mock__marca-icone { width: 0.85rem; height: 0.85rem; border-radius: 0.25rem; background: var(--mock-acao); }
+.mock__exemplo {
+  margin-left: auto;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid currentColor;
+  border-radius: var(--raio-pilula);
+  color: var(--cor-cinza-500);
+  font-size: 0.42rem;
+  font-weight: var(--peso-negrito);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 .mock__hamburguer { display: grid; gap: 0.15rem; width: 0.8rem; }
 .mock__hamburguer i { display: block; height: 0.1rem; border-radius: 1px; background: var(--cor-noite-900); }
 
@@ -424,20 +496,20 @@ a:hover { color: var(--cor-acao-hover); }
   padding: 0.8rem 0.75rem;
   border-radius: 0.9rem;
   background:
-    radial-gradient(8rem 5rem at 100% 0%, rgb(255 200 61 / 0.35), transparent 70%),
-    linear-gradient(140deg, var(--cor-verde-600), var(--cor-noite-800));
+    radial-gradient(8rem 5rem at 100% 0%, rgb(255 255 255 / 0.22), transparent 70%),
+    linear-gradient(140deg, var(--mock-capa-1), var(--mock-capa-2));
   color: var(--cor-branco);
 }
 .mock__etiqueta {
   justify-self: start;
   padding: 0.1rem 0.4rem;
   border-radius: var(--raio-pilula);
-  background: rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.18);
   font-size: 0.48rem;
   font-weight: var(--peso-semi);
 }
 .mock__titulo { font-size: 0.82rem; font-weight: var(--peso-extra); line-height: 1.15; letter-spacing: -0.02em; }
-.mock__texto { font-size: 0.52rem; line-height: 1.35; opacity: 0.85; }
+.mock__texto { font-size: 0.52rem; line-height: 1.35; opacity: 0.9; }
 .mock__acoes { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.15rem; }
 .mock__botao {
   padding: 0.28rem 0.5rem;
@@ -446,51 +518,85 @@ a:hover { color: var(--cor-acao-hover); }
   font-weight: var(--peso-negrito);
   white-space: nowrap;
 }
-.mock__botao--zap { background: var(--cor-destaque); color: var(--cor-noite-900); }
-.mock__botao--claro { border: 1px solid rgb(255 255 255 / 0.5); }
+.mock__botao--zap { background: var(--mock-botao); color: var(--mock-botao-texto); }
+.mock__botao--claro { border: 1px solid rgb(255 255 255 / 0.6); }
 
 .mock__mapa {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  margin-top: auto;
   padding: 0.55rem;
   border-radius: 0.7rem;
   background:
     repeating-linear-gradient(0deg, transparent 0 0.9rem, rgb(11 22 48 / 0.06) 0.9rem calc(0.9rem + 1px)),
     repeating-linear-gradient(90deg, transparent 0 0.9rem, rgb(11 22 48 / 0.06) 0.9rem calc(0.9rem + 1px)),
-    var(--cor-acao-fundo-suave);
+    var(--cor-branco);
   color: var(--cor-noite-900);
   font-size: 0.52rem;
   font-weight: var(--peso-semi);
 }
-.mock__pino { width: 0.6rem; height: 0.6rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--cor-acao); }
+.mock__pino { width: 0.6rem; height: 0.6rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--mock-acao); }
 
 .mock__secao { font-size: 0.6rem; font-weight: var(--peso-extra); color: var(--cor-noite-900); }
 
-.mock__cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; flex: 1; align-content: start; }
+.mock__cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; align-content: start; }
 .mock__card {
   display: grid;
   align-content: start;
   gap: 0.1rem;
-  padding: 0.5rem;
+  padding: 0.45rem;
   border-radius: 0.7rem;
   background: var(--cor-branco);
   box-shadow: var(--sombra-sm);
   color: var(--cor-noite-900);
 }
-.mock__card b { font-size: 0.56rem; }
-.mock__card small { font-size: 0.46rem; color: var(--cor-texto-suave); line-height: 1.3; }
-.mock__card-icone {
-  display: grid;
-  place-items: center;
-  width: 1.2rem;
-  height: 1.2rem;
-  margin-bottom: 0.2rem;
-  border-radius: 0.35rem;
-  background: var(--cor-acao-fundo-suave);
-  color: var(--cor-acao);
+.mock__card b { font-size: 0.54rem; line-height: 1.2; }
+.mock__card small { font-size: 0.48rem; color: var(--cor-texto-suave); line-height: 1.3; font-weight: var(--peso-semi); }
+.mock__amostra {
+  display: block;
+  height: 1.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.45rem;
+  background:
+    radial-gradient(1.2rem 1rem at 70% 30%, rgb(255 255 255 / 0.35), transparent 70%),
+    var(--mock-amostra-1);
 }
-.mock__card-icone .icone { width: 0.7rem; height: 0.7rem; }
+.mock__amostra--2 { background-color: var(--mock-amostra-2); background-image: radial-gradient(1.2rem 1rem at 30% 40%, rgb(255 255 255 / 0.35), transparent 70%); }
+.mock__amostra--3 { background-color: var(--mock-amostra-3); background-image: radial-gradient(1.2rem 1rem at 60% 60%, rgb(255 255 255 / 0.3), transparent 70%); }
+.mock__amostra--4 { background-color: var(--mock-amostra-4); background-image: radial-gradient(1.2rem 1rem at 40% 30%, rgb(255 255 255 / 0.35), transparent 70%); }
+
+/* Botão de pausar os exemplos (WCAG 2.2.2): aparece só quando a animação está ativa */
+.mockup-pausa {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 2.5rem;
+  padding: var(--esp-1) var(--esp-3);
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: var(--raio-pilula);
+  background: rgb(11 22 48 / 0.6);
+  color: var(--cor-texto-invertido);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  backdrop-filter: blur(6px);
+}
+.mockup-pausa:hover { background: rgb(11 22 48 / 0.85); }
+.mockup-pausa[hidden] { display: none; }
+.mockup-pausa .icone { width: 1rem; height: 1rem; }
+/* Base (telas estreitas): só o ícone; o texto continua disponível para leitores de tela */
+.mockup-pausa { width: 2.75rem; height: 2.75rem; justify-content: center; padding: 0; }
+.mockup-pausa [data-mockup-pausa-texto] {
+  position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+@media (min-width: 25rem) {
+  .mockup-pausa { width: auto; height: auto; padding: var(--esp-1) var(--esp-3); }
+  .mockup-pausa [data-mockup-pausa-texto] { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }
+}
 
 .flutuante {
   position: absolute;
