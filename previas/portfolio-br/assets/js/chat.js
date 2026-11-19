@@ -485,7 +485,9 @@
         passoInicial = rpc('chat_iniciar', credenciais({
           p_nome: campoNome.entrada.value.trim() || null,
           p_whatsapp: apenasDigitos(zap) || null,
-          p_pagina: (location.pathname + location.hash).slice(0, 300),
+          // página + de onde o visitante veio (origem.js, melhoria 10), no mesmo campo de texto
+          p_pagina: [location.pathname + location.hash, window.PBROrigem ? window.PBROrigem.resumo() : '']
+            .filter(Boolean).join(' · ').slice(0, 300),
           p_criar: true
         })).then(function (linhas) {
           conversa = linhas && linhas[0];

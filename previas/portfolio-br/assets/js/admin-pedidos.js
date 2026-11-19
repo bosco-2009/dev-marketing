@@ -9,6 +9,8 @@
 
   var COLUNAS = 'id, codigo, plano_id, plano_nome, valor_centavos, nome, email, whatsapp, status, ' +
     'mp_preference_id, mp_payment_id, mp_status, mp_status_detalhe, aceite_termos_em, pago_em, criado_em, atualizado_em';
+  // Origem do visitante (melhoria 10): coluna nova; se a migration ainda não foi aplicada, o painel lê sem ela.
+  var colunas = COLUNAS + ', origem';
 
   var ROTULOS = {
     pendente: 'Pendente', aprovado: 'Aprovado', recusado: 'Recusado', cancelado: 'Cancelado', reembolsado: 'Reembolsado'
@@ -85,7 +87,13 @@
       ((r && r.data) || []).forEach(function (b) { mapa[b.pedido_id] = b.status; });
       return mapa;
     }, function () { return {}; });
-    return Promise.all([estado.sb.from('pedidos').select(COLUNAS).order('criado_em', { ascending: false }).limit(500), briefings])
+    function lerPedidos() {
+      return estado.sb.from('pedidos').select(colunas).order('criado_em', { ascending: false }).limit(500).then(function (r) {
+        if (r.error && colunas !== COLUNAS && /origem/.test(r.error.message || '')) { colunas = COLUNAS; return lerPedidos(); }
+        return r;
+      });
+    }
+    return Promise.all([lerPedidos(), briefings])
       .then(function (res) {
         var r = res[0];
         if (r.error) throw r.error;
@@ -223,6 +231,7 @@
     linha('Cliente', p.nome);
     linha('E-mail', p.email, 'mailto:' + p.email);
     linha('WhatsApp', whatsappFormatado(p.whatsapp), linkWhatsapp(p.whatsapp));
+    if ('origem' in p) linha('Origem', p.origem || 'Direto (sem campanha nem site de referência)');
     linha('Plano', p.plano_nome + ' (' + p.plano_id + ')');
     linha('Valor', fReal.format(p.valor_centavos / 100));
     linha('Status', (ROTULOS[p.status] || p.status) + (p.mp_status_detalhe ? ' — ' + p.mp_status_detalhe : ''));

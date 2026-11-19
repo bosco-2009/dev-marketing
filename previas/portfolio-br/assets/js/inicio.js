@@ -3,6 +3,8 @@
  * Só marca o <html> com classes usadas pelo CSS, para nada "pular" na tela quando os outros scripts rodarem:
  *   - tira "sem-js" (o menu móvel passa a ser o botão);
  *   - põe "modo-rascunho" quando config.rascunho é true (mostra a faixa de rascunho);
+ *   - aplica o tema escolhido no botão (data-tema="claro"|"escuro", localStorage pbr_tema), sem piscar; sem escolha,
+ *     o CSS segue o sistema (prefers-color-scheme). Páginas com data-tema-fixo ficam sempre claras;
  *   - põe "com-abertura" na home (<html data-abertura>) na primeira visita da sessão, se o visitante não pediu
  *     movimento reduzido. A animação da abertura é toda em CSS (movimento.css) e termina sozinha;
  *     abertura.js só permite pular e limpa no final.
@@ -13,6 +15,13 @@
   var html = document.documentElement;
   html.classList.remove('sem-js');
   if (window.PBR_CONFIG && window.PBR_CONFIG.rascunho) html.classList.add('modo-rascunho');
+
+  if (!html.hasAttribute('data-tema-fixo')) {
+    try {
+      var tema = window.localStorage.getItem('pbr_tema');
+      if (tema === 'claro' || tema === 'escuro') html.setAttribute('data-tema', tema);
+    } catch (e) { /* sem localStorage: segue o sistema */ }
+  }
 
   if (html.hasAttribute('data-abertura')) {
     var reduzido = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);

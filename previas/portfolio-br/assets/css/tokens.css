@@ -75,6 +75,10 @@
   --cor-erro-suave: #FEF3F2;
   --cor-sucesso: var(--cor-verde-600);
   --cor-whatsapp: #167A43; /* verde escurecido para contraste AA com texto branco */
+  --cor-fundo-neutro: var(--cor-cinza-100);      /* chips e áreas neutras */
+  --cor-borda-campo: var(--cor-cinza-500);       /* bordas de campos e opções (3:1 com o fundo) */
+  --cor-acao-texto-suave: var(--cor-verde-800);  /* texto sobre --cor-acao-fundo-suave */
+  --cor-topo-fundo: rgb(255 255 255 / 0.94);     /* cabeçalho fixo translúcido */
 
   /* Paletas dos sites de EXEMPLO (fictícios): mockup do hero e páginas em exemplos/ */
   --exemplo-moda-1: #B4436C;
@@ -172,4 +176,73 @@
     --duracao-rapida: 0ms;
     --duracao-media: 0ms;
   }
+}
+
+/* ---------- Modo escuro (melhoria 11) ----------
+ * Automático pelo sistema (prefers-color-scheme) ou escolhido no botão do cabeçalho (data-tema no <html>,
+ * posto antes da 1ª pintura pelo inicio.js). Só os papéis semânticos mudam; a marca continua a mesma.
+ * Páginas com data-tema-fixo (sites de EXEMPLO e painel /admin/) ficam sempre claras.
+ * Contrastes conferidos (WCAG AA): texto 16,6:1 e suave 9,1:1 no fundo; ação 9,2:1 no fundo e texto da ação 9,3:1.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']):not([data-tema-fixo]) {
+    color-scheme: dark;
+    --cor-fundo: #08101F;
+    --cor-fundo-suave: #0D1730;
+    --cor-fundo-escuro: #14244A;
+    --cor-superficie: #111C38;
+    --cor-borda: #26365C;
+    --cor-texto: #EAF0FA;
+    --cor-texto-suave: #A7B4CD;
+    --cor-texto-invertido: #FFFFFF;
+    --cor-texto-invertido-suave: #C2CCE0;
+    --cor-acao: #3DCB97;
+    --cor-acao-hover: #66D9AE;
+    --cor-acao-ativa: #2BB283;
+    --cor-acao-texto: #06101F;
+    --cor-acao-fundo-suave: #0E3529;
+    --cor-acao-no-escuro: #3DCB97;
+    --cor-acao-texto-suave: #8FE6C4;
+    --cor-destaque-suave: #3A3112;
+    --cor-foco: var(--cor-sol-400);
+    --cor-erro: #FF9C94;
+    --cor-erro-suave: #3A1513;
+    --cor-sucesso: #3DCB97;
+    --cor-fundo-neutro: #1A2849;
+    --cor-borda-campo: #7D8BA8;
+    --cor-topo-fundo: rgb(8 16 31 / 0.94);
+    --sombra-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+    --sombra-md: 0 4px 12px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
+    --sombra-lg: 0 18px 40px rgb(0 0 0 / 0.55), 0 6px 12px rgb(0 0 0 / 0.35);
+  }
+}
+:root[data-tema='escuro']:not([data-tema-fixo]) {
+  color-scheme: dark;
+  --cor-fundo: #08101F;
+  --cor-fundo-suave: #0D1730;
+  --cor-fundo-escuro: #14244A;
+  --cor-superficie: #111C38;
+  --cor-borda: #26365C;
+  --cor-texto: #EAF0FA;
+  --cor-texto-suave: #A7B4CD;
+  --cor-texto-invertido: #FFFFFF;
+  --cor-texto-invertido-suave: #C2CCE0;
+  --cor-acao: #3DCB97;
+  --cor-acao-hover: #66D9AE;
+  --cor-acao-ativa: #2BB283;
+  --cor-acao-texto: #06101F;
+  --cor-acao-fundo-suave: #0E3529;
+  --cor-acao-no-escuro: #3DCB97;
+  --cor-acao-texto-suave: #8FE6C4;
+  --cor-destaque-suave: #3A3112;
+  --cor-foco: var(--cor-sol-400);
+  --cor-erro: #FF9C94;
+  --cor-erro-suave: #3A1513;
+  --cor-sucesso: #3DCB97;
+  --cor-fundo-neutro: #1A2849;
+  --cor-borda-campo: #7D8BA8;
+  --cor-topo-fundo: rgb(8 16 31 / 0.94);
+  --sombra-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+  --sombra-md: 0 4px 12px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
+  --sombra-lg: 0 18px 40px rgb(0 0 0 / 0.55), 0 6px 12px rgb(0 0 0 / 0.35);
 }

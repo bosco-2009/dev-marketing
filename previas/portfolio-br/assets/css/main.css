@@ -196,8 +196,8 @@ a:hover { color: var(--cor-acao-hover); }
 .botao--primario:hover { background: var(--cor-acao-hover); color: var(--cor-acao-texto); }
 .botao--primario:active { background: var(--cor-acao-ativa); }
 
-.botao--contorno { border-color: var(--cor-noite-900); color: var(--cor-noite-900); background: transparent; }
-.botao--contorno:hover { background: var(--cor-noite-900); color: var(--cor-texto-invertido); }
+.botao--contorno { border-color: var(--cor-texto); color: var(--cor-texto); background: transparent; }
+.botao--contorno:hover { background: var(--cor-texto); color: var(--cor-fundo); }
 
 .botao--contorno-claro { border-color: rgb(255 255 255 / 0.5); color: var(--cor-texto-invertido); }
 .botao--contorno-claro:hover { border-color: var(--cor-texto-invertido); background: rgb(255 255 255 / 0.08); color: var(--cor-texto-invertido); }
@@ -235,7 +235,7 @@ a:hover { color: var(--cor-acao-hover); }
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: rgb(255 255 255 / 0.94);
+  background: var(--cor-topo-fundo);
   border-bottom: 1px solid var(--cor-borda);
   backdrop-filter: saturate(160%) blur(10px);
 }
@@ -247,6 +247,26 @@ a:hover { color: var(--cor-acao-hover); }
   gap: var(--esp-4);
   min-height: 4rem;
 }
+
+/* Botão do modo escuro (melhoria 11): aparece quando o inicio.js tira "sem-js", antes da 1ª pintura (sem CLS) */
+.tema-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: auto;
+  border: 1px solid var(--cor-borda);
+  border-radius: 50%;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+.tema-botao:hover { border-color: var(--cor-borda-campo); }
+.tema-botao .icone { width: 1.25rem; height: 1.25rem; }
+.tema-botao[aria-pressed='true'] .tema-botao__lua,
+.tema-botao[aria-pressed='false'] .tema-botao__sol { display: none; }
+.sem-js .tema-botao { display: none; }
+.topo__barra .tema-botao + .topo__menu-botao { margin-left: calc(var(--esp-4) * -1 + var(--esp-2)); }
 
 .topo__menu-botao {
   display: inline-flex;
@@ -293,6 +313,7 @@ a:hover { color: var(--cor-acao-hover); }
 /* Menu horizontal só quando cabe sem quebrar linha (6 itens + botão) */
 @media (min-width: 64rem) {
   .topo__menu-botao { display: none; }
+  .tema-botao { order: 3; margin-left: 0; }
   .topo__nav,
   .topo__nav[data-aberto='true'] {
     position: static;
@@ -400,22 +421,23 @@ a:hover { color: var(--cor-acao-hover); }
   position: relative;
   flex: 1;
   border-radius: 1.9rem;
-  background: var(--cor-fundo-suave);
+  background: var(--cor-cinza-50);
   overflow: hidden;
 }
 
-/* ---------- Telas de exemplo do mockup (alternadas pelo mockup.js) ---------- */
+/* ---------- Telas de exemplo do mockup (alternadas pelo mockup.js) ----------
+ * São "prints" de sites de exemplo: usam a paleta clara fixa, também no modo escuro do site. */
 .mock-tela {
-  --mock-acao: var(--cor-acao);
+  --mock-acao: var(--cor-verde-600);
   --mock-capa-1: var(--cor-verde-600);
   --mock-capa-2: var(--cor-noite-800);
   --mock-botao: var(--cor-destaque);
   --mock-botao-texto: var(--cor-noite-900);
-  --mock-fundo: var(--cor-fundo-suave);
-  --mock-amostra-1: var(--cor-acao-fundo-suave);
-  --mock-amostra-2: var(--cor-acao-fundo-suave);
-  --mock-amostra-3: var(--cor-acao-fundo-suave);
-  --mock-amostra-4: var(--cor-acao-fundo-suave);
+  --mock-fundo: var(--cor-cinza-50);
+  --mock-amostra-1: var(--cor-verde-100);
+  --mock-amostra-2: var(--cor-verde-100);
+  --mock-amostra-3: var(--cor-verde-100);
+  --mock-amostra-4: var(--cor-verde-100);
   position: absolute;
   inset: 0;
   display: flex;
@@ -555,7 +577,7 @@ a:hover { color: var(--cor-acao-hover); }
   color: var(--cor-noite-900);
 }
 .mock__card b { font-size: 0.54rem; line-height: 1.2; }
-.mock__card small { font-size: 0.48rem; color: var(--cor-texto-suave); line-height: 1.3; font-weight: var(--peso-semi); }
+.mock__card small { font-size: 0.48rem; color: var(--cor-cinza-500); line-height: 1.3; font-weight: var(--peso-semi); }
 .mock__amostra {
   display: block;
   height: 1.5rem;
@@ -752,10 +774,10 @@ a:hover { color: var(--cor-acao-hover); }
   cursor: pointer;
   transition: border-color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao);
 }
-.sim-opcao:hover { border-color: var(--cor-cinza-500); }
+.sim-opcao:hover { border-color: var(--cor-borda-campo); }
 /* o rádio fica sobre o "chip" inteiro (acessível e clicável), mas invisível */
 .sim-opcao input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.sim-opcao:has(:checked) { border-color: var(--cor-acao); background: var(--cor-acao-fundo-suave); color: var(--cor-verde-800); }
+.sim-opcao:has(:checked) { border-color: var(--cor-acao); background: var(--cor-acao-fundo-suave); color: var(--cor-acao-texto-suave); }
 .sim-opcao:has(:focus-visible) { outline: 3px solid var(--cor-foco); outline-offset: 2px; }
 
 .sim__resultado {
@@ -856,7 +878,7 @@ a:hover { color: var(--cor-acao-hover); }
   border-radius: var(--raio-lg);
   background: var(--cor-superficie);
 }
-.projeto img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--cor-cinza-100); }
+.projeto img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--cor-fundo-neutro); }
 .projeto__info { padding: var(--esp-4) var(--esp-5) var(--esp-5); }
 .projeto__nome { font-size: var(--texto-lg); }
 .projeto__segmento { color: var(--cor-texto-suave); font-size: var(--texto-sm); }
@@ -938,7 +960,7 @@ a:hover { color: var(--cor-acao-hover); }
   text-align: center;
 }
 .cta-final__titulo { font-size: var(--texto-2xl); max-width: 36rem; margin-inline: auto; }
-.cta-final__texto { margin: var(--esp-4) auto 0; max-width: 32rem; color: var(--cor-cinza-700); font-size: var(--texto-md); }
+.cta-final__texto { margin: var(--esp-4) auto 0; max-width: 32rem; color: var(--cor-texto-suave); font-size: var(--texto-md); }
 .cta-final__acoes {
   display: flex;
   flex-direction: column;

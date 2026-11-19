@@ -50,6 +50,8 @@
   <script src="assets/js/mockup.js" defer></script>
   <script src="assets/js/simulador.js" defer></script>
   <script src="assets/js/supabase-client.js" defer></script>
+  <script src="assets/js/tema.js" defer></script>
+  <script src="assets/js/origem.js" defer></script>
   <script src="assets/js/chat.js" defer></script>
   <script src="assets/js/briefing.js" defer></script>
 </head>
@@ -88,6 +90,8 @@
     <symbol id="i-chave" viewBox="0 0 24 24"><path d="M14.5 4.2a4.5 4.5 0 0 0 5.3 5.3L9.4 19.9a2 2 0 0 1-2.8 0l-2.5-2.5a2 2 0 0 1 0-2.8L14.5 4.2Z"/><path d="m14.5 4.2 2.4 2.9"/></symbol>
     <symbol id="i-pata" viewBox="0 0 24 24"><ellipse cx="12" cy="16.2" rx="4.2" ry="3.6"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.6" cy="6.3" r="1.8"/><circle cx="14.4" cy="6.3" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></symbol>
     <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></symbol>
+    <symbol id="i-lua" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></symbol>
+    <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
     <symbol id="i-traco" viewBox="0 0 24 24"><path d="M7 12h10"/></symbol>
     <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
@@ -101,6 +105,12 @@
         <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
         <span class="marca__nome">Portfólio <span class="marca__br">BR</span><span class="visualmente-oculto"> — página inicial</span></span>
       </a>
+
+      <button class="tema-botao" type="button" aria-pressed="false" title="Usar modo escuro" data-tema-botao>
+        <svg class="icone tema-botao__lua" aria-hidden="true"><use href="#i-lua"/></svg>
+        <svg class="icone tema-botao__sol" aria-hidden="true"><use href="#i-sol"/></svg>
+        <span class="visualmente-oculto">Modo escuro</span>
+      </button>
 
       <button class="topo__menu-botao" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-botao>
         <svg class="icone" aria-hidden="true"><use href="#i-menu"/></svg>
@@ -276,6 +286,7 @@
           <li><a href="exemplos.html">Exemplos</a></li>
           <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
           <li><a href="index.html#duvidas">Dúvidas</a></li>
+          <li><a href="blog/">Blog</a></li>
           <li><a href="termos.html">Termos de uso</a></li>
           <li><a href="privacidade.html">Política de privacidade</a></li>
         </ul>

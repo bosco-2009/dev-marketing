@@ -1,0 +1,72 @@
+/* blog.css — blog/index.html e artigos (melhoria 9): leitura confortável, mobile-first. */
+
+.pagina-topo {
+  padding-block: var(--esp-6) var(--esp-6);
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-texto-invertido);
+}
+.pagina-topo .secao__sobretitulo { color: var(--cor-destaque); }
+.pagina-topo__titulo { font-size: var(--texto-2xl); max-width: 40rem; }
+.pagina-topo__texto { margin-top: var(--esp-3); color: var(--cor-texto-invertido-suave); font-size: var(--texto-md); }
+.secao--compacta { padding-block: var(--esp-6) var(--esp-8); }
+
+/* Migalhas de pão */
+.migalhas { margin-bottom: var(--esp-4); font-size: var(--texto-sm); }
+.migalhas ol { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-2); margin: 0; padding: 0; }
+.migalhas li { display: inline-flex; gap: var(--esp-2); color: var(--cor-texto-invertido-suave); }
+.migalhas li + li::before { content: '/'; color: var(--cor-texto-invertido-suave); }
+.migalhas a { color: var(--cor-texto-invertido); }
+.migalhas a:hover { color: var(--cor-destaque); }
+
+/* Lista de artigos */
+.blog-lista { display: grid; gap: var(--esp-4); margin: 0; padding: 0; }
+@media (min-width: 48rem) { .blog-lista { grid-template-columns: repeat(3, 1fr); gap: var(--esp-5); } }
+.blog-cartao {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  transition: box-shadow var(--duracao-media) var(--curva-padrao), transform var(--duracao-media) var(--curva-padrao);
+}
+.blog-cartao:hover { box-shadow: var(--sombra-md); transform: translateY(-2px); }
+.blog-cartao__data { order: -1; margin-bottom: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.blog-cartao__titulo { font-size: var(--texto-lg); line-height: 1.25; }
+.blog-cartao__titulo a { color: var(--cor-texto); text-decoration: none; }
+/* o cartão inteiro é clicável pelo link do título (o foco fica no próprio link) */
+.blog-cartao__titulo a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.blog-cartao__titulo a:hover { color: var(--cor-acao); }
+.blog-cartao__resumo { margin-top: var(--esp-2); color: var(--cor-texto-suave); }
+@media (prefers-reduced-motion: reduce) { .blog-cartao, .blog-cartao:hover { transition: none; transform: none; } }
+
+/* Artigo */
+.artigo__meta { margin-top: var(--esp-3); color: var(--cor-texto-invertido-suave); font-size: var(--texto-sm); }
+.artigo__corpo { padding-block: var(--esp-6) var(--esp-8); font-size: var(--texto-md); line-height: 1.7; }
+.artigo__corpo > * + * { margin-top: var(--esp-4); }
+.artigo__corpo h2 { margin-top: var(--esp-7); font-size: var(--texto-xl); line-height: 1.25; scroll-margin-top: 5.5rem; }
+.artigo__corpo ul { padding-left: var(--esp-5); list-style: disc; }
+.artigo__corpo ul[role='list'] { padding-left: 0; list-style: none; }
+.artigo__corpo li + li { margin-top: var(--esp-2); }
+.artigo__corpo a { overflow-wrap: anywhere; }
+
+.artigo__chamada {
+  margin-top: var(--esp-7);
+  padding: var(--esp-5);
+  border-radius: var(--raio-lg);
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-texto-invertido);
+}
+.artigo__chamada > * + * { margin-top: var(--esp-3); }
+.artigo__chamada p { color: var(--cor-texto-invertido-suave); font-size: var(--texto-base); }
+.artigo__corpo .artigo__chamada-titulo { margin-top: 0; font-size: var(--texto-lg); }
+.artigo__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.artigo__acoes .botao--contorno { border-color: var(--cor-texto-invertido); color: var(--cor-texto-invertido); }
+.artigo__acoes .botao--contorno:hover { background: var(--cor-texto-invertido); color: var(--cor-noite-900); }
+
+.artigo__mais { margin-top: var(--esp-7); padding-top: var(--esp-5); border-top: 1px solid var(--cor-borda); font-size: var(--texto-base); }
+.artigo__corpo .artigo__mais-titulo { margin-top: 0; font-size: var(--texto-lg); }
+.artigo__mais ul { display: grid; gap: var(--esp-2); margin-top: var(--esp-3); }
+.artigo__mais li + li { margin-top: 0; }
+.artigo__mais a { font-weight: var(--peso-semi); }

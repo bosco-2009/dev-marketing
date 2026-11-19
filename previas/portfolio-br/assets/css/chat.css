@@ -135,7 +135,7 @@
   gap: var(--esp-2);
   padding: var(--esp-3) var(--esp-4);
   background: var(--cor-destaque-suave);
-  color: var(--cor-noite-900);
+  color: var(--cor-texto);
   border-bottom: 1px solid var(--cor-borda);
 }
 .chat__aviso[hidden] { display: none; }
@@ -193,7 +193,7 @@
   align-self: center;
   padding: var(--esp-2) var(--esp-3);
   border-radius: var(--raio-pilula);
-  background: var(--cor-cinza-100);
+  background: var(--cor-fundo-neutro);
   color: var(--cor-texto-suave);
   font-size: var(--texto-xs);
   text-align: center;
@@ -223,7 +223,7 @@
   width: 100%;
   min-height: 2.75rem;
   padding: var(--esp-2) var(--esp-3);
-  border: 1px solid var(--cor-cinza-500);
+  border: 1px solid var(--cor-borda-campo);
   border-radius: var(--raio-sm);
   background: var(--cor-superficie);
   font-size: var(--texto-base); /* 16px evita zoom automático no iOS */

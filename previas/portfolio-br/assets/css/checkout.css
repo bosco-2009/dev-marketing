@@ -67,7 +67,7 @@
   cursor: pointer;
   transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao);
 }
-.opcao-plano:hover { border-color: var(--cor-cinza-500); }
+.opcao-plano:hover { border-color: var(--cor-borda-campo); }
 .opcao-plano:has(:checked) { border-color: var(--cor-acao); background: var(--cor-acao-fundo-suave); box-shadow: var(--sombra-sm); }
 .opcao-plano:has(:focus-visible) { outline: 3px solid var(--cor-foco); outline-offset: 2px; }
 .opcao-plano__radio {
@@ -104,7 +104,7 @@
   width: 100%;
   min-height: 3rem;
   padding: var(--esp-2) var(--esp-3);
-  border: 1px solid var(--cor-cinza-500);
+  border: 1px solid var(--cor-borda-campo);
   border-radius: var(--raio-sm);
   background: var(--cor-superficie);
   font-size: var(--texto-base);
@@ -191,7 +191,7 @@
   height: 4.5rem;
   border-radius: 50%;
   background: var(--cor-destaque-suave);
-  color: var(--cor-noite-900);
+  color: var(--cor-texto);
 }
 .resultado__icone .icone { width: 2.25rem; height: 2.25rem; }
 .resultado[data-estado='aprovado'] .resultado__icone { background: var(--cor-acao-fundo-suave); color: var(--cor-acao); }
@@ -258,7 +258,7 @@
   width: 100%;
   min-height: 2.75rem;
   padding: var(--esp-2) var(--esp-3);
-  border: 1px solid var(--cor-cinza-500);
+  border: 1px solid var(--cor-borda-campo);
   border-radius: var(--raio-sm);
   background: var(--cor-superficie);
   font-size: var(--texto-xs);

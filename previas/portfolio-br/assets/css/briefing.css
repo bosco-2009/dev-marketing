@@ -49,7 +49,7 @@
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 50%;
-  background: var(--cor-cinza-100);
+  background: var(--cor-fundo-neutro);
   font-weight: var(--peso-negrito);
 }
 .briefing__progresso li[data-estado='feito'] .briefing__num { background: var(--cor-acao); color: var(--cor-acao-texto); }
