@@ -723,32 +723,99 @@ a:hover { color: var(--cor-acao-hover); }
 .segmento__link .icone { width: 1rem; height: 1rem; transition: transform var(--duracao-rapida) var(--curva-padrao); }
 .segmento__link:hover .icone { transform: translateX(3px); }
 
-/* ===================== Passos ===================== */
-.passos { display: grid; gap: var(--esp-4); counter-reset: passo; }
-
-@media (min-width: 40rem) { .passos { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 64rem) { .passos { grid-template-columns: repeat(4, 1fr); gap: var(--esp-5); } }
-
+/* ===================== Passos (linha do tempo "Como funciona") =====================
+ * Celular/tablet: linha vertical à esquerda ligando os números. Desktop (≥64rem): linha horizontal.
+ * Cada li desenha o trecho até o próximo número (::before = trilho, ::after = trecho preenchido).
+ * O estado final (linha cheia, números verdes) é o padrão; a animação está em movimento.css. */
+.passos {
+  --passo-circulo: 2.5rem;
+  --passo-vao: var(--esp-4);
+  display: grid;
+  gap: var(--passo-vao);
+}
 .passo {
   position: relative;
+  padding-left: calc(var(--passo-circulo) + var(--esp-4));
+}
+.passo__numero {
+  position: absolute;
+  z-index: 1;
+  top: var(--esp-4);
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--passo-circulo);
+  height: var(--passo-circulo);
+  border-radius: 50%;
+  background: var(--cor-acao);
+  box-shadow: 0 0 0 4px var(--cor-fundo-suave);
+  color: var(--cor-acao-texto);
+  font-weight: var(--peso-extra);
+}
+.passo:not(:last-child)::before,
+.passo:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--esp-4) + var(--passo-circulo) / 2);
+  left: calc(var(--passo-circulo) / 2 - 1.5px);
+  width: 3px;
+  height: calc(100% + var(--passo-vao));
+  border-radius: 3px;
+}
+.passo:not(:last-child)::before { background: var(--cor-borda); }
+.passo:not(:last-child)::after { background: var(--cor-acao); transform-origin: top; }
+.passo__corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
   padding: var(--esp-5);
   border-radius: var(--raio-lg);
   background: var(--cor-superficie);
   box-shadow: var(--sombra-sm);
 }
-.passo__numero {
-  display: inline-grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-bottom: var(--esp-4);
-  border-radius: 50%;
-  background: var(--cor-noite-900);
-  color: var(--cor-destaque);
-  font-weight: var(--peso-extra);
-}
 .passo__titulo { font-size: var(--texto-lg); }
 .passo__texto { margin-top: var(--esp-2); color: var(--cor-texto-suave); }
+.passo__prazo {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  margin-top: var(--esp-4);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-acao-fundo-suave);
+  color: var(--cor-acao-texto-suave);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  line-height: 1.35;
+}
+.passo__prazo::before {
+  content: '';
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.42em;
+  border-radius: 50%;
+  background: currentColor;
+}
+.passo__prazo[hidden] { display: none; }
+
+@media (min-width: 64rem) {
+  .passos { --passo-vao: var(--esp-5); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .passo { padding-left: 0; padding-top: calc(var(--passo-circulo) + var(--esp-4)); }
+  .passo__numero { top: 0; left: calc(50% - var(--passo-circulo) / 2); }
+  .passo__corpo { align-items: center; text-align: center; }
+  .passo__prazo { margin-top: auto; text-align: left; }
+  .passo__texto { margin-bottom: var(--esp-4); }
+  .passo:not(:last-child)::before,
+  .passo:not(:last-child)::after {
+    top: calc(var(--passo-circulo) / 2 - 1.5px);
+    left: 50%;
+    width: calc(100% + var(--passo-vao));
+    height: 3px;
+  }
+  .passo:not(:last-child)::after { transform-origin: left; }
+}
 
 /* ===================== Simulador "Qual plano é para mim?" ===================== */
 .sim { display: grid; gap: var(--esp-6); align-items: start; }

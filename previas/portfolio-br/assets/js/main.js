@@ -183,6 +183,34 @@
     secaoDepoimentos.hidden = false;
   }
 
+  // ---------------- Como funciona: prazos da linha do tempo ----------------
+  // Os números vêm de config.planos[].prazo e config.legal; os textos, de config.comoFunciona.prazos.
+  // Se faltar um dado, o rótulo daquele passo continua oculto (nunca mostra prazo inventado).
+  var rotulosPrazo = (config.comoFunciona && config.comoFunciona.prazos) || {};
+  var diasPlanos = [];
+  (config.planos || []).forEach(function (p) {
+    var m = /(\d+)\s*dias?\s+úte/i.exec(p.prazo || '');
+    if (m && diasPlanos.indexOf(+m[1]) === -1) diasPlanos.push(+m[1]);
+  });
+  diasPlanos.sort(function (a, b) { return a - b; });
+  var valoresPrazo = {
+    dias: diasPlanos.length < 2 ? (diasPlanos.length ? String(diasPlanos[0]) : null)
+      : diasPlanos.slice(0, -1).join(', ') + ' ou ' + diasPlanos[diasPlanos.length - 1],
+    suporte: config.legal && config.legal.suportePosEntregaDias ? String(config.legal.suportePosEntregaDias) : null
+  };
+  document.querySelectorAll('[data-passo-prazo]').forEach(function (el) {
+    var modelo = rotulosPrazo[el.getAttribute('data-passo-prazo')];
+    if (!modelo) return;
+    var faltou = false;
+    var texto = modelo.replace(/\{(\w+)\}/g, function (_, chave) {
+      if (!valoresPrazo[chave]) faltou = true;
+      return valoresPrazo[chave] || '';
+    });
+    if (faltou) return;
+    el.textContent = texto;
+    el.hidden = false;
+  });
+
   // ---------------- Garantias ----------------
   var iconesGarantia = ['escudo', 'olho', 'ajuste', 'devolver'];
   var listaGarantias = $('[data-lista-garantias]');

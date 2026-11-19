@@ -221,6 +221,39 @@
 }
 .revelar-ativo .secao__cabecalho.revelado-imediato .secao__titulo::after { transition: none; }
 
+/* Linha do tempo "Como funciona": revelar.js põe "linha-tempo--viva" quando a lista entra na tela.
+   Antes disso os números ficam pequenos e apagados e os trechos vazios; depois, cada número acende e o
+   trecho até o próximo se preenche, em sequência (só transform e opacity). */
+.revelar-ativo .linha-tempo .passo__numero {
+  opacity: 0.3;
+  transform: scale(0.6);
+}
+.revelar-ativo .linha-tempo .passo::after { transform: scaleY(0); }
+.revelar-ativo .linha-tempo.linha-tempo--viva .passo__numero {
+  opacity: 1;
+  transform: none;
+  animation: passo-acender 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) var(--passo-atraso, 0ms) both;
+}
+.revelar-ativo .linha-tempo.linha-tempo--viva .passo::after {
+  transform: none;
+  transition: transform 0.55s cubic-bezier(0.45, 0, 0.55, 1) calc(var(--passo-atraso, 0ms) + 250ms);
+}
+.linha-tempo .passo:nth-child(2) { --passo-atraso: 800ms; }
+.linha-tempo .passo:nth-child(3) { --passo-atraso: 1600ms; }
+.linha-tempo .passo:nth-child(4) { --passo-atraso: 2400ms; }
+.linha-tempo .passo:nth-child(5) { --passo-atraso: 3200ms; }
+.revelar-ativo .linha-tempo.linha-tempo--imediata .passo__numero,
+.revelar-ativo .linha-tempo.linha-tempo--imediata .passo::after { transition: none; animation: none; }
+@media (min-width: 64rem) {
+  .revelar-ativo .linha-tempo .passo::after { transform: scaleX(0); }
+  .revelar-ativo .linha-tempo.linha-tempo--viva .passo::after { transform: none; }
+}
+@keyframes passo-acender {
+  0% { opacity: 0.3; transform: scale(0.6); }
+  60% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 /* Mockup do hero: revelar.js aplica rotação 3D e escala conforme a rolagem */
 .revelar-ativo .hero__visual { perspective: 1400px; }
 .revelar-ativo .hero__visual .celular { will-change: transform; transform-style: preserve-3d; }
@@ -232,4 +265,6 @@
   .revelar-ativo [data-revelar] { opacity: 1; transform: none; transition: none; }
   .revelar-ativo .secao__cabecalho .secao__titulo::after { transform: none; transition: none; }
   .revelar-ativo .hero__visual .celular { transform: none !important; }
+  .revelar-ativo .linha-tempo .passo__numero { opacity: 1; transform: none; animation: none; }
+  .revelar-ativo .linha-tempo .passo::after { transform: none; transition: none; }
 }

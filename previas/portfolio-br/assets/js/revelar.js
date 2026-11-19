@@ -2,6 +2,7 @@
  * revelar.js — animações de rolagem estilo site premium (sem bibliotecas).
  *   - Seções e cards aparecem com fade + subida ao entrar na tela (IntersectionObserver); cards em cascata.
  *   - O sublinhado amarelo dos títulos se desenha quando a seção aparece (CSS em movimento.css).
+ *   - Linha do tempo "Como funciona": números acendem e a linha se preenche em sequência (prazos: main.js).
  *   - O celular do hero amplia e gira levemente em 3D conforme a rolagem (requestAnimationFrame,
  *     só transform; o cálculo pausa quando o hero sai da tela).
  * Sem JavaScript ou com prefers-reduced-motion: nada é escondido nem animado.
@@ -57,6 +58,24 @@
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
   elementos.forEach(function (el) { if (!el.classList.contains('revelado')) observador.observe(el); });
 
+  // Linha do tempo "Como funciona": os números acendem e a linha se preenche quando a lista entra na tela.
+  // Já visível na carga: aparece pronta, sem animação.
+  var linhasTempo = document.querySelectorAll('[data-linha-tempo]');
+  var observadorLinha = new IntersectionObserver(function (entradas) {
+    entradas.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('linha-tempo--viva');
+      observadorLinha.unobserve(en.target);
+    });
+  }, { rootMargin: '0px 0px -15% 0px', threshold: 0.2 });
+  linhasTempo.forEach(function (lista) {
+    if (lista.getBoundingClientRect().top < alturaTela * 0.6) {
+      lista.classList.add('linha-tempo--viva', 'linha-tempo--imediata');
+    } else {
+      observadorLinha.observe(lista);
+    }
+  });
+
   // ----------------------------------------------------------------- celular do hero em 3D
   var hero = document.querySelector('.hero');
   var celular = document.querySelector('.hero__visual .celular');
@@ -98,6 +117,7 @@
       celular.style.transform = '';
       window.removeEventListener('scroll', pedir);
       elementos.forEach(function (el) { el.classList.add('revelado', 'revelado-imediato'); });
+      linhasTempo.forEach(function (l) { l.classList.add('linha-tempo--viva', 'linha-tempo--imediata'); });
     });
   }
 })();

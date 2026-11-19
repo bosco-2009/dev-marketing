@@ -64,6 +64,19 @@
       textoParcelamento: 'Pix, boleto ou cartão em até 12x pelo Mercado Pago.'
     },
 
+    // Linha do tempo "Como funciona" (home): rótulo de prazo de cada passo. Texto vazio = sem rótulo.
+    // Os números NÃO ficam aqui: {dias} vem dos dias úteis em config.planos[].prazo (ex.: "7, 15 ou 20") e
+    // {suporte} vem de config.legal.suportePosEntregaDias. Mudou um prazo lá? A linha do tempo acompanha.
+    // [PROVISÓRIO] revisar os textos junto com os prazos dos planos.
+    comoFunciona: {
+      prazos: {
+        pagamento: 'Contratação na hora, pelo site',
+        briefing: 'Liberado logo após o pagamento',
+        entrega: 'Entrega em até {dias} dias úteis, conforme o plano',
+        publicacao: '{suporte} dias de suporte para correções após a publicação'
+      }
+    },
+
     // [PROVISÓRIO] nomes, preços, itens, prazos e número de ajustes de TODOS os planos.
     // ATENÇÃO: o valor COBRADO vem da tabela public.planos do Supabase (o front nunca define o preço).
     // Ao mudar id, nome ou precoCentavos aqui, mude também no banco (ver supabase/README.md).

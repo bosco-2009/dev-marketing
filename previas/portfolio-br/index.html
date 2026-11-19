@@ -392,26 +392,38 @@
           <p class="secao__descricao">Tudo online, sem reunião longa e sem complicação.</p>
         </header>
 
-        <ol class="passos" role="list">
+        <ol class="passos linha-tempo" role="list" data-linha-tempo>
           <li class="passo">
             <span class="passo__numero" aria-hidden="true">1</span>
-            <h3 class="passo__titulo">Escolha o plano</h3>
-            <p class="passo__texto">Compare os planos e pague com segurança pelo Mercado Pago.</p>
+            <div class="passo__corpo">
+              <h3 class="passo__titulo">Escolha o plano</h3>
+              <p class="passo__texto">Compare os planos e pague com segurança pelo Mercado Pago.</p>
+              <p class="passo__prazo" data-passo-prazo="pagamento" hidden></p>
+            </div>
           </li>
           <li class="passo">
             <span class="passo__numero" aria-hidden="true">2</span>
-            <h3 class="passo__titulo">Conte sobre o seu negócio</h3>
-            <p class="passo__texto">Preencha um briefing rápido com informações, contatos, logo e fotos.</p>
+            <div class="passo__corpo">
+              <h3 class="passo__titulo">Conte sobre o seu negócio</h3>
+              <p class="passo__texto">Preencha um briefing rápido com informações, contatos, logo e fotos.</p>
+              <p class="passo__prazo" data-passo-prazo="briefing" hidden></p>
+            </div>
           </li>
           <li class="passo">
             <span class="passo__numero" aria-hidden="true">3</span>
-            <h3 class="passo__titulo">Aprove e peça ajustes</h3>
-            <p class="passo__texto">Você recebe o site para revisar e pede os ajustes incluídos no plano.</p>
+            <div class="passo__corpo">
+              <h3 class="passo__titulo">Aprove e peça ajustes</h3>
+              <p class="passo__texto">Você recebe o site para revisar e pede os ajustes incluídos no plano.</p>
+              <p class="passo__prazo" data-passo-prazo="entrega" hidden></p>
+            </div>
           </li>
           <li class="passo">
             <span class="passo__numero" aria-hidden="true">4</span>
-            <h3 class="passo__titulo">Site no ar</h3>
-            <p class="passo__texto">Publicamos o site e você já pode divulgar o link para os clientes.</p>
+            <div class="passo__corpo">
+              <h3 class="passo__titulo">Site no ar</h3>
+              <p class="passo__texto">Publicamos o site e você já pode divulgar o link para os clientes.</p>
+              <p class="passo__prazo" data-passo-prazo="publicacao" hidden></p>
+            </div>
           </li>
         </ol>
       </div>
