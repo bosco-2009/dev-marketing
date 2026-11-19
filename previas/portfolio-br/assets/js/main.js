@@ -132,12 +132,9 @@
       });
       li.appendChild(itens);
 
-      // Fase 3: este botão passará a levar ao checkout do Mercado Pago.
-      var contato = linkContato('Olá! Tenho interesse no plano ' + plano.nome + ' da Portfólio BR.');
-      var botao = linkExterno(contato.href, 'botao ' + (plano.destaque ? 'botao--primario' : 'botao--contorno'),
-        ['Quero o plano ' + plano.nome]);
-      botao.setAttribute('aria-label', 'Quero o plano ' + plano.nome + ' (abre ' +
-        (contato.tipo === 'whatsapp' ? 'o WhatsApp' : 'o Instagram') + ' em nova aba)');
+      // Leva à página de contratação com o plano pré-selecionado.
+      var botao = criar('a', 'botao ' + (plano.destaque ? 'botao--primario' : 'botao--contorno'), 'Quero o plano ' + plano.nome);
+      botao.href = 'planos.html?plano=' + encodeURIComponent(plano.id);
       li.appendChild(botao);
 
       listaPlanos.appendChild(li);
@@ -146,6 +143,11 @@
 
   // ---------------- Portfólio (só projetos reais) ----------------
   var projetos = (config.portfolio && config.portfolio.projetos) || [];
+  // Links "Portfólio" do menu e do rodapé só aparecem com projetos reais.
+  document.querySelectorAll('[data-link-portfolio]').forEach(function (l) { l.hidden = projetos.length === 0; });
+  // portfolio.html: mensagem quando ainda não há projetos.
+  var portfolioVazio = $('[data-portfolio-vazio]');
+  if (portfolioVazio) portfolioVazio.hidden = projetos.length > 0;
   var secaoPortfolio = $('[data-secao-portfolio]');
   var listaPortfolio = $('[data-lista-portfolio]');
   if (secaoPortfolio && listaPortfolio && projetos.length > 0) {

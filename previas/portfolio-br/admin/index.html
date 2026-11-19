@@ -18,6 +18,8 @@
   <script src="../config.js" defer></script>
   <script src="../assets/js/supabase-client.js" defer></script>
   <script src="../assets/js/admin.js" defer></script>
+  <script src="../assets/js/admin-pedidos.js" defer></script>
+  <script src="../assets/js/admin-briefings.js" defer></script>
 </head>
 <body class="admin">
   <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -79,9 +81,18 @@
       <p>Carregando…</p>
     </section>
 
-    <!-- Chat -->
-    <section class="admin-chat" data-tela="chat" hidden aria-labelledby="chat-admin-titulo">
-      <h1 id="chat-admin-titulo" class="visualmente-oculto">Conversas do chat</h1>
+    <!-- Painel (após login): abas Conversas e Pedidos -->
+    <div class="admin-painel" data-tela="painel" hidden>
+    <h1 class="visualmente-oculto">Painel da Portfólio BR</h1>
+    <nav class="admin-abas" aria-label="Seções do painel">
+      <a class="admin-aba" href="#conversas" data-aba-link="conversas" aria-current="page">Conversas <span class="admin-aba__selo" data-selo-aba="conversas" hidden></span></a>
+      <a class="admin-aba" href="#pedidos" data-aba-link="pedidos">Pedidos <span class="admin-aba__selo" data-selo-aba="pedidos" hidden></span></a>
+      <a class="admin-aba" href="#briefings" data-aba-link="briefings">Briefings <span class="admin-aba__selo" data-selo-aba="briefings" hidden></span></a>
+    </nav>
+
+    <!-- Conversas -->
+    <section class="admin-chat" data-aba="conversas" aria-labelledby="chat-admin-titulo">
+      <h2 id="chat-admin-titulo" class="visualmente-oculto">Conversas do chat</h2>
 
       <div class="admin-lista" data-painel-lista>
         <div class="admin-lista__filtros" role="group" aria-label="Filtrar conversas">
@@ -126,6 +137,104 @@
         </div>
       </div>
     </section>
+
+    <!-- Pedidos -->
+    <section class="admin-pedidos" data-aba="pedidos" hidden aria-labelledby="pedidos-titulo">
+      <h2 id="pedidos-titulo" class="visualmente-oculto">Pedidos</h2>
+
+      <div class="admin-lista" data-pedidos-lista-painel>
+        <div class="admin-lista__filtros admin-lista__filtros--quebra" role="group" aria-label="Filtrar pedidos por status">
+          <button type="button" class="admin-filtro" aria-pressed="true" data-filtro-pedido="todos">Todos</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="aprovado">Aprovados</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="recusado">Recusados</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="cancelado">Cancelados</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="reembolsado">Reembolsados</button>
+        </div>
+        <div class="admin-busca">
+          <label class="visualmente-oculto" for="busca-pedidos">Buscar pedidos</label>
+          <input id="busca-pedidos" type="search" placeholder="Buscar por código, nome ou e-mail" data-busca-pedidos>
+        </div>
+        <p class="admin-resumo" data-resumo-pedidos aria-live="polite"></p>
+        <ul class="admin-lista__itens" role="list" data-lista-pedidos></ul>
+        <p class="admin-vazio" data-pedidos-vazio hidden>Nenhum pedido com este filtro.</p>
+      </div>
+
+      <div class="admin-conversa" data-pedido-painel>
+        <p class="admin-vazio admin-conversa__vazia" data-pedido-vazio>Escolha um pedido para ver os detalhes.</p>
+        <div class="admin-pedido" data-pedido-detalhe hidden>
+          <header class="admin-conversa__cabecalho">
+            <button class="admin-botao-icone admin-conversa__voltar" type="button" data-pedido-voltar>
+              <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+              <span class="visualmente-oculto">Voltar para a lista de pedidos</span>
+            </button>
+            <div class="admin-conversa__quem">
+              <h3 class="admin-conversa__nome" data-pedido-titulo tabindex="-1"></h3>
+              <p class="admin-conversa__detalhes" data-pedido-subtitulo></p>
+            </div>
+            <span class="admin-status" data-pedido-status></span>
+          </header>
+          <div class="admin-pedido__corpo">
+            <dl class="admin-dados" data-pedido-dados></dl>
+            <h4 class="admin-pedido__subtitulo">Notificações do Mercado Pago</h4>
+            <ol class="admin-eventos" data-pedido-eventos></ol>
+            <p class="admin-vazio" data-pedido-sem-eventos hidden>Nenhuma notificação de pagamento recebida ainda.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Briefings -->
+    <section class="admin-briefings" data-aba="briefings" hidden aria-labelledby="briefings-titulo">
+      <h2 id="briefings-titulo" class="visualmente-oculto">Briefings</h2>
+
+      <div class="admin-lista" data-briefings-lista-painel>
+        <div class="admin-lista__filtros admin-lista__filtros--quebra" role="group" aria-label="Filtrar briefings por status">
+          <button type="button" class="admin-filtro" aria-pressed="true" data-filtro-briefing="todos">Todos</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-briefing="novo">Novos</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-briefing="em_producao">Em produção</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-briefing="em_revisao">Em revisão</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-briefing="entregue">Entregues</button>
+        </div>
+        <ul class="admin-lista__itens" role="list" data-lista-briefings></ul>
+        <p class="admin-vazio" data-briefings-vazio hidden>Nenhum briefing com este filtro.</p>
+      </div>
+
+      <div class="admin-conversa" data-briefing-painel>
+        <p class="admin-vazio admin-conversa__vazia" data-briefing-vazio>Escolha um briefing para ver a ficha completa.</p>
+        <div class="admin-pedido" data-briefing-detalhe hidden>
+          <header class="admin-conversa__cabecalho">
+            <button class="admin-botao-icone admin-conversa__voltar" type="button" data-briefing-voltar>
+              <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+              <span class="visualmente-oculto">Voltar para a lista de briefings</span>
+            </button>
+            <div class="admin-conversa__quem">
+              <h3 class="admin-conversa__nome" data-briefing-titulo tabindex="-1"></h3>
+              <p class="admin-conversa__detalhes" data-briefing-subtitulo></p>
+            </div>
+            <div class="admin-status-controle">
+              <label for="briefing-status">Status</label>
+              <select id="briefing-status" data-briefing-status>
+                <option value="novo">Novo (cliente pode editar)</option>
+                <option value="em_producao">Em produção</option>
+                <option value="em_revisao">Em revisão</option>
+                <option value="entregue">Entregue</option>
+              </select>
+            </div>
+          </header>
+          <div class="admin-pedido__corpo">
+            <p class="admin-erro" data-erro-briefing-admin role="alert" hidden></p>
+            <p class="admin-dica">Enquanto o status for “Novo”, o cliente ainda pode editar. Mudar o status trava a edição.</p>
+            <dl class="admin-dados" data-briefing-dados></dl>
+            <h4 class="admin-pedido__subtitulo">Arquivos enviados</h4>
+            <ul class="admin-arquivos" role="list" data-briefing-arquivos></ul>
+            <p class="admin-vazio" data-briefing-sem-arquivos hidden>Nenhum arquivo enviado pelo site.</p>
+            <p><button class="botao botao--contorno botao--pequeno" type="button" data-briefing-ver-pedido>Ver o pedido</button></p>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
   </main>
 </body>
 </html>

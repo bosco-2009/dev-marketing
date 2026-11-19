@@ -1,0 +1,402 @@
+/*
+ * briefing.js — formulário de briefing em etapas (briefing.html).
+ *
+ * Acesso: código + token do pedido. Vêm de um destes lugares, em ordem:
+ *   1. fragmento da URL  briefing.html#c=PBR-XXXXXX&t=<token>  (link para abrir em outro aparelho;
+ *      o fragmento não é enviado a servidores nem aparece no Referer);
+ *   2. ?pedido=PBR-XXXXXX com o token guardado por planos.js (pbr_pedidos_v1);
+ *   3. o último acesso usado neste navegador (pbr_briefing_acesso).
+ * Servidor: RPCs briefing_obter / briefing_enviar e a Edge Function briefing-upload (URL assinada do Storage).
+ * Rascunho salvo no localStorage a cada alteração. Todo texto é inserido com textContent.
+ */
+(function () {
+  'use strict';
+
+  var config = window.PBR_CONFIG;
+  var form = document.querySelector('[data-form-briefing]');
+  var aviso = document.querySelector('[data-briefing-aviso]');
+  if (!config || !form || !aviso) return;
+
+  var TOTAL_ETAPAS = 5;
+  var TAMANHO_MAXIMO = 5 * 1024 * 1024;
+  var MAX_ARQUIVOS = 20;
+  var TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif', 'application/pdf'];
+  var CAMPOS_TEXTO = ['nome_negocio', 'segmento', 'cidade', 'publico', 'objetivo', 'paginas', 'cores_estilo',
+    'textos_servicos', 'contatos_redes', 'dominio', 'observacoes'];
+  var ROTULOS = {
+    nome_negocio: 'Nome do negócio', segmento: 'Segmento', cidade: 'Cidade/UF', publico: 'Clientes',
+    objetivo: 'Objetivo do site', paginas: 'Páginas', cores_estilo: 'Cores e estilo', referencias: 'Referências',
+    textos_servicos: 'Serviços e textos', contatos_redes: 'Contatos e redes', tem_dominio: 'Tem domínio?',
+    dominio: 'Domínio', arquivos: 'Arquivos enviados', links_arquivos: 'Links de arquivos', observacoes: 'Observações'
+  };
+  var STATUS_BRIEFING = { novo: 'Recebido', em_producao: 'Em produção', em_revisao: 'Em revisão', entregue: 'Entregue' };
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, classe, texto, attrs) {
+    var e = document.createElement(tag);
+    if (classe) e.className = classe;
+    if (texto != null) e.textContent = texto;
+    if (attrs) Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    return e;
+  }
+  function lerJSON(chave) { try { return JSON.parse(localStorage.getItem(chave)); } catch (e) { return null; } }
+  function gravarJSON(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
+
+  var base = (config.supabase && config.supabase.url || '').replace(/\/$/, '');
+  var chave = config.supabase && config.supabase.anonKey;
+
+  // ------------------------------------------------------------------ acesso (código + token)
+  function obterAcesso() {
+    var CODIGO = /^PBR-[A-HJ-NP-Z2-9]{6}$/;
+    var TOKEN = /^[0-9a-f]{64}$/;
+    var h = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (CODIGO.test(h.get('c') || '') && TOKEN.test(h.get('t') || '')) {
+      var a = { codigo: h.get('c'), token: h.get('t') };
+      gravarJSON('pbr_briefing_acesso', a);
+      history.replaceState(null, '', location.pathname + location.search); // tira o token da barra de endereço
+      return a;
+    }
+    var pedidos = lerJSON('pbr_pedidos_v1') || {};
+    var codigo = new URLSearchParams(location.search).get('pedido');
+    var ids = Object.keys(pedidos);
+    for (var i = 0; i < ids.length; i++) {
+      var p = pedidos[ids[i]];
+      if (p && p.codigo === codigo && TOKEN.test(p.token)) return { codigo: p.codigo, token: p.token };
+    }
+    var salvo = lerJSON('pbr_briefing_acesso');
+    if (salvo && CODIGO.test(salvo.codigo) && TOKEN.test(salvo.token) && (!codigo || codigo === salvo.codigo)) return salvo;
+    return null;
+  }
+
+  // ------------------------------------------------------------------ avisos
+  function linkContato() {
+    var c = config.contato;
+    return c.whatsapp
+      ? { href: 'https://wa.me/' + c.whatsapp, rotulo: 'Falar no WhatsApp' }
+      : { href: 'https://ig.me/m/' + c.instagram, rotulo: 'Falar pelo Instagram' };
+  }
+  function mostrarAviso(tipo, titulo, texto, acoes) {
+    aviso.hidden = false;
+    aviso.setAttribute('data-tipo', tipo);
+    $('[data-aviso-titulo]', aviso).textContent = titulo;
+    $('[data-aviso-texto]', aviso).textContent = texto || '';
+    var box = $('[data-aviso-acoes]', aviso);
+    box.textContent = '';
+    (acoes || []).forEach(function (a) { box.appendChild(el('a', 'botao ' + (a.primario ? 'botao--primario' : 'botao--contorno'), a.rotulo, a.attrs)); });
+    var c = linkContato();
+    box.appendChild(el('a', 'botao botao--contorno', c.rotulo, { href: c.href, target: '_blank', rel: 'noopener' }));
+  }
+
+  var acesso = obterAcesso();
+  if (!acesso) {
+    mostrarAviso('erro', 'Não encontramos o seu pedido neste aparelho',
+      'Abra o briefing pelo link mostrado na página de confirmação do pagamento ou fale com a gente que enviamos o link de novo.');
+    return;
+  }
+  if (!base || !chave) {
+    mostrarAviso('erro', 'Briefing indisponível no momento', 'Tente de novo mais tarde ou fale com a gente.');
+    return;
+  }
+
+  var CHAVE_RASCUNHO = 'pbr_briefing_rascunho_' + acesso.codigo;
+
+  function chamarRpc(nome, args) {
+    return fetch(base + '/rest/v1/rpc/' + nome, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: chave },
+      body: JSON.stringify(args)
+    }).then(function (r) {
+      return r.json().catch(function () { return null; }).then(function (d) {
+        if (!r.ok) throw new Error((d && d.message) || ('http ' + r.status));
+        return d;
+      });
+    });
+  }
+
+  // ------------------------------------------------------------------ listas de links
+  $$('[data-lista-links]').forEach(function (box) {
+    var nome = box.getAttribute('data-lista-links');
+    var n = Number(box.getAttribute('data-quantidade'));
+    for (var i = 1; i <= n; i++) {
+      var id = 'b-' + nome + '-' + i;
+      var campo = el('div', 'campo campo--link');
+      campo.appendChild(el('label', 'visualmente-oculto', (nome === 'referencias' ? 'Referência ' : 'Link de arquivo ') + i, { for: id }));
+      campo.appendChild(el('input', 'campo__entrada', null, {
+        id: id, type: 'url', inputmode: 'url', maxlength: '500', placeholder: 'https://', 'data-link': nome,
+        'aria-describedby': id + '-erro', autocapitalize: 'off', spellcheck: 'false'
+      }));
+      var erro = el('p', 'campo__erro', null, { id: id + '-erro' });
+      erro.hidden = true;
+      campo.appendChild(erro);
+      box.appendChild(campo);
+    }
+  });
+
+  // ------------------------------------------------------------------ dados do formulário
+  var arquivos = []; // [{caminho, nome, tipo, tamanho}]
+
+  function coletar() {
+    var d = {};
+    CAMPOS_TEXTO.forEach(function (n) { d[n] = form.elements[n].value.trim(); });
+    var tem = form.querySelector('input[name="tem_dominio"]:checked');
+    d.tem_dominio = tem ? tem.value : '';
+    if (d.tem_dominio !== 'sim') d.dominio = '';
+    ['referencias', 'links_arquivos'].forEach(function (n) {
+      d[n] = $$('[data-link="' + n + '"]', form).map(function (i) { return i.value.trim(); }).filter(Boolean);
+    });
+    d.arquivos = arquivos.slice();
+    return d;
+  }
+
+  function preencher(d) {
+    if (!d) return;
+    CAMPOS_TEXTO.forEach(function (n) { if (typeof d[n] === 'string') form.elements[n].value = d[n]; });
+    $$('input[name="tem_dominio"]', form).forEach(function (r) { r.checked = r.value === d.tem_dominio; });
+    ['referencias', 'links_arquivos'].forEach(function (n) {
+      var lista = Array.isArray(d[n]) ? d[n] : [];
+      $$('[data-link="' + n + '"]', form).forEach(function (i, k) { i.value = lista[k] || ''; });
+    });
+    arquivos = Array.isArray(d.arquivos) ? d.arquivos.filter(function (a) { return a && a.caminho; }) : [];
+    atualizarDominio();
+    renderizarArquivos();
+  }
+
+  function atualizarDominio() {
+    var tem = form.querySelector('input[name="tem_dominio"]:checked');
+    $('[data-campo-dominio]', form).hidden = !(tem && tem.value === 'sim');
+  }
+  form.addEventListener('change', function (e) { if (e.target.name === 'tem_dominio') atualizarDominio(); });
+
+  // ------------------------------------------------------------------ rascunho local
+  var statusRascunho = $('[data-rascunho-status]');
+  var timerRascunho = null;
+  var fHora = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  function gravarRascunhoAgora() {
+    clearTimeout(timerRascunho);
+    timerRascunho = null;
+    var ok = gravarJSON(CHAVE_RASCUNHO, { salvo_em: new Date().toISOString(), dados: coletar() });
+    statusRascunho.textContent = ok ? 'Rascunho salvo neste aparelho às ' + fHora.format(new Date()) + '.' : '';
+  }
+  function salvarRascunho() {
+    clearTimeout(timerRascunho);
+    timerRascunho = setTimeout(gravarRascunhoAgora, 500);
+  }
+  form.addEventListener('input', salvarRascunho);
+  form.addEventListener('change', salvarRascunho);
+  // Não perde a última alteração ao sair, recarregar ou trocar de aba.
+  function gravarPendente() { if (timerRascunho) gravarRascunhoAgora(); }
+  window.addEventListener('pagehide', gravarPendente);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) gravarPendente(); });
+
+  // ------------------------------------------------------------------ validação
+  var URL_OK = /^https?:\/\/[^\s/$.?#][^\s]*$/i;
+  function erroCampo(entrada, alvo, msg) {
+    if (msg) { entrada.setAttribute('aria-invalid', 'true'); alvo.textContent = msg; alvo.hidden = false; }
+    else { entrada.removeAttribute('aria-invalid'); alvo.hidden = true; }
+    return !msg;
+  }
+  function validarEtapa(n) {
+    var etapa = $('[data-etapa="' + n + '"]', form);
+    var invalidos = [];
+    if (n === 1) {
+      var nome = form.elements.nome_negocio;
+      if (!erroCampo(nome, $('#b-nome_negocio-erro'), nome.value.trim().length < 2 ? 'Informe o nome do negócio.' : '')) invalidos.push(nome);
+    }
+    $$('[data-link]', etapa).forEach(function (i) {
+      var v = i.value.trim();
+      if (!erroCampo(i, $('#' + i.id + '-erro'), v && !URL_OK.test(v) ? 'Cole um link completo, começando com https://' : '')) invalidos.push(i);
+    });
+    if (invalidos.length) invalidos[0].focus();
+    return !invalidos.length;
+  }
+
+  // ------------------------------------------------------------------ etapas
+  var etapaAtual = 1;
+  var bAnterior = $('[data-etapa-anterior]');
+  var bProxima = $('[data-etapa-proxima]');
+  var bEnviar = $('[data-enviar-briefing]');
+  var erroGeral = $('[data-erro-briefing]');
+
+  function irPara(n, focar) {
+    etapaAtual = n;
+    $$('[data-etapa]', form).forEach(function (f) { f.hidden = Number(f.getAttribute('data-etapa')) !== n; });
+    $$('[data-indicador]', form).forEach(function (li) {
+      var i = Number(li.getAttribute('data-indicador'));
+      li.setAttribute('data-estado', i < n ? 'feito' : i === n ? 'atual' : 'futuro');
+      if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+    bAnterior.hidden = n === 1;
+    bProxima.hidden = n === TOTAL_ETAPAS;
+    bEnviar.hidden = n !== TOTAL_ETAPAS;
+    if (n === TOTAL_ETAPAS) renderizarResumo();
+    mostrarErro('');
+    if (focar) {
+      var legenda = $('[data-etapa="' + n + '"] .briefing__legenda', form);
+      legenda.focus();
+      form.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  }
+  bProxima.addEventListener('click', function () { if (validarEtapa(etapaAtual)) irPara(etapaAtual + 1, true); });
+  bAnterior.addEventListener('click', function () { irPara(etapaAtual - 1, true); });
+
+  function mostrarErro(t) { erroGeral.textContent = t || ''; erroGeral.hidden = !t; }
+
+  function renderizarResumo() {
+    var dl = $('[data-resumo-briefing]');
+    dl.textContent = '';
+    var d = coletar();
+    Object.keys(ROTULOS).forEach(function (k) {
+      if (k === 'observacoes') return;
+      var v = d[k];
+      if (k === 'tem_dominio') v = { sim: 'Sim', nao: 'Não', nao_sei: 'Não sei' }[v] || '';
+      if (k === 'arquivos') v = arquivos.map(function (a) { return a.nome; }).join(', ');
+      if (Array.isArray(v)) v = v.join('\n');
+      var linha = el('div', 'briefing__resumo-linha');
+      linha.appendChild(el('dt', null, ROTULOS[k]));
+      linha.appendChild(el('dd', v ? null : 'briefing__resumo-vazio', v || 'Não informado'));
+      dl.appendChild(linha);
+    });
+  }
+
+  // ------------------------------------------------------------------ arquivos (Storage)
+  var listaArquivos = $('[data-lista-arquivos]');
+  var entradaArquivos = $('#b-arquivos');
+  function tamanhoLegivel(b) { return b >= 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
+
+  function renderizarArquivos() {
+    $$('li[data-caminho]', listaArquivos).forEach(function (li) { li.remove(); });
+    arquivos.forEach(function (a) {
+      var li = el('li', 'arquivos__item', null, { 'data-caminho': a.caminho });
+      li.appendChild(el('span', 'arquivos__nome', a.nome));
+      li.appendChild(el('span', 'arquivos__info', a.tamanho ? tamanhoLegivel(a.tamanho) : ''));
+      var rem = el('button', 'arquivos__remover', 'Remover', { type: 'button', 'aria-label': 'Remover ' + a.nome });
+      rem.addEventListener('click', function () {
+        arquivos = arquivos.filter(function (x) { return x.caminho !== a.caminho; });
+        renderizarArquivos();
+        salvarRascunho();
+        entradaArquivos.focus();
+      });
+      li.appendChild(rem);
+      listaArquivos.appendChild(li);
+    });
+  }
+
+  function enviarArquivo(arquivo) {
+    var item = el('li', 'arquivos__item arquivos__item--enviando');
+    item.appendChild(el('span', 'arquivos__nome', arquivo.name));
+    var info = el('span', 'arquivos__info', 'Enviando…');
+    item.appendChild(info);
+    listaArquivos.appendChild(item);
+    function falhar(msg) {
+      item.className = 'arquivos__item arquivos__item--erro';
+      info.textContent = msg;
+      setTimeout(function () { item.remove(); }, 8000);
+    }
+    if (TIPOS.indexOf(arquivo.type) === -1) { falhar('Tipo não aceito: use imagem ou PDF.'); return Promise.resolve(); }
+    if (arquivo.size > TAMANHO_MAXIMO) { falhar('Maior que 5 MB.'); return Promise.resolve(); }
+    if (arquivos.length >= MAX_ARQUIVOS) { falhar('Limite de ' + MAX_ARQUIVOS + ' arquivos.'); return Promise.resolve(); }
+
+    return fetch(base + '/functions/v1/briefing-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: chave },
+      body: JSON.stringify({ codigo: acesso.codigo, token: acesso.token, nome: arquivo.name, tipo: arquivo.type, tamanho: arquivo.size })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok || !d.upload_url) throw new Error(d.erro || 'falha');
+        return d;
+      });
+    }).then(function (d) {
+      return fetch(d.upload_url, { method: 'PUT', headers: { 'Content-Type': arquivo.type, 'x-upsert': 'false' }, body: arquivo })
+        .then(function (r) {
+          if (!r.ok) throw new Error('upload');
+          item.remove();
+          arquivos.push({ caminho: d.caminho, nome: arquivo.name.slice(0, 200), tipo: arquivo.type, tamanho: arquivo.size });
+          renderizarArquivos();
+          salvarRascunho();
+        });
+    }).catch(function (e) {
+      var m = e && e.message;
+      falhar({ limite_arquivos: 'Limite de arquivos atingido.', arquivo_grande: 'Maior que 5 MB.', tipo_nao_permitido: 'Tipo não aceito.',
+        briefing_bloqueado: 'O briefing já está em produção.' }[m] || 'Não foi possível enviar. Tente de novo.');
+    });
+  }
+
+  entradaArquivos.addEventListener('change', function () {
+    var lista = Array.prototype.slice.call(entradaArquivos.files || []);
+    entradaArquivos.value = '';
+    lista.reduce(function (p, f) { return p.then(function () { return enviarArquivo(f); }); }, Promise.resolve());
+  });
+
+  // ------------------------------------------------------------------ envio
+  var MENSAGENS = {
+    nome_negocio_obrigatorio: 'Informe o nome do negócio (etapa 1).',
+    link_invalido: 'Algum link está incompleto. Confira as referências e os links de arquivos.',
+    briefing_bloqueado: 'Seu briefing já está em produção e não pode mais ser alterado por aqui. Fale com a gente se precisar mudar algo.',
+    pedido_nao_aprovado: 'O pagamento deste pedido ainda não foi confirmado.',
+    arquivo_invalido: 'Um dos arquivos não foi encontrado. Remova-o e envie de novo.',
+    acesso_negado: 'Não foi possível confirmar o seu pedido. Abra o briefing pelo link da página de confirmação.'
+  };
+  var enviando = false;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (enviando) return;
+    for (var n = 1; n <= TOTAL_ETAPAS; n++) {
+      if (!validarEtapa(n)) { irPara(n, false); validarEtapa(n); return; }
+    }
+    enviando = true;
+    bEnviar.disabled = true;
+    bEnviar.textContent = 'Enviando…';
+    mostrarErro('');
+    chamarRpc('briefing_enviar', { p_codigo: acesso.codigo, p_token: acesso.token, p_dados: coletar() })
+      .then(function () {
+        try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (err) { /* */ }
+        form.hidden = true;
+        mostrarAviso('sucesso', 'Briefing enviado! Obrigado.',
+          'Já recebemos as informações e vamos começar o seu site. Você pode voltar aqui e editar o briefing até começarmos a produção.',
+          [{ rotulo: 'Editar o briefing', primario: false, attrs: { href: 'briefing.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-editar': '' } }]);
+        aviso.querySelector('[data-aviso-titulo]').setAttribute('tabindex', '-1');
+        aviso.querySelector('[data-aviso-titulo]').focus();
+      })
+      .catch(function (err) {
+        var m = (err && err.message) || '';
+        var chaveMsg = Object.keys(MENSAGENS).filter(function (k) { return m.indexOf(k) !== -1; })[0];
+        mostrarErro(MENSAGENS[chaveMsg] || 'Não foi possível enviar agora. Seu rascunho está salvo; tente de novo em instantes.');
+      })
+      .then(function () { enviando = false; bEnviar.disabled = false; bEnviar.textContent = 'Enviar briefing'; });
+  });
+
+  // ------------------------------------------------------------------ início
+  chamarRpc('briefing_obter', { p_codigo: acesso.codigo, p_token: acesso.token })
+    .then(function (linhas) {
+      var info = linhas && linhas[0];
+      if (!info) throw new Error('acesso_negado');
+      if (info.pedido_status !== 'aprovado') {
+        mostrarAviso('pendente', 'Pagamento ainda não confirmado',
+          'O briefing fica disponível assim que o Mercado Pago confirmar o pagamento do pedido ' + acesso.codigo + '.',
+          [{ rotulo: 'Ver status do pedido', primario: true, attrs: { href: 'obrigado.html' } }]);
+        return;
+      }
+      var b = info.briefing;
+      if (b && b.status !== 'novo') {
+        mostrarAviso('bloqueado', 'Seu briefing já está com a gente',
+          'Status: ' + (STATUS_BRIEFING[b.status] || b.status) + '. Para mudar alguma informação agora, fale com a gente.');
+        return;
+      }
+      var rascunho = lerJSON(CHAVE_RASCUNHO);
+      var usarRascunho = rascunho && rascunho.dados && (!b || rascunho.salvo_em > b.atualizado_em);
+      preencher(usarRascunho ? rascunho.dados : b);
+      if (usarRascunho) statusRascunho.textContent = 'Continuando o rascunho salvo neste aparelho.';
+      else if (b) statusRascunho.textContent = 'Você já enviou este briefing. Pode editar e enviar de novo.';
+      $('[data-briefing-pedido]').textContent = 'Pedido ' + acesso.codigo + ' · Plano ' + info.plano_nome;
+      aviso.hidden = true;
+      form.hidden = false;
+      irPara(1, false);
+    })
+    .catch(function (e) {
+      var negado = e && /acesso_negado/.test(e.message);
+      mostrarAviso('erro', negado ? 'Não foi possível abrir este briefing' : 'Não foi possível carregar o briefing',
+        negado ? 'O link pode estar incompleto. Abra pelo link da página de confirmação do pagamento ou fale com a gente.'
+          : 'Verifique sua conexão e recarregue a página.');
+    });
+})();

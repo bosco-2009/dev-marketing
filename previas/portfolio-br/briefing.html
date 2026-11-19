@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR" class="sem-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Briefing do site — Portfólio BR</title>
+  <meta name="description" content="Briefing do seu site: conte sobre o seu negócio.">
+  <!-- Página privada do cliente: nunca indexar -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="canonical" href="https://bosco-2009.github.io/empresa-jp/briefing.html">
+  <meta name="theme-color" content="#0B1630">
+
+  <!-- Open Graph / redes sociais -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Portfólio BR">
+  <meta property="og:title" content="Briefing do site — Portfólio BR">
+  <meta property="og:description" content="Briefing do seu site: conte sobre o seu negócio.">
+  <meta property="og:url" content="https://bosco-2009.github.io/empresa-jp/briefing.html">
+  <meta property="og:image" content="https://bosco-2009.github.io/empresa-jp/assets/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Portfólio BR: sites profissionais para pequenos negócios">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Ícones e manifest -->
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/chat.css">
+  <link rel="stylesheet" href="assets/css/checkout.css">
+  <link rel="stylesheet" href="assets/css/briefing.css">
+
+  <script src="config.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/supabase-client.js" defer></script>
+  <script src="assets/js/chat.js" defer></script>
+  <script src="assets/js/briefing.js" defer></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Faixa de rascunho: exibida pelo main.js enquanto config.rascunho === true -->
+  <aside class="aviso-rascunho" aria-label="Aviso de rascunho" data-aviso-rascunho hidden>
+    Versão de rascunho: textos e preços marcados como provisórios ainda serão confirmados.
+  </aside>
+
+  <!-- Ícones (sprite SVG) -->
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+    <symbol id="i-pagina" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 13h6M7 16h4"/></symbol>
+    <symbol id="i-sacola" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-conversa" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+    <symbol id="i-pincel" viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 10 19l-5.5 1 1-5.5 9-10Z"/><path d="m12.5 6.5 5 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6L12 3Z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-ajuste" viewBox="0 0 24 24"><path d="M20 11.5A8 8 0 0 0 5.6 6.8L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 12.5a8 8 0 0 0 14.4 4.7l1.6-1.7"/><path d="M20 20v-4.5h-4.5"/></symbol>
+    <symbol id="i-devolver" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5 4.8 16A8.5 8.5 0 1 1 8 19.2l-4.5 1.3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 1c-1.2-.4-2.5-1.7-2.9-2.9l1-1-1-2L9 8.5Z"/></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
+  </svg>
+
+  <header class="topo" data-topo>
+    <div class="container topo__barra">
+      <a class="marca" href="index.html" aria-label="Portfólio BR, voltar ao início">
+        <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+        <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+      </a>
+
+      <button class="topo__menu-botao" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-botao>
+        <svg class="icone" aria-hidden="true"><use href="#i-menu"/></svg>
+        <span class="visualmente-oculto" data-menu-rotulo>Abrir menu</span>
+      </button>
+
+      <nav class="topo__nav" id="menu-principal" aria-label="Principal" data-menu>
+        <ul class="topo__links">
+          <li><a href="index.html#servicos">Serviços</a></li>
+          <li><a href="index.html#como-funciona">Como funciona</a></li>
+          <li><a href="planos.html">Planos</a></li>
+          <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
+          <li><a href="index.html#duvidas">Dúvidas</a></li>
+        </ul>
+        <a class="botao botao--primario botao--pequeno topo__cta" href="planos.html">Ver planos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <section class="pagina-topo" aria-labelledby="briefing-titulo">
+      <div class="container">
+        <p class="secao__sobretitulo">Briefing do seu site</p>
+        <h1 id="briefing-titulo" class="pagina-topo__titulo">Conte sobre o seu negócio</h1>
+        <p class="pagina-topo__texto">Leva uns 10 minutos. O rascunho fica salvo neste aparelho, e você pode editar o briefing até começarmos a produção.</p>
+      </div>
+    </section>
+
+    <section class="secao secao--compacta" aria-label="Formulário do briefing">
+      <div class="container container--estreito">
+        <div class="briefing-aviso" data-briefing-aviso data-tipo="carregando" role="status">
+          <p class="briefing-aviso__titulo" data-aviso-titulo>Carregando o seu pedido…</p>
+          <p data-aviso-texto></p>
+          <div class="briefing-aviso__acoes" data-aviso-acoes></div>
+        </div>
+
+        <form class="briefing" data-form-briefing novalidate hidden>
+          <p class="briefing__pedido" data-briefing-pedido></p>
+          <ol class="briefing__progresso" role="list" aria-label="Etapas do briefing">
+            <li data-indicador="1"><span class="briefing__num">1</span><span class="briefing__rotulo">Negócio</span></li>
+            <li data-indicador="2"><span class="briefing__num">2</span><span class="briefing__rotulo">Site</span></li>
+            <li data-indicador="3"><span class="briefing__num">3</span><span class="briefing__rotulo">Conteúdo</span></li>
+            <li data-indicador="4"><span class="briefing__num">4</span><span class="briefing__rotulo">Arquivos</span></li>
+            <li data-indicador="5"><span class="briefing__num">5</span><span class="briefing__rotulo">Revisão</span></li>
+          </ol>
+
+          <fieldset class="briefing__etapa" data-etapa="1">
+            <legend class="briefing__legenda" tabindex="-1">Etapa 1 de 5: Seu negócio</legend>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-nome_negocio">Nome do negócio <span class="campo__obrigatorio">(obrigatório)</span></label>
+              <input class="campo__entrada" id="b-nome_negocio" name="nome_negocio" type="text" maxlength="120" required autocomplete="organization" aria-describedby="b-nome_negocio-erro">
+              <p class="campo__erro" id="b-nome_negocio-erro" hidden></p>
+            </div>
+            <div class="campos">
+              <div class="campo">
+                <label class="campo__rotulo" for="b-segmento">Segmento</label>
+                <input class="campo__entrada" id="b-segmento" name="segmento" type="text" maxlength="120" placeholder="Ex.: confeitaria, salão de beleza">
+              </div>
+              <div class="campo">
+                <label class="campo__rotulo" for="b-cidade">Cidade/UF</label>
+                <input class="campo__entrada" id="b-cidade" name="cidade" type="text" maxlength="120" placeholder="Ex.: Campinas/SP" autocomplete="address-level2">
+              </div>
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-publico">Quem são seus clientes?</label>
+              <textarea class="campo__entrada" id="b-publico" name="publico" rows="3" maxlength="2000" placeholder="Ex.: famílias do bairro, noivas, empresas da região"></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="briefing__etapa" data-etapa="2" hidden>
+            <legend class="briefing__legenda" tabindex="-1">Etapa 2 de 5: O site</legend>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-objetivo">Qual o principal objetivo do site?</label>
+              <textarea class="campo__entrada" id="b-objetivo" name="objetivo" rows="3" maxlength="2000" placeholder="Ex.: receber pedidos pelo WhatsApp, mostrar trabalhos, aparecer no Google"></textarea>
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-paginas">Páginas ou seções que você quer</label>
+              <textarea class="campo__entrada" id="b-paginas" name="paginas" rows="3" maxlength="2000" placeholder="Ex.: Início, Sobre, Serviços, Galeria, Contato" aria-describedby="b-paginas-dica"></textarea>
+              <p class="campo__dica" id="b-paginas-dica">Não sabe? Deixe em branco que sugerimos a melhor estrutura para o seu plano.</p>
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-cores_estilo">Cores e estilo</label>
+              <textarea class="campo__entrada" id="b-cores_estilo" name="cores_estilo" rows="3" maxlength="2000" placeholder="Ex.: cores da logo (rosa e marrom), visual delicado e moderno"></textarea>
+            </div>
+            <fieldset class="campo campo--grupo">
+              <legend class="campo__rotulo">Sites que você gosta (referências)</legend>
+              <p class="campo__dica" id="b-referencias-dica">Cole até 5 links, de qualquer segmento.</p>
+              <div class="lista-links" data-lista-links="referencias" data-quantidade="5"></div>
+            </fieldset>
+          </fieldset>
+
+          <fieldset class="briefing__etapa" data-etapa="3" hidden>
+            <legend class="briefing__legenda" tabindex="-1">Etapa 3 de 5: Conteúdo</legend>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-textos_servicos">Serviços, produtos e textos</label>
+              <textarea class="campo__entrada" id="b-textos_servicos" name="textos_servicos" rows="8" maxlength="10000" aria-describedby="b-textos_servicos-dica"></textarea>
+              <p class="campo__dica" id="b-textos_servicos-dica">Liste o que você oferece (com preços, se quiser exibir), a história do negócio e diferenciais. Pode escrever do seu jeito: a gente organiza.</p>
+            </div>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-contatos_redes">Contatos e redes sociais</label>
+              <textarea class="campo__entrada" id="b-contatos_redes" name="contatos_redes" rows="4" maxlength="2000" placeholder="WhatsApp, Instagram, e-mail, endereço e horário de funcionamento"></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="briefing__etapa" data-etapa="4" hidden>
+            <legend class="briefing__legenda" tabindex="-1">Etapa 4 de 5: Domínio e arquivos</legend>
+            <fieldset class="campo campo--grupo">
+              <legend class="campo__rotulo">Você já tem um domínio (ex.: seunegocio.com.br)?</legend>
+              <div class="opcoes-linha">
+                <label class="opcao"><input type="radio" name="tem_dominio" value="sim"> Sim</label>
+                <label class="opcao"><input type="radio" name="tem_dominio" value="nao"> Não</label>
+                <label class="opcao"><input type="radio" name="tem_dominio" value="nao_sei"> Não sei</label>
+              </div>
+            </fieldset>
+            <div class="campo" data-campo-dominio hidden>
+              <label class="campo__rotulo" for="b-dominio">Qual é o domínio?</label>
+              <input class="campo__entrada" id="b-dominio" name="dominio" type="text" maxlength="253" placeholder="seunegocio.com.br" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="campo">
+              <span class="campo__rotulo" id="b-arquivos-rotulo">Logo, fotos e documentos</span>
+              <p class="campo__dica" id="b-arquivos-dica">Imagens (JPG, PNG, WebP, GIF, HEIC) ou PDF, até 5 MB cada, no máximo 20 arquivos.</p>
+              <label class="botao botao--contorno upload" for="b-arquivos">Escolher arquivos</label>
+              <input class="upload__entrada visualmente-oculto" id="b-arquivos" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,application/pdf" aria-describedby="b-arquivos-dica">
+              <ul class="arquivos" role="list" data-lista-arquivos aria-live="polite"></ul>
+            </div>
+            <fieldset class="campo campo--grupo">
+              <legend class="campo__rotulo">Ou envie links (Google Drive, Dropbox…)</legend>
+              <p class="campo__dica">Deixe o compartilhamento como “qualquer pessoa com o link”.</p>
+              <div class="lista-links" data-lista-links="links_arquivos" data-quantidade="3"></div>
+            </fieldset>
+          </fieldset>
+
+          <fieldset class="briefing__etapa" data-etapa="5" hidden>
+            <legend class="briefing__legenda" tabindex="-1">Etapa 5 de 5: Revisão</legend>
+            <div class="campo">
+              <label class="campo__rotulo" for="b-observacoes">Algo mais que devemos saber?</label>
+              <textarea class="campo__entrada" id="b-observacoes" name="observacoes" rows="4" maxlength="4000"></textarea>
+            </div>
+            <h2 class="briefing__resumo-titulo">Confira as informações</h2>
+            <dl class="briefing__resumo" data-resumo-briefing></dl>
+          </fieldset>
+
+          <p class="checkout__erro" role="alert" data-erro-briefing hidden></p>
+
+          <div class="briefing__navegacao">
+            <button class="botao botao--contorno" type="button" data-etapa-anterior hidden>Voltar</button>
+            <button class="botao botao--primario" type="button" data-etapa-proxima>Continuar</button>
+            <button class="botao botao--primario" type="submit" data-enviar-briefing hidden>Enviar briefing</button>
+          </div>
+          <p class="briefing__salvo" data-rascunho-status aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__grade">
+      <div class="rodape__marca">
+        <a class="marca marca--clara" href="index.html" aria-label="Portfólio BR, voltar ao início">
+          <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+          <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+        </a>
+        <p class="rodape__descricao">Sites profissionais para pequenos negócios de todo o Brasil.</p>
+      </div>
+
+      <nav class="rodape__coluna" aria-label="Rodapé">
+        <h2 class="rodape__titulo">Navegação</h2>
+        <ul role="list">
+          <li><a href="index.html#servicos">Serviços</a></li>
+          <li><a href="index.html#como-funciona">Como funciona</a></li>
+          <li><a href="planos.html">Planos</a></li>
+          <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
+          <li><a href="index.html#duvidas">Dúvidas</a></li>
+          <li><a href="termos.html">Termos de uso</a></li>
+          <li><a href="privacidade.html">Política de privacidade</a></li>
+        </ul>
+      </nav>
+
+      <div class="rodape__coluna">
+        <h2 class="rodape__titulo">Contato</h2>
+        <ul role="list" data-lista-contatos>
+          <li>
+            <a href="https://www.instagram.com/portifolio_br/" target="_blank" rel="noopener">
+              <svg class="icone" aria-hidden="true"><use href="#i-instagram"/></svg> @portifolio_br
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="rodape__base">
+        <p>&copy; <span data-ano></span> Portfólio BR. Todos os direitos reservados.</p>
+        <p data-dados-empresa hidden></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

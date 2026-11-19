@@ -25,7 +25,7 @@
 
   function mostrarTela(nome) {
     $$('[data-tela]').forEach(function (t) { t.hidden = t.getAttribute('data-tela') !== nome; });
-    $$('[data-acoes-sessao]').forEach(function (a) { a.hidden = nome !== 'chat'; });
+    $$('[data-acoes-sessao]').forEach(function (a) { a.hidden = nome !== 'painel'; });
   }
 
   // ------------------------------------------------------------------ datas
@@ -91,18 +91,38 @@
       if (estado.usuario !== undefined && usuario === estado.usuario) return;
       estado.usuario = usuario;
 
-      if (!usuario) { encerrarChat(); mostrarTela('login'); return; }
+      if (!usuario) { encerrarChat(); encerrarPedidos(); mostrarTela('login'); return; }
 
       sb.rpc('eh_admin').then(function (r) {
         if (r.error) throw r.error;
-        if (r.data !== true) { encerrarChat(); mostrarTela('negado'); return; }
-        mostrarTela('chat');
+        if (r.data !== true) { encerrarChat(); encerrarPedidos(); mostrarTela('negado'); return; }
+        mostrarTela('painel');
         iniciarChat();
+        var avisos = { tocarSom: tocarSom, piscarTitulo: piscarTitulo, atento: atento };
+        if (window.PBRAdminPedidos) window.PBRAdminPedidos.iniciar(sb, avisos);
+        if (window.PBRAdminBriefings) window.PBRAdminBriefings.iniciar(sb, avisos);
       }).catch(function () {
         mostrarTela('login');
         mostrarErro($('[data-erro-login]'), 'Não foi possível confirmar seu acesso. Tente de novo.');
       });
     }
+
+    function encerrarPedidos() {
+      if (window.PBRAdminPedidos) window.PBRAdminPedidos.encerrar();
+      if (window.PBRAdminBriefings) window.PBRAdminBriefings.encerrar();
+    }
+
+    // -------------------------------------------------------------- abas (#conversas / #pedidos)
+    function mostrarAba() {
+      var aba = ({ '#pedidos': 'pedidos', '#briefings': 'briefings' })[location.hash] || 'conversas';
+      $$('[data-aba]').forEach(function (s) { s.hidden = s.getAttribute('data-aba') !== aba; });
+      $$('[data-aba-link]').forEach(function (l) {
+        if (l.getAttribute('data-aba-link') === aba) l.setAttribute('aria-current', 'page');
+        else l.removeAttribute('aria-current');
+      });
+    }
+    window.addEventListener('hashchange', mostrarAba);
+    mostrarAba();
 
     $('[data-form-login]').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -207,7 +227,7 @@
     // -------------------------------------------------------------- chat
     var lista = $('[data-lista-conversas]');
     var listaVazia = $('[data-lista-vazia]');
-    var secaoChat = $('[data-tela="chat"]');
+    var secaoChat = $('.admin-chat');
     var conteudo = $('[data-conversa-conteudo]');
     var conversaVazia = $('[data-conversa-vazia]');
     var caixaMensagens = $('[data-mensagens]');

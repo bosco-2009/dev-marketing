@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR" class="sem-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Status do pedido — Portfólio BR</title>
+  <meta name="description" content="Acompanhe o status do seu pedido na Portfólio BR.">
+  <!-- Página privada do cliente: nunca indexar -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="canonical" href="https://bosco-2009.github.io/empresa-jp/obrigado.html">
+  <meta name="theme-color" content="#0B1630">
+
+  <!-- Open Graph / redes sociais -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Portfólio BR">
+  <meta property="og:title" content="Status do pedido — Portfólio BR">
+  <meta property="og:description" content="Acompanhe o status do seu pedido na Portfólio BR.">
+  <meta property="og:url" content="https://bosco-2009.github.io/empresa-jp/obrigado.html">
+  <meta property="og:image" content="https://bosco-2009.github.io/empresa-jp/assets/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Portfólio BR: sites profissionais para pequenos negócios">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Ícones e manifest -->
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/chat.css">
+  <link rel="stylesheet" href="assets/css/checkout.css">
+
+  <script src="config.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/supabase-client.js" defer></script>
+  <script src="assets/js/chat.js" defer></script>
+  <script src="assets/js/obrigado.js" defer></script>
+</head>
+<body>
+  <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Faixa de rascunho: exibida pelo main.js enquanto config.rascunho === true -->
+  <aside class="aviso-rascunho" aria-label="Aviso de rascunho" data-aviso-rascunho hidden>
+    Versão de rascunho: textos e preços marcados como provisórios ainda serão confirmados.
+  </aside>
+
+  <!-- Ícones (sprite SVG) -->
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+    <symbol id="i-pagina" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 13h6M7 16h4"/></symbol>
+    <symbol id="i-sacola" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-conversa" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+    <symbol id="i-pincel" viewBox="0 0 24 24"><path d="M14.5 4.5 19.5 9.5 10 19l-5.5 1 1-5.5 9-10Z"/><path d="m12.5 6.5 5 5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3 19.5 6v5.5c0 4.5-3.2 8.2-7.5 9.5-4.3-1.3-7.5-5-7.5-9.5V6L12 3Z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-ajuste" viewBox="0 0 24 24"><path d="M20 11.5A8 8 0 0 0 5.6 6.8L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 12.5a8 8 0 0 0 14.4 4.7l1.6-1.7"/><path d="M20 20v-4.5h-4.5"/></symbol>
+    <symbol id="i-devolver" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5 4.8 16A8.5 8.5 0 1 1 8 19.2l-4.5 1.3Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 1c-1.2-.4-2.5-1.7-2.9-2.9l1-1-1-2L9 8.5Z"/></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
+  </svg>
+
+  <header class="topo" data-topo>
+    <div class="container topo__barra">
+      <a class="marca" href="index.html" aria-label="Portfólio BR, voltar ao início">
+        <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+        <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+      </a>
+
+      <button class="topo__menu-botao" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-botao>
+        <svg class="icone" aria-hidden="true"><use href="#i-menu"/></svg>
+        <span class="visualmente-oculto" data-menu-rotulo>Abrir menu</span>
+      </button>
+
+      <nav class="topo__nav" id="menu-principal" aria-label="Principal" data-menu>
+        <ul class="topo__links">
+          <li><a href="index.html#servicos">Serviços</a></li>
+          <li><a href="index.html#como-funciona">Como funciona</a></li>
+          <li><a href="planos.html">Planos</a></li>
+          <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
+          <li><a href="index.html#duvidas">Dúvidas</a></li>
+        </ul>
+        <a class="botao botao--primario botao--pequeno topo__cta" href="planos.html">Ver planos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" tabindex="-1">
+    <section class="secao secao--compacta" aria-labelledby="obrigado-titulo">
+      <div class="container container--estreito">
+        <div class="resultado" data-resultado data-estado="carregando" aria-live="polite">
+          <span class="resultado__icone" aria-hidden="true">
+            <svg class="icone" data-resultado-icone><use href="#i-relogio"/></svg>
+          </span>
+          <h1 id="obrigado-titulo" class="resultado__titulo" data-resultado-titulo tabindex="-1">Confirmando seu pagamento…</h1>
+          <p class="resultado__texto" data-resultado-texto>Aguarde um instante enquanto consultamos o Mercado Pago.</p>
+          <dl class="resultado__pedido" data-resultado-pedido hidden></dl>
+          <div class="resultado__proximo" data-resultado-proximo hidden></div>
+          <div class="resultado__acoes" data-resultado-acoes></div>
+        </div>
+        <noscript>
+          <p class="aviso-noscript">Ative o JavaScript para ver o status do seu pedido ou fale com a gente pelo
+            <a href="https://www.instagram.com/portifolio_br/">Instagram @portifolio_br</a>.</p>
+        </noscript>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__grade">
+      <div class="rodape__marca">
+        <a class="marca marca--clara" href="index.html" aria-label="Portfólio BR, voltar ao início">
+          <img class="marca__icone" src="assets/img/logo-icone.svg" width="36" height="36" alt="">
+          <span class="marca__nome">Portfólio<span class="marca__br">BR</span></span>
+        </a>
+        <p class="rodape__descricao">Sites profissionais para pequenos negócios de todo o Brasil.</p>
+      </div>
+
+      <nav class="rodape__coluna" aria-label="Rodapé">
+        <h2 class="rodape__titulo">Navegação</h2>
+        <ul role="list">
+          <li><a href="index.html#servicos">Serviços</a></li>
+          <li><a href="index.html#como-funciona">Como funciona</a></li>
+          <li><a href="planos.html">Planos</a></li>
+          <li data-link-portfolio hidden><a href="portfolio.html">Portfólio</a></li>
+          <li><a href="index.html#duvidas">Dúvidas</a></li>
+          <li><a href="termos.html">Termos de uso</a></li>
+          <li><a href="privacidade.html">Política de privacidade</a></li>
+        </ul>
+      </nav>
+
+      <div class="rodape__coluna">
+        <h2 class="rodape__titulo">Contato</h2>
+        <ul role="list" data-lista-contatos>
+          <li>
+            <a href="https://www.instagram.com/portifolio_br/" target="_blank" rel="noopener">
+              <svg class="icone" aria-hidden="true"><use href="#i-instagram"/></svg> @portifolio_br
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="rodape__base">
+        <p>&copy; <span data-ano></span> Portfólio BR. Todos os direitos reservados.</p>
+        <p data-dados-empresa hidden></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
