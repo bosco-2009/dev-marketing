@@ -517,3 +517,68 @@
     document.head.appendChild(ld);
   }
 })();
+
+/*
+ * Pré-carregamento dos próximos passos (melhoria 28).
+ * Ao passar o mouse (com pequena espera), focar ou tocar num link para planos.html ou exemplos.html,
+ * cria UMA vez um <link rel="prefetch"> para a página, para o clique abrir quase na hora.
+ * Não pré-carrega com "Economia de dados" (Save-Data) nem em conexões 2g/lentas.
+ */
+(function () {
+  'use strict';
+
+  var PAGINAS = /\/(planos|exemplos)\.html$/;
+  var ESPERA_MOUSE_MS = 65;
+  var feitos = {};
+
+  function conexaoPermite() {
+    var c = navigator.connection;
+    if (!c) return true;
+    if (c.saveData) return false;
+    return !/(^|-)2g$/.test(c.effectiveType || '');
+  }
+
+  function suportaPrefetch() {
+    var l = document.createElement('link');
+    return !!(l.relList && l.relList.supports && l.relList.supports('prefetch'));
+  }
+  if (!suportaPrefetch()) return;
+
+  function destino(link) {
+    if (!link || !link.href || link.target === '_blank' || link.hasAttribute('download')) return null;
+    var url;
+    try { url = new URL(link.href, location.href); } catch (e) { return null; }
+    if (url.origin !== location.origin || !PAGINAS.test(url.pathname)) return null;
+    if (url.pathname === location.pathname) return null;
+    return url.origin + url.pathname; // sem #âncora nem ?busca: a página é a mesma
+  }
+
+  function preCarregar(link) {
+    var url = destino(link);
+    if (!url || feitos[url] || !conexaoPermite()) return;
+    feitos[url] = true;
+    var el = document.createElement('link');
+    el.rel = 'prefetch';
+    el.href = url;
+    el.setAttribute('data-prefetch', '');
+    document.head.appendChild(el);
+  }
+
+  function linkDo(evento) {
+    var alvo = evento.target;
+    return alvo && alvo.closest ? alvo.closest('a[href]') : null;
+  }
+
+  var timer = null;
+  document.addEventListener('mouseover', function (e) {
+    var link = linkDo(e);
+    if (!link || !destino(link)) return;
+    clearTimeout(timer);
+    timer = setTimeout(function () { preCarregar(link); }, ESPERA_MOUSE_MS);
+  }, { passive: true });
+  document.addEventListener('mouseout', function (e) {
+    if (linkDo(e)) clearTimeout(timer);
+  }, { passive: true });
+  document.addEventListener('focusin', function (e) { preCarregar(linkDo(e)); });
+  document.addEventListener('touchstart', function (e) { preCarregar(linkDo(e)); }, { passive: true });
+})();
