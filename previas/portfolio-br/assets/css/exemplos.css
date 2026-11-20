@@ -93,6 +93,11 @@
 }
 .ex-aviso a { color: var(--cor-destaque); font-weight: var(--peso-negrito); }
 .ex-aviso a:hover { color: var(--cor-texto-invertido); }
+/* Trilha dentro da faixa de aviso (melhoria 22): linha própria, discreta, acima do aviso */
+.ex-aviso .migalhas { flex-basis: 100%; margin-bottom: 0; font-size: inherit; }
+.ex-aviso .migalhas ol { justify-content: center; }
+.ex-aviso .migalhas a { color: var(--cor-texto-invertido); font-weight: var(--peso-normal); }
+.ex-aviso .migalhas a:hover { color: var(--cor-destaque); }
 .ex-aviso__links { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--esp-1) var(--esp-4); }
 
 .ex-topo { border-bottom: 1px solid var(--cor-borda); background: var(--cor-branco); }

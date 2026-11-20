@@ -53,6 +53,27 @@
   <script src="assets/js/chat.js" defer></script>
   <script src="assets/js/planos.js" defer></script>
   <script src="assets/js/comparativo.js" defer></script>
+  <!-- Trilha (melhoria 22): BreadcrumbList igual à <nav aria-label="Trilha"> visível -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Início",
+        "item": "https://bosco-2009.github.io/empresa-jp/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Planos",
+        "item": "https://bosco-2009.github.io/empresa-jp/planos.html"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -133,6 +154,7 @@
   <main id="conteudo" tabindex="-1">
     <section class="pagina-topo" aria-labelledby="planos-titulo">
       <div class="container">
+        <nav class="migalhas" aria-label="Trilha"><ol role="list"><li><a href="index.html">Início</a></li><li aria-current="page">Planos</li></ol></nav>
         <p class="secao__sobretitulo">Planos e contratação</p>
         <h1 id="planos-titulo" class="pagina-topo__titulo">Escolha seu plano e contrate em poucos minutos</h1>
         <p class="pagina-topo__texto">Pagamento único e seguro. <span data-texto-parcelamento></span></p>

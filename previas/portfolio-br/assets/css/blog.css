@@ -10,14 +10,6 @@
 .pagina-topo__texto { margin-top: var(--esp-3); color: var(--cor-texto-invertido-suave); font-size: var(--texto-md); }
 .secao--compacta { padding-block: var(--esp-6) var(--esp-8); }
 
-/* Migalhas de pão */
-.migalhas { margin-bottom: var(--esp-4); font-size: var(--texto-sm); }
-.migalhas ol { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-2); margin: 0; padding: 0; }
-.migalhas li { display: inline-flex; gap: var(--esp-2); color: var(--cor-texto-invertido-suave); }
-.migalhas li + li::before { content: '/'; color: var(--cor-texto-invertido-suave); }
-.migalhas a { color: var(--cor-texto-invertido); }
-.migalhas a:hover { color: var(--cor-destaque); }
-
 /* Lista de artigos */
 .blog-lista { display: grid; gap: var(--esp-4); margin: 0; padding: 0; }
 @media (min-width: 48rem) { .blog-lista { grid-template-columns: repeat(3, 1fr); gap: var(--esp-5); } }

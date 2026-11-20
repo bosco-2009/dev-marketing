@@ -25,6 +25,33 @@
   <script src="../assets/js/supabase-client.js" defer></script>
   <script src="../assets/js/origem.js" defer></script>
   <script src="../assets/js/chat.js" defer></script>
+  <!-- Trilha (melhoria 22): BreadcrumbList igual à <nav aria-label="Trilha"> visível -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Portfólio BR",
+        "item": "https://bosco-2009.github.io/empresa-jp/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Exemplos",
+        "item": "https://bosco-2009.github.io/empresa-jp/exemplos.html"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Serviços (exemplo)",
+        "item": "https://bosco-2009.github.io/empresa-jp/exemplos/servicos.html"
+      }
+    ]
+  }
+  </script>
 </head>
 <body class="ex ex--servicos">
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -37,6 +64,7 @@
   </svg>
 
   <aside class="ex-aviso" aria-label="Aviso: site de exemplo">
+    <nav class="migalhas migalhas--aviso" aria-label="Trilha"><ol role="list"><li><a href="../index.html">Portfólio BR</a></li><li><a href="../exemplos.html">Exemplos</a></li><li aria-current="page">Serviços (exemplo)</li></ol></nav>
     <p><strong>Site de exemplo</strong> criado pela Portfólio BR. O negócio, os preços e os textos são fictícios.</p>
     <p class="ex-aviso__links"><a href="../planos.html">Quero um site assim</a> <a href="../exemplos.html">Ver outros exemplos</a></p>
   </aside>

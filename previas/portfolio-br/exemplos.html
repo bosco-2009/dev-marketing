@@ -53,6 +53,27 @@
   <script src="assets/js/origem.js" defer></script>
   <script src="assets/js/chat.js" defer></script>
 
+  <!-- Trilha (melhoria 22): BreadcrumbList igual à <nav aria-label="Trilha"> visível -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Início",
+        "item": "https://bosco-2009.github.io/empresa-jp/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Exemplos",
+        "item": "https://bosco-2009.github.io/empresa-jp/exemplos.html"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -133,6 +154,7 @@
   <main id="conteudo" tabindex="-1">
     <section class="pagina-topo" aria-labelledby="exemplos-titulo">
       <div class="container">
+        <nav class="migalhas" aria-label="Trilha"><ol role="list"><li><a href="index.html">Início</a></li><li aria-current="page">Exemplos</li></ol></nav>
         <p class="secao__sobretitulo">Exemplos</p>
         <h1 id="exemplos-titulo" class="pagina-topo__titulo">Veja como o site do seu negócio pode ficar</h1>
         <p class="pagina-topo__texto">Seis sites de exemplo, um para cada tipo de negócio. São demonstrações feitas pela Portfólio BR: os negócios, preços e textos são fictícios.</p>

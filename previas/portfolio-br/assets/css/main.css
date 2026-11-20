@@ -1193,3 +1193,13 @@ a:hover { color: var(--cor-acao-hover); }
   .card:hover, .segmento:hover, .plano:hover, .blog-cartao:hover,
   .botao--primario:hover:not(:disabled), .botao--whatsapp:hover:not(:disabled) { translate: none; }
 }
+
+/* Trilha / migalhas de pão (melhoria 22): blog, planos, exemplos e sites de exemplo.
+   Sempre sobre fundo escuro (.pagina-topo ou .ex-aviso). O separador é decorativo: texto alternativo vazio. */
+.migalhas { margin-bottom: var(--esp-4); font-size: var(--texto-sm); }
+.migalhas ol { display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-2); margin: 0; padding: 0; list-style: none; }
+.migalhas li { display: inline-flex; gap: var(--esp-2); min-width: 0; overflow-wrap: anywhere; color: var(--cor-texto-invertido-suave); }
+.migalhas li + li::before { content: '/'; content: '/' / ''; color: var(--cor-texto-invertido-suave); }
+.migalhas a { color: var(--cor-texto-invertido); }
+.migalhas a:hover { color: var(--cor-destaque); }
+.migalhas [aria-current="page"] { color: var(--cor-texto-invertido-suave); }
