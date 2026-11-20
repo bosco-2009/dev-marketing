@@ -496,3 +496,40 @@
 }
 .admin-dialogo__restaurar { margin-right: auto; color: var(--cor-texto); }
 .admin-dialogo__acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--esp-2); }
+
+/* Recuperação de checkout abandonado (melhoria 23) */
+.admin-item__tag--alerta { background: var(--cor-erro-suave); color: var(--cor-erro); font-weight: var(--peso-semi); }
+.admin-recuperar {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0 0 var(--esp-4);
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-destaque);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+.admin-recuperar[hidden] { display: none; }
+.admin-recuperar__titulo { margin: 0; font-size: var(--texto-base); letter-spacing: 0; }
+.admin-recuperar__texto,
+.admin-recuperar__sem,
+.admin-recuperar__nota,
+.admin-recuperar__chamado { margin: 0; font-size: var(--texto-sm); }
+.admin-recuperar__nota,
+.admin-recuperar__chamado { color: var(--cor-texto-suave); }
+.admin-recuperar__chamado:empty { display: none; }
+.admin-recuperar [data-recuperar-whats] { display: grid; gap: var(--esp-2); }
+.admin-recuperar [data-recuperar-whats][hidden] { display: none; }
+.admin-recuperar__rotulo { font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.admin-recuperar textarea {
+  width: 100%;
+  min-height: 7rem;
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-cinza-500);
+  border-radius: var(--raio-sm);
+  background: var(--cor-fundo);
+  font-size: var(--texto-sm);
+  resize: vertical;
+}
+.admin-recuperar__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); margin: 0; }
+.admin-recuperar__acoes .icone { width: 1.25rem; height: 1.25rem; }

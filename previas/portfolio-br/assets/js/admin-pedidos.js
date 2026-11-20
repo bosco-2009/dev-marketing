@@ -16,6 +16,41 @@
     pendente: 'Pendente', aprovado: 'Aprovado', recusado: 'Recusado', cancelado: 'Cancelado', reembolsado: 'Reembolsado'
   };
 
+  // Recuperação de checkout abandonado (melhoria 23): pendente há mais de 1 hora.
+  // Nada é enviado sozinho: o dono abre o WhatsApp com a mensagem pronta e decide.
+  var ABANDONO_MS = 60 * 60 * 1000;
+  var CHAVE_CHAMADOS = 'pbr-admin-recuperacao';
+  function abandonado(p, agora) {
+    return p.status === 'pendente' && !!p.criado_em && (agora || Date.now()) - new Date(p.criado_em).getTime() > ABANDONO_MS;
+  }
+  function tempoParado(iso) {
+    var min = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+    if (min < 120) return min + ' min';
+    var h = Math.floor(min / 60);
+    if (h < 48) return h + ' h';
+    return Math.floor(h / 24) + ' dias';
+  }
+  // Quando o dono abriu o WhatsApp para cada pedido (só neste navegador; conveniência, não é dado do cliente).
+  function lerChamados() {
+    try { var v = JSON.parse(localStorage.getItem(CHAVE_CHAMADOS) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+  }
+  function marcarChamado(id) {
+    var mapa = lerChamados();
+    mapa[id] = new Date().toISOString();
+    try { localStorage.setItem(CHAVE_CHAMADOS, JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
+    return mapa[id];
+  }
+  function mensagemRecuperacao(p) {
+    var cfg = window.PBR_CONFIG || {};
+    var site = cfg.site || {};
+    var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
+    var link = site.url ? site.url.replace(/\/?$/, '/') + 'planos.html?plano=' + encodeURIComponent(p.plano_id || '') : '';
+    return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! Aqui é da ' + (site.nome || 'Portfólio BR') + '. ' +
+      'Vi que o seu pedido ' + p.codigo + ' (plano ' + p.plano_nome + ', ' + fReal.format(p.valor_centavos / 100) + ') ' +
+      'ficou com o pagamento pendente. Posso ajudar a concluir ou tirar alguma dúvida?' +
+      (link ? ' Se preferir, dá para retomar por aqui: ' + link : '');
+  }
+
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function el(tag, classe, texto, attrs) {
@@ -45,7 +80,7 @@
 
   function iniciar(sb, avisos) {
     if (estado) return;
-    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, filtro: 'todos', busca: '', periodo: 'tudo', origem: '', selecionado: null, canal: null, conhecidos: null, timer: null };
+    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, filtro: 'todos', busca: '', periodo: 'tudo', origem: '', selecionado: null, canal: null, conhecidos: null, timer: null, relogio: null, chaveAbandono: '' };
 
     var secao = $('.admin-pedidos');
     var lista = $('[data-lista-pedidos]');
@@ -71,6 +106,12 @@
       if (item) item.focus();
     };
 
+    prepararRecuperacao();
+    // Um pedido vira "abandonado" com o passar do tempo, sem evento no banco: confere a cada minuto.
+    estado.relogio = setInterval(function () {
+      if (estado && chaveAbandono() !== estado.chaveAbandono) { renderizarLista(); if (estado.selecionado) renderizarRecuperacao(); }
+    }, 60000);
+
     if (window.PBRAvisos) window.PBRAvisos.acompanharAba('pedidos', contarPagosNaoVistos);
     carregar();
     // Tempo real (RLS do admin); sem conexão, atualiza a cada 30 s.
@@ -82,6 +123,69 @@
         if (status !== 'SUBSCRIBED' && estado) estado.timer = setInterval(carregar, 30000);
         else if (estado) carregar();
       });
+  }
+
+  function chaveAbandono() {
+    var agora = Date.now();
+    return estado.pedidos.filter(function (p) { return abandonado(p, agora); }).map(function (p) { return p.id; }).join(',');
+  }
+
+  function prepararRecuperacao() {
+    var campo = $('[data-recuperar-mensagem]');
+    var link = $('[data-recuperar-link]');
+    if (!campo || !link) return;
+    campo.oninput = function () { atualizarLinkWhats(); };
+    $('[data-recuperar-padrao]').onclick = function () {
+      var p = pedidoSelecionado();
+      if (!p) return;
+      campo.value = mensagemRecuperacao(p);
+      atualizarLinkWhats();
+      campo.focus();
+    };
+    // Abrir o link não envia nada: só registra, neste navegador, que o dono chamou o cliente.
+    link.onclick = function () {
+      var p = pedidoSelecionado();
+      if (!p) return;
+      marcarChamado(p.id);
+      mostrarChamado(p.id);
+      renderizarLista();
+    };
+  }
+
+  function pedidoSelecionado() {
+    return estado && estado.pedidos.filter(function (x) { return x.id === estado.selecionado; })[0];
+  }
+
+  function atualizarLinkWhats() {
+    var p = pedidoSelecionado();
+    var link = $('[data-recuperar-link]');
+    if (!p || !link) return;
+    link.href = linkWhatsapp(p.whatsapp) + '?text=' + encodeURIComponent($('[data-recuperar-mensagem]').value);
+  }
+
+  function mostrarChamado(id) {
+    var quando = lerChamados()[id];
+    $('[data-recuperar-chamado]').textContent = quando ? 'Você abriu o WhatsApp para este cliente em ' + data(quando) + '.' : '';
+  }
+
+  function renderizarRecuperacao() {
+    var caixa = $('[data-recuperar]');
+    if (!caixa) return;
+    var p = pedidoSelecionado();
+    var ativo = !!p && abandonado(p);
+    if (!ativo) { caixa.hidden = true; caixa.removeAttribute('data-pedido'); return; }
+    var mesmo = caixa.getAttribute('data-pedido') === p.id && !caixa.hidden;
+    caixa.hidden = false;
+    caixa.setAttribute('data-pedido', p.id);
+    $('[data-recuperar-texto]').textContent = 'Pagamento pendente há ' + tempoParado(p.criado_em) +
+      '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
+    var temWhats = String(p.whatsapp || '').replace(/\D/g, '').length >= 10;
+    $('[data-recuperar-whats]').hidden = !temWhats;
+    $('[data-recuperar-sem]').hidden = temWhats;
+    // Preserva o texto que o dono está editando quando a lista recarrega.
+    if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemRecuperacao(p);
+    if (temWhats) atualizarLinkWhats();
+    mostrarChamado(p.id);
   }
 
   var timerRecarga = null;
@@ -162,7 +266,8 @@
   function filtrados() {
     return estado.pedidos.filter(function (p) {
       if (!noRecorte(p)) return false;
-      if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
+      if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
+      else if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
       if (!estado.busca) return true;
       return [p.codigo, p.nome, p.email].some(function (c) { return normalizar(c).indexOf(estado.busca) !== -1; });
     });
@@ -178,10 +283,16 @@
     var recorte = estado.pedidos.filter(noRecorte);
     var recortado = recorte.length !== estado.pedidos.length;
     var contagem = { todos: recorte.length };
-    recorte.forEach(function (p) { contagem[p.status] = (contagem[p.status] || 0) + 1; });
+    var agora = Date.now();
+    estado.chaveAbandono = chaveAbandono();
+    recorte.forEach(function (p) {
+      contagem[p.status] = (contagem[p.status] || 0) + 1;
+      if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
+    });
+    var chamados = lerChamados();
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
-      var base = f === 'todos' ? 'Todos' : ROTULOS[f] + 's';
+      var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
     var aprovados = recorte.filter(function (p) { return p.status === 'aprovado'; });
@@ -211,6 +322,9 @@
       var l2 = el('span', 'admin-item__linha');
       l2.appendChild(el('span', 'admin-item__previa', p.plano_nome + ' · ' + fReal.format(p.valor_centavos / 100)));
       l2.appendChild(el('span', 'admin-status admin-status--' + p.status, ROTULOS[p.status] || p.status));
+      if (abandonado(p, agora)) {
+        l2.appendChild(el('span', 'admin-item__tag admin-item__tag--alerta', chamados[p.id] ? 'abandonado · chamado' : 'abandonado · ' + tempoParado(p.criado_em)));
+      }
       if (p.status === 'aprovado') {
         var temBriefing = !!estado.briefings[p.id];
         l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : ''), temBriefing ? 'briefing ✓' : 'sem briefing'));
@@ -282,6 +396,7 @@
       }
       dl.appendChild(dd);
     }
+    renderizarRecuperacao();
     linha('Cliente', p.nome);
     linha('E-mail', p.email, 'mailto:' + p.email);
     linha('WhatsApp', whatsappFormatado(p.whatsapp), linkWhatsapp(p.whatsapp));
@@ -322,6 +437,7 @@
     if (!estado) return;
     if (estado.canal) estado.sb.removeChannel(estado.canal);
     clearInterval(estado.timer);
+    clearInterval(estado.relogio);
     estado = null;
     var lista = $('[data-lista-pedidos]');
     if (lista) lista.textContent = '';

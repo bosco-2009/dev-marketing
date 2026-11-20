@@ -205,6 +205,7 @@
           <button type="button" class="admin-filtro" aria-pressed="true" data-filtro-pedido="todos">Todos</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="aprovado">Aprovados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="abandonado" title="Pendentes há mais de 1 hora">Abandonados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="recusado">Recusados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="cancelado">Cancelados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="reembolsado">Reembolsados</button>
@@ -253,6 +254,24 @@
             <span class="admin-status" data-pedido-status></span>
           </header>
           <div class="admin-pedido__corpo">
+            <section class="admin-recuperar" data-recuperar hidden aria-labelledby="recuperar-titulo">
+              <h4 id="recuperar-titulo" class="admin-recuperar__titulo">Checkout abandonado</h4>
+              <p class="admin-recuperar__texto" data-recuperar-texto></p>
+              <div data-recuperar-whats>
+                <label class="admin-recuperar__rotulo" for="recuperar-mensagem">Mensagem (você pode editar antes de abrir o WhatsApp)</label>
+                <textarea id="recuperar-mensagem" rows="5" data-recuperar-mensagem></textarea>
+                <p class="admin-recuperar__acoes">
+                  <a class="botao botao--whatsapp botao--pequeno" href="#" target="_blank" rel="noopener" data-recuperar-link>
+                    <svg class="icone" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+                    Chamar no WhatsApp<span class="visualmente-oculto"> (abre em nova aba)</span>
+                  </a>
+                  <button class="botao botao--contorno botao--pequeno" type="button" data-recuperar-padrao>Restaurar mensagem</button>
+                </p>
+                <p class="admin-recuperar__nota">Nada é enviado automaticamente: o WhatsApp abre com o texto pronto e você decide se envia.</p>
+              </div>
+              <p class="admin-recuperar__sem" data-recuperar-sem hidden>O cliente não deixou WhatsApp neste pedido.</p>
+              <p class="admin-recuperar__chamado" role="status" data-recuperar-chamado></p>
+            </section>
             <dl class="admin-dados" data-pedido-dados></dl>
             <h4 class="admin-pedido__subtitulo">Notificações do Mercado Pago</h4>
             <ol class="admin-eventos" data-pedido-eventos></ol>
