@@ -91,8 +91,20 @@
     }
   }
 
+  // Vindo de uma página por segmento (melhoria 25): index.html?segmento=<tipo>#simulador já marca o tipo de negócio.
+  function segmentoDaUrl() {
+    var tipo = '';
+    try { tipo = new URLSearchParams(window.location.search).get('segmento') || ''; } catch (e) { return; }
+    if (!/^[a-z]+$/.test(tipo)) return;
+    var opcao = form.querySelector('input[name="tipo"][value="' + tipo + '"]');
+    if (opcao) opcao.checked = true;
+  }
+
   form.addEventListener('change', atualizar);
   form.addEventListener('submit', function (e) { e.preventDefault(); });
+  segmentoDaUrl();
   secao.hidden = false;
   atualizar();
+  // A seção nasce oculta (sem JS não funciona); ao chegar por #simulador de outra página, rola até ela agora.
+  if (window.location.hash === '#simulador') secao.scrollIntoView({ block: 'start' });
 })();

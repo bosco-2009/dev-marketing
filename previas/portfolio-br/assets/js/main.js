@@ -78,11 +78,13 @@
   }
 
   // Link da página atual (usado pelo chat fora do horário). A página declara o contexto em
-  // <main data-whats-contexto="artigo|planos">; nas demais, vale a mensagem padrão.
+  // <main data-whats-contexto="artigo|planos|segmento">; nas demais, vale a mensagem padrão.
   function linkWhatsDaPagina() {
     var marcador = document.querySelector('[data-whats-contexto]');
     var contexto = marcador && marcador.getAttribute('data-whats-contexto');
     if (contexto === 'artigo') return linkWhats('artigo', { pagina: tituloPagina() });
+    // Páginas por segmento (melhoria 25): usa o modelo `segmento` se o dono criar um; sem ele, a mensagem padrão.
+    if (contexto === 'segmento') return linkWhats('segmento', { pagina: tituloPagina() });
     if (contexto === 'planos') {
       var marcado = document.querySelector('input[name="plano"]:checked');
       var plano = marcado && config.planos.filter(function (p) { return p.id === marcado.value; })[0];
