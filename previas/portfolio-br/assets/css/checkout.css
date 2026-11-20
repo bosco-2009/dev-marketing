@@ -167,6 +167,7 @@
 .checkout__resumo-itens { display: grid; gap: var(--esp-2); margin-top: var(--esp-4); font-size: var(--texto-sm); }
 .checkout__resumo-itens li { display: flex; gap: var(--esp-2); }
 .checkout__resumo-itens .icone { margin-top: 0.1em; color: var(--cor-acao); }
+.checkout__resumo-whats { margin-top: var(--esp-3); font-size: var(--texto-sm); }
 .checkout__depois { padding-top: var(--esp-4); border-top: 1px solid var(--cor-borda); }
 .checkout__depois-titulo { font-size: var(--texto-base); letter-spacing: 0; }
 .checkout__depois-lista { margin-top: var(--esp-2); padding-left: var(--esp-5); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
@@ -268,6 +269,7 @@
 .checkout__comparar { margin-top: var(--esp-3); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
 .checkout__comparar[hidden], .comparativo[hidden] { display: none; }
 .comparativo { background: var(--cor-fundo-suave); }
+.comparativo__whats { margin-top: var(--esp-5); text-align: center; color: var(--cor-texto-suave); font-size: var(--texto-sm); }
 .comparativo:focus { outline: none; }
 
 /* Celular: abas */

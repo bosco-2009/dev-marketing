@@ -193,6 +193,16 @@
     radio.closest('fieldset').scrollIntoView({ behavior: reduzido ? 'auto' : 'smooth', block: 'start' });
   });
 
+  // Dúvida na escolha: WhatsApp com mensagem pronta do comparativo (só com número configurado; melhoria 24)
+  var zap = window.PBR_whatsapp;
+  var hrefZap = zap && zap.link('comparativo');
+  if (hrefZap) {
+    var duvida = el('p', 'comparativo__whats');
+    duvida.appendChild(document.createTextNode('Ficou em dúvida entre os planos? '));
+    duvida.appendChild(zap.criarLink(hrefZap, 'Pergunte no WhatsApp'));
+    secao.querySelector('.container').appendChild(duvida);
+  }
+
   secao.hidden = false;
   var link = document.querySelector('[data-link-comparativo]');
   if (link) link.hidden = false;

@@ -45,6 +45,13 @@
       instagram: 'portifolio_br',
       whatsapp: '', // [PROVISÓRIO] só dígitos com DDI e DDD, ex.: '5511999999999' (vazio = oculto)
       whatsappMensagem: 'Olá! Vim pelo site da Portfólio BR e quero saber mais sobre os sites.', // [PROVISÓRIO]
+      // Mensagens prontas conforme a página (melhoria 24). {plano} e {pagina} são trocados pelo site.
+      // Só aparecem quando o `whatsapp` acima estiver preenchido. Modelo vazio = usa a `whatsappMensagem`.
+      whatsappModelos: { // [PROVISÓRIO] revisar o tom das mensagens
+        plano: 'Olá! Vim pelo site da Portfólio BR e tenho interesse no plano {plano}. Pode me tirar umas dúvidas?',
+        comparativo: 'Olá! Estava comparando os planos no site da Portfólio BR e quero ajuda para escolher o melhor para o meu negócio.',
+        artigo: 'Olá! Li o artigo "{pagina}" no blog da Portfólio BR e quero conversar sobre um site para o meu negócio.'
+      },
       email: '' // [PROVISÓRIO] ex.: 'contato@seudominio.com.br' (vazio = oculto)
     },
 

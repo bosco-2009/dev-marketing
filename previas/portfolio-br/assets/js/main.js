@@ -54,6 +54,70 @@
     return { tipo: 'instagram', href: 'https://ig.me/m/' + c.instagram, rotulo: 'Falar pelo Instagram' };
   }
 
+  // ---------------- WhatsApp contextual (melhoria 24) ----------------
+  // Mensagem pronta conforme o contexto (plano, comparativo, artigo), montada com os modelos do config.js.
+  // Sem número válido (vazio enquanto [PROVISÓRIO]), nenhum link é criado.
+  var whatsDisponivel = /^\d{12,13}$/.test(String(config.contato.whatsapp || ''));
+
+  function mensagemWhats(modelo, vars) {
+    var modelos = config.contato.whatsappModelos || {};
+    var texto = (modelo && modelos[modelo]) || config.contato.whatsappMensagem || '';
+    return texto.replace(/\{(\w+)\}/g, function (_, chave) {
+      return vars && vars[chave] != null ? String(vars[chave]) : '';
+    }).replace(/\s+/g, ' ').trim();
+  }
+
+  function linkWhats(modelo, vars) {
+    if (!whatsDisponivel) return null;
+    return 'https://wa.me/' + config.contato.whatsapp + '?text=' + encodeURIComponent(mensagemWhats(modelo, vars));
+  }
+
+  function tituloPagina() {
+    var h1 = document.querySelector('main h1');
+    return h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '';
+  }
+
+  // Link da página atual (usado pelo chat fora do horário). A página declara o contexto em
+  // <main data-whats-contexto="artigo|planos">; nas demais, vale a mensagem padrão.
+  function linkWhatsDaPagina() {
+    var marcador = document.querySelector('[data-whats-contexto]');
+    var contexto = marcador && marcador.getAttribute('data-whats-contexto');
+    if (contexto === 'artigo') return linkWhats('artigo', { pagina: tituloPagina() });
+    if (contexto === 'planos') {
+      var marcado = document.querySelector('input[name="plano"]:checked');
+      var plano = marcado && config.planos.filter(function (p) { return p.id === marcado.value; })[0];
+      return plano ? linkWhats('plano', { plano: plano.nome }) : linkWhats('comparativo');
+    }
+    return linkWhats(null);
+  }
+
+  // Link discreto "Tirar dúvidas no WhatsApp" (texto + ícone), usado nos cards e no comparativo.
+  function criarLinkWhats(href, texto) {
+    var a = criar('a', 'link-whats');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.appendChild(icone('whatsapp'));
+    a.appendChild(criar('span', null, texto));
+    a.appendChild(criar('span', 'visualmente-oculto', ' (abre o WhatsApp em nova aba)'));
+    return a;
+  }
+
+  window.PBR_whatsapp = {
+    disponivel: whatsDisponivel,
+    link: linkWhats,
+    linkDaPagina: linkWhatsDaPagina,
+    criarLink: criarLinkWhats
+  };
+
+  // Elementos estáticos <a data-whats="modelo" hidden>: recebem o link e aparecem só com número válido.
+  document.querySelectorAll('a[data-whats]').forEach(function (a) {
+    var href = linkWhats(a.getAttribute('data-whats'), { pagina: tituloPagina() });
+    if (!href) return;
+    a.href = href;
+    a.hidden = false;
+  });
+
   function linkExterno(href, classe, conteudo) {
     var a = criar('a', classe);
     a.href = href;
@@ -130,6 +194,13 @@
       var botao = criar('a', 'botao ' + (plano.destaque ? 'botao--primario' : 'botao--contorno'), 'Quero o plano ' + plano.nome);
       botao.href = 'planos.html?plano=' + encodeURIComponent(plano.id);
       li.appendChild(botao);
+
+      var hrefWhats = linkWhats('plano', { plano: plano.nome });
+      if (hrefWhats) {
+        var duvida = criar('p', 'plano__whats');
+        duvida.appendChild(criarLinkWhats(hrefWhats, 'Tirar dúvidas sobre o ' + plano.nome));
+        li.appendChild(duvida);
+      }
 
       listaPlanos.appendChild(li);
     });

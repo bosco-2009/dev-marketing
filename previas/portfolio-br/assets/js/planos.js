@@ -104,6 +104,14 @@
       ul.appendChild(li);
     });
     resumo.appendChild(ul);
+    // Dúvida sobre o plano escolhido: WhatsApp com a mensagem pronta (só com número configurado)
+    var zap = window.PBR_whatsapp;
+    var hrefZap = zap && zap.link('plano', { plano: p.nome });
+    if (hrefZap) {
+      var duvida = el('p', 'checkout__resumo-whats');
+      duvida.appendChild(zap.criarLink(hrefZap, 'Dúvidas sobre o ' + p.nome + '? Pergunte no WhatsApp'));
+      resumo.appendChild(duvida);
+    }
     var url = new URL(location.href);
     url.searchParams.set('plano', p.id);
     history.replaceState(null, '', url.pathname + url.search + url.hash); // mantém #comparativo

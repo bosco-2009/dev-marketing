@@ -275,6 +275,11 @@
     }
 
     // ------------------------------------------------------------- horário
+    function linkWhatsDono() {
+      var contextual = window.PBR_whatsapp && window.PBR_whatsapp.linkDaPagina();
+      return contextual || 'https://wa.me/' + whatsappDono + '?text=' + encodeURIComponent(config.contato.whatsappMensagem || '');
+    }
+
     function atualizarHorario() {
       var online = estaNoHorario(atendimento, new Date());
       raiz.setAttribute('data-online', String(online));
@@ -290,9 +295,11 @@
       avisoHorario.appendChild(texto);
       if (whatsappDono) {
         var a = el('a', 'botao botao--whatsapp botao--pequeno chat__whatsapp', null, {
-          href: 'https://wa.me/' + whatsappDono + '?text=' + encodeURIComponent(config.contato.whatsappMensagem || ''),
+          href: linkWhatsDono(),
           target: '_blank', rel: 'noopener'
         });
+        // A mensagem acompanha a página (artigo, plano marcado...); recalcula no clique (melhoria 24)
+        a.addEventListener('click', function () { a.href = linkWhatsDono(); });
         a.appendChild(icone('whatsapp'));
         a.appendChild(document.createTextNode('Falar no WhatsApp'));
         a.appendChild(oculto(' (abre em nova aba)'));

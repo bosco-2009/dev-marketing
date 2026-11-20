@@ -934,6 +934,22 @@ a:hover { color: var(--cor-acao-hover); }
 
 .plano .botao { width: 100%; }
 
+/* WhatsApp contextual (melhoria 24): link discreto com mensagem pronta, só com número configurado */
+.link-whats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 44px;
+  color: var(--cor-acao-texto-suave);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+.link-whats:hover { text-decoration-thickness: 2px; }
+.link-whats .icone { flex: none; }
+.plano__whats { margin-top: var(--esp-2); text-align: center; font-size: var(--texto-sm); }
+
 /* ===================== Portfólio e depoimentos (só com dados reais) ===================== */
 .grade-portfolio, .grade-depoimentos { display: grid; gap: var(--esp-5); }
 @media (min-width: 40rem) { .grade-portfolio, .grade-depoimentos { grid-template-columns: repeat(2, 1fr); } }
