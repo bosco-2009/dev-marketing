@@ -21,6 +21,7 @@
   <script src="../config.js" defer></script>
   <script src="../assets/js/supabase-client.js" defer></script>
   <script src="../assets/js/admin-avisos.js" defer></script>
+  <script src="../assets/js/admin-exportar.js" defer></script>
   <script src="../assets/js/admin.js" defer></script>
   <script src="../assets/js/admin-respostas.js" defer></script>
   <script src="../assets/js/admin-pedidos.js" defer></script>
@@ -112,6 +113,30 @@
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="fechada">Fechadas</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="todas">Todas</button>
         </div>
+        <div class="admin-refino" role="group" aria-label="Período, origem e exportação das conversas">
+          <div class="admin-refino__campo">
+            <label for="conversas-periodo">Período</label>
+            <select id="conversas-periodo" data-periodo-conversas>
+              <option value="tudo">Tudo</option>
+              <option value="hoje">Hoje</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="30">Últimos 30 dias</option>
+              <option value="mes">Este mês</option>
+            </select>
+          </div>
+          <div class="admin-refino__campo">
+            <label for="conversas-origem">Origem</label>
+            <select id="conversas-origem" data-origem-conversas>
+              <option value="">Todas as origens</option>
+            </select>
+          </div>
+          <label class="admin-refino__marcar">
+            <input type="checkbox" data-so-leads>
+            Só leads (com nome ou WhatsApp)
+          </label>
+          <button class="botao botao--contorno botao--pequeno admin-refino__exportar" type="button" data-exportar-conversas>Exportar CSV</button>
+          <p class="visualmente-oculto" role="status" data-exportado-conversas></p>
+        </div>
         <ul class="admin-lista__itens" role="list" data-lista-conversas></ul>
         <p class="admin-vazio" data-lista-vazia hidden>Nenhuma conversa aqui ainda.</p>
       </div>
@@ -187,6 +212,26 @@
         <div class="admin-busca">
           <label class="visualmente-oculto" for="busca-pedidos">Buscar pedidos</label>
           <input id="busca-pedidos" type="search" placeholder="Buscar por código, nome ou e-mail" data-busca-pedidos>
+        </div>
+        <div class="admin-refino" role="group" aria-label="Período, origem e exportação dos pedidos">
+          <div class="admin-refino__campo">
+            <label for="pedidos-periodo">Período</label>
+            <select id="pedidos-periodo" data-periodo-pedidos>
+              <option value="tudo">Tudo</option>
+              <option value="hoje">Hoje</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="30">Últimos 30 dias</option>
+              <option value="mes">Este mês</option>
+            </select>
+          </div>
+          <div class="admin-refino__campo">
+            <label for="pedidos-origem">Origem</label>
+            <select id="pedidos-origem" data-origem-pedidos>
+              <option value="">Todas as origens</option>
+            </select>
+          </div>
+          <button class="botao botao--contorno botao--pequeno admin-refino__exportar" type="button" data-exportar-pedidos>Exportar CSV</button>
+          <p class="visualmente-oculto" role="status" data-exportado-pedidos></p>
         </div>
         <p class="admin-resumo" data-resumo-pedidos aria-live="polite"></p>
         <ul class="admin-lista__itens" role="list" data-lista-pedidos></ul>

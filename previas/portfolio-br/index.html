@@ -550,6 +550,15 @@
           <p class="secao__sobretitulo">Dúvidas frequentes</p>
           <h2 id="duvidas-titulo" class="secao__titulo">Perguntas que todo mundo faz</h2>
         </header>
+        <div class="faq-busca" role="search" data-faq-busca hidden>
+          <label class="faq-busca__rotulo" for="faq-busca">Buscar nas dúvidas</label>
+          <div class="faq-busca__campo">
+            <svg class="icone" aria-hidden="true"><use href="#i-busca"/></svg>
+            <input id="faq-busca" type="search" autocomplete="off" placeholder="Ex.: domínio, prazo, pagamento" aria-describedby="faq-busca-resultado" data-faq-entrada>
+          </div>
+          <p class="faq-busca__resultado" id="faq-busca-resultado" role="status" data-faq-resultado></p>
+          <p class="faq-busca__vazio" data-faq-vazio hidden>Não achou? <button class="faq-busca__chat" type="button" data-faq-chat>Pergunte no chat</button></p>
+        </div>
         <div class="faq" data-lista-faq></div>
       </div>
     </section>

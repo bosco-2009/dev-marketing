@@ -661,9 +661,9 @@ a:hover { color: var(--cor-acao-hover); }
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-lg);
   background: var(--cor-superficie);
-  transition: box-shadow var(--duracao-media) var(--curva-padrao), transform var(--duracao-media) var(--curva-padrao);
+  transition: box-shadow var(--duracao-media) var(--curva-padrao), translate var(--duracao-media) var(--curva-padrao);
 }
-.card:hover { box-shadow: var(--sombra-md); transform: translateY(-2px); }
+.card:hover { box-shadow: var(--sombra-md); }
 
 .card__icone {
   display: inline-grid;
@@ -976,6 +976,53 @@ a:hover { color: var(--cor-acao-hover); }
 .garantia__texto { margin-top: var(--esp-2); color: var(--cor-texto-invertido-suave); }
 
 /* ===================== FAQ ===================== */
+.faq-busca { margin-bottom: var(--esp-5); }
+.faq-busca[hidden] { display: none; }
+.faq-busca__rotulo { display: block; margin-bottom: var(--esp-2); font-weight: var(--peso-negrito); }
+.faq-busca__campo { position: relative; }
+.faq-busca__campo .icone { position: absolute; top: 50%; left: var(--esp-4); width: 1.25rem; height: 1.25rem; color: var(--cor-texto-suave); transform: translateY(-50%); pointer-events: none; }
+.faq-busca__campo input {
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--esp-2) var(--esp-4) var(--esp-2) calc(var(--esp-4) + 1.75rem);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: var(--texto-base);
+}
+.faq-busca__resultado { min-height: 1.5em; margin-top: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.faq-busca__vazio[hidden] { display: none; }
+.faq-busca__chat {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cor-acao);
+  font: inherit;
+  font-weight: var(--peso-negrito);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+.faq__item[hidden] { display: none; }
+.faq__item { scroll-margin-top: 5.5rem; }
+.faq__corpo { padding: 0 var(--esp-5) var(--esp-4); }
+.faq__corpo .faq__resposta { padding: 0; }
+.faq__copiar {
+  min-height: 2.25rem;
+  margin-top: var(--esp-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cor-acao);
+  font: inherit;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
 .faq { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
 
 .faq__item {
@@ -1087,3 +1134,61 @@ a:hover { color: var(--cor-acao-hover); }
 
 /* Link da home para o comparativo de planos (item 5) */
 .planos__comparar { margin-top: var(--esp-6); font-weight: var(--peso-semi); text-align: center; }
+
+/* =====================================================================================
+   Microinterações (melhoria 16). Só transform/translate/opacity/cores; tudo some com prefers-reduced-motion
+   (as durações viram 0 em tokens.css e as animações abaixo são desligadas).
+   ===================================================================================== */
+.botao { transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao),
+  border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao),
+  translate var(--duracao-rapida) var(--curva-padrao), scale var(--duracao-rapida) var(--curva-padrao); }
+.botao .icone { transition: translate var(--duracao-rapida) var(--curva-padrao); }
+.botao:active { transform: none; scale: 0.97; }
+.botao:disabled, .botao[aria-disabled='true'] { cursor: not-allowed; opacity: 0.75; }
+.botao[data-carregando] { cursor: progress; opacity: 1; }
+
+@media (hover: hover) {
+  .botao--primario:hover:not(:disabled), .botao--whatsapp:hover:not(:disabled) { translate: 0 -2px; box-shadow: var(--sombra-md); }
+  .botao:hover:has(use[href='#i-seta']) .icone { translate: 3px 0; }
+  .card:hover, .segmento:hover, .plano:hover, .blog-cartao:hover { translate: 0 -3px; }
+  .segmento:hover, .plano:hover { box-shadow: var(--sombra-md); }
+}
+.segmento, .plano { transition: translate var(--duracao-media) var(--curva-padrao), box-shadow var(--duracao-media) var(--curva-padrao); }
+/* Toque: cartões clicáveis "afundam" levemente ao serem tocados */
+@media (hover: none) {
+  .blog-cartao:active, .segmento:active, .ex-cartao:active { scale: 0.985; }
+}
+.blog-cartao, .ex-cartao { transition: scale var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-media) var(--curva-padrao), box-shadow var(--duracao-media) var(--curva-padrao); }
+
+/* Carregando (checkout e briefing): o ícone do botão vira um indicador girando; o texto já diz o que acontece */
+.botao[data-carregando] > .icone { display: none; }
+.botao[data-carregando]::before {
+  content: '';
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girar-botao 0.8s linear infinite;
+}
+@keyframes girar-botao { to { transform: rotate(360deg); } }
+
+/* FAQ: o "+" gira ao abrir */
+.faq__pergunta::after { transition: rotate var(--duracao-media) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
+.faq__item[open] .faq__pergunta::after { rotate: 180deg; }
+@media (hover: hover) { .faq__pergunta:hover::after { background: var(--cor-acao); color: var(--cor-acao-texto); } }
+
+/* Campos: foco suave e um "tremor" curto quando o envio encontra erro */
+.campo__entrada, .faq-busca__campo input { transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.campo__entrada:focus-visible, .faq-busca__campo input:focus-visible { border-color: var(--cor-acao); box-shadow: 0 0 0 3px var(--cor-acao-fundo-suave); }
+.campo__entrada[aria-invalid='true'] { animation: tremer 0.32s var(--curva-padrao) 1; }
+@keyframes tremer { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .botao[data-carregando]::before { animation: none; border-right-color: currentColor; opacity: 0.6; }
+  .campo__entrada[aria-invalid='true'] { animation: none; }
+  .botao:active, .blog-cartao:active, .segmento:active, .ex-cartao:active { scale: none; }
+  .card:hover, .segmento:hover, .plano:hover, .blog-cartao:hover,
+  .botao--primario:hover:not(:disabled), .botao--whatsapp:hover:not(:disabled) { translate: none; }
+}

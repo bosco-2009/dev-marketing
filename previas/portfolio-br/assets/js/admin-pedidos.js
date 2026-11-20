@@ -45,7 +45,7 @@
 
   function iniciar(sb, avisos) {
     if (estado) return;
-    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, filtro: 'todos', busca: '', selecionado: null, canal: null, conhecidos: null, timer: null };
+    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, filtro: 'todos', busca: '', periodo: 'tudo', origem: '', selecionado: null, canal: null, conhecidos: null, timer: null };
 
     var secao = $('.admin-pedidos');
     var lista = $('[data-lista-pedidos]');
@@ -58,6 +58,13 @@
       };
     });
     $('[data-busca-pedidos]').oninput = function (e) { estado.busca = normalizar(e.target.value.trim()); renderizarLista(); };
+    // Período, origem e exportação (melhoria 20)
+    var selPeriodo = $('[data-periodo-pedidos]');
+    var selOrigem = $('[data-origem-pedidos]');
+    if (selPeriodo) selPeriodo.onchange = function () { estado.periodo = selPeriodo.value; renderizarLista(); };
+    if (selOrigem) selOrigem.onchange = function () { estado.origem = selOrigem.value; renderizarLista(); };
+    var botaoExportar = $('[data-exportar-pedidos]');
+    if (botaoExportar) botaoExportar.onclick = exportar;
     $('[data-pedido-voltar]').onclick = function () {
       secao.classList.remove('mostrando-conversa');
       var item = estado.selecionado && lista.querySelector('[data-id="' + estado.selecionado + '"]');
@@ -142,8 +149,19 @@
       function (p) { return p.pago_em || p.atualizado_em; });
   }
 
+  function canalDe(p) { return window.PBRExportar ? window.PBRExportar.canal(p.origem) : 'direto'; }
+
+  // Período e origem (sem o status): base dos contadores dos botões e do resumo.
+  function noRecorte(p) {
+    var X = window.PBRExportar;
+    if (X && !X.noPeriodo(p.criado_em, estado.periodo)) return false;
+    if (estado.origem && canalDe(p) !== estado.origem) return false;
+    return true;
+  }
+
   function filtrados() {
     return estado.pedidos.filter(function (p) {
+      if (!noRecorte(p)) return false;
       if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
       if (!estado.busca) return true;
       return [p.codigo, p.nome, p.email].some(function (c) { return normalizar(c).indexOf(estado.busca) !== -1; });
@@ -156,20 +174,30 @@
     lista.textContent = '';
     $('[data-pedidos-vazio]').hidden = itens.length > 0;
 
-    var contagem = { todos: estado.pedidos.length };
-    estado.pedidos.forEach(function (p) { contagem[p.status] = (contagem[p.status] || 0) + 1; });
+    if (window.PBRExportar) window.PBRExportar.preencherOrigens($('[data-origem-pedidos]'), estado.pedidos.map(canalDe));
+    var recorte = estado.pedidos.filter(noRecorte);
+    var recortado = recorte.length !== estado.pedidos.length;
+    var contagem = { todos: recorte.length };
+    recorte.forEach(function (p) { contagem[p.status] = (contagem[p.status] || 0) + 1; });
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
       var base = f === 'todos' ? 'Todos' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
-    var aprovados = estado.pedidos.filter(function (p) { return p.status === 'aprovado'; });
+    var aprovados = recorte.filter(function (p) { return p.status === 'aprovado'; });
     var total = aprovados.reduce(function (s, p) { return s + p.valor_centavos; }, 0);
-    $('[data-resumo-pedidos]').textContent = aprovados.length
+    $('[data-resumo-pedidos]').textContent = (aprovados.length
       ? aprovados.length + (aprovados.length === 1 ? ' pedido aprovado' : ' pedidos aprovados') + ' · ' + fReal.format(total / 100)
-      : 'Nenhum pedido aprovado ainda.';
+      : (recortado ? 'Nenhum pedido aprovado neste período/origem.' : 'Nenhum pedido aprovado ainda.')) +
+      (recortado ? ' (de ' + estado.pedidos.length + ' pedidos no total)' : '');
+    var botaoExportar = $('[data-exportar-pedidos]');
+    if (botaoExportar) {
+      botaoExportar.textContent = 'Exportar CSV (' + itens.length + ')';
+      botaoExportar.disabled = !itens.length;
+    }
 
-    var pendentes = contagem.pendente || 0;
+    // O selo da aba conta todos os pendentes, sem o recorte.
+    var pendentes = estado.pedidos.filter(function (p) { return p.status === 'pendente'; }).length;
     var selo = $('[data-selo-aba="pedidos"]');
     if (selo) { selo.hidden = !pendentes; selo.textContent = pendentes ? String(pendentes) : ''; selo.title = pendentes + ' pendente(s)'; }
 
@@ -193,6 +221,32 @@
       li.appendChild(b);
       lista.appendChild(li);
     });
+  }
+
+  // CSV dos pedidos que estão na lista (status + período + origem + busca), montado no navegador.
+  function exportar() {
+    var X = window.PBRExportar;
+    if (!estado || !X) return;
+    var itens = filtrados();
+    if (!itens.length) return;
+    var reais = function (c) { return (c / 100).toFixed(2).replace('.', ','); };
+    var colunas = [
+      { titulo: 'Código', valor: function (p) { return p.codigo; } },
+      { titulo: 'Criado em', valor: function (p) { return data(p.criado_em); } },
+      { titulo: 'Status', valor: function (p) { return ROTULOS[p.status] || p.status; } },
+      { titulo: 'Plano', valor: function (p) { return p.plano_nome; } },
+      { titulo: 'Valor (R$)', valor: function (p) { return reais(p.valor_centavos); } },
+      { titulo: 'Cliente', valor: function (p) { return p.nome; } },
+      { titulo: 'E-mail', valor: function (p) { return p.email; } },
+      { titulo: 'WhatsApp', valor: function (p) { return whatsappFormatado(p.whatsapp); } },
+      { titulo: 'Canal de origem', valor: function (p) { return X.rotuloCanal(canalDe(p)); } },
+      { titulo: 'Origem (detalhe)', valor: function (p) { return p.origem || ''; } },
+      { titulo: 'Pago em', valor: function (p) { return p.pago_em ? data(p.pago_em) : ''; } },
+      { titulo: 'Briefing', valor: function (p) { return estado.briefings[p.id] ? 'recebido' : (p.status === 'aprovado' ? 'não enviado' : ''); } }
+    ];
+    X.baixar('pedidos-portfolio-br-' + X.hoje() + '.csv', X.csv(colunas, itens));
+    var aviso = $('[data-exportado-pedidos]');
+    if (aviso) aviso.textContent = itens.length + (itens.length === 1 ? ' pedido exportado.' : ' pedidos exportados.');
   }
 
   function abrir(id) {
@@ -280,6 +334,12 @@
     if (!estado) return;
     estado.filtro = 'todos';
     estado.busca = '';
+    estado.periodo = 'tudo';
+    estado.origem = '';
+    var selP = $('[data-periodo-pedidos]');
+    if (selP) selP.value = 'tudo';
+    var selO = $('[data-origem-pedidos]');
+    if (selO) selO.value = '';
     var busca = $('[data-busca-pedidos]');
     if (busca) busca.value = '';
     $$('[data-filtro-pedido]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro-pedido') === 'todos')); });

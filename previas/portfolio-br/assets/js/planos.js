@@ -188,6 +188,7 @@
 
     enviando = true;
     botao.disabled = true;
+    botao.setAttribute('data-carregando', ''); // microinteração (melhoria 16): indicador no botão
     textoBotao.textContent = 'Preparando o pagamento…';
     form.setAttribute('aria-busy', 'true');
 
@@ -220,6 +221,7 @@
         mostrarErro(MENSAGENS[codigo] || 'Não foi possível iniciar o pagamento. Verifique sua conexão e tente de novo.');
         enviando = false;
         botao.disabled = false;
+        botao.removeAttribute('data-carregando');
         textoBotao.textContent = 'Ir para o pagamento seguro';
         form.removeAttribute('aria-busy');
       });
@@ -229,6 +231,7 @@
   window.addEventListener('pageshow', function () {
     enviando = false;
     botao.disabled = false;
+    botao.removeAttribute('data-carregando');
     textoBotao.textContent = 'Ir para o pagamento seguro';
     form.removeAttribute('aria-busy');
   });

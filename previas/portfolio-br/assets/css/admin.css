@@ -205,6 +205,38 @@
   border-radius: var(--raio-sm);
   font-size: var(--texto-base);
 }
+/* Período, origem e exportação CSV (melhoria 20) */
+.admin-refino {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-2) var(--esp-3);
+  align-items: end;
+  padding: var(--esp-3);
+  border-bottom: 1px solid var(--cor-borda);
+}
+.admin-refino__campo { display: grid; gap: var(--esp-1); min-width: 0; font-size: var(--texto-xs); font-weight: var(--peso-semi); color: var(--cor-texto-suave); }
+.admin-refino__campo select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0 var(--esp-2);
+  border: 1px solid var(--cor-cinza-500);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+}
+.admin-refino__marcar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 2.25rem;
+  font-size: var(--texto-sm);
+}
+.admin-refino__marcar input { width: 1.1rem; height: 1.1rem; accent-color: var(--cor-acao); }
+.admin-refino__exportar { grid-column: 1 / -1; width: 100%; }
+
 .admin-resumo { padding: var(--esp-2) var(--esp-4); color: var(--cor-texto-suave); font-size: var(--texto-xs); border-bottom: 1px solid var(--cor-borda); }
 
 /* Status de pedido */

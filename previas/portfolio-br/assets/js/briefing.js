@@ -346,6 +346,7 @@
     }
     enviando = true;
     bEnviar.disabled = true;
+    bEnviar.setAttribute('data-carregando', ''); // microinteração (melhoria 16)
     bEnviar.textContent = 'Enviando…';
     mostrarErro('');
     chamarRpc('briefing_enviar', { p_codigo: acesso.codigo, p_token: acesso.token, p_dados: coletar() })
@@ -363,7 +364,7 @@
         var chaveMsg = Object.keys(MENSAGENS).filter(function (k) { return m.indexOf(k) !== -1; })[0];
         mostrarErro(MENSAGENS[chaveMsg] || 'Não foi possível enviar agora. Seu rascunho está salvo; tente de novo em instantes.');
       })
-      .then(function () { enviando = false; bEnviar.disabled = false; bEnviar.textContent = 'Enviar briefing'; });
+      .then(function () { enviando = false; bEnviar.disabled = false; bEnviar.removeAttribute('data-carregando'); bEnviar.textContent = 'Enviar briefing'; });
   });
 
   // ------------------------------------------------------------------ início

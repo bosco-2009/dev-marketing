@@ -77,6 +77,9 @@
     var estado = {
       conversas: [],
       filtro: 'aberta',
+      periodo: 'tudo',
+      origem: '',
+      soLeads: false,
       selecionada: null,
       idsMensagens: {},
       canal: null,
@@ -334,8 +337,27 @@
     function nomeDe(c) { return c.nome || 'Visitante ' + c.id.slice(0, 4).toUpperCase(); }
     function conversaPorId(id) { return estado.conversas.filter(function (c) { return c.id === id; })[0]; }
 
+    // Período, origem e "só leads" (melhoria 20); o período conta pelo início da conversa.
+    function canalConversa(c) { return window.PBRExportar ? window.PBRExportar.canal(c.pagina_origem) : 'direto'; }
+    function conversasVisiveis() {
+      var X = window.PBRExportar;
+      return estado.conversas.filter(function (c) {
+        if (estado.filtro !== 'todas' && c.status !== estado.filtro) return false;
+        if (X && !X.noPeriodo(c.criado_em, estado.periodo)) return false;
+        if (estado.origem && canalConversa(c) !== estado.origem) return false;
+        if (estado.soLeads && !c.nome && !c.whatsapp) return false;
+        return true;
+      });
+    }
+
     function renderizarLista() {
-      var visiveis = estado.conversas.filter(function (c) { return estado.filtro === 'todas' || c.status === estado.filtro; });
+      var visiveis = conversasVisiveis();
+      if (window.PBRExportar) window.PBRExportar.preencherOrigens($('[data-origem-conversas]'), estado.conversas.map(canalConversa));
+      var botaoExportar = $('[data-exportar-conversas]');
+      if (botaoExportar) {
+        botaoExportar.textContent = 'Exportar CSV (' + visiveis.length + ')';
+        botaoExportar.disabled = !visiveis.length;
+      }
       lista.textContent = '';
       listaVazia.hidden = visiveis.length > 0;
       AVISOS.definir('conversas', totalNaoLidas());
@@ -379,6 +401,32 @@
         $$('[data-filtro]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
         renderizarLista();
       });
+    });
+
+    var selPeriodo = $('[data-periodo-conversas]');
+    var selOrigem = $('[data-origem-conversas]');
+    var marcarLeads = $('[data-so-leads]');
+    if (selPeriodo) selPeriodo.addEventListener('change', function () { estado.periodo = selPeriodo.value; renderizarLista(); });
+    if (selOrigem) selOrigem.addEventListener('change', function () { estado.origem = selOrigem.value; renderizarLista(); });
+    if (marcarLeads) marcarLeads.addEventListener('change', function () { estado.soLeads = marcarLeads.checked; renderizarLista(); });
+    var botaoExportarConversas = $('[data-exportar-conversas]');
+    if (botaoExportarConversas) botaoExportarConversas.addEventListener('click', function () {
+      var X = window.PBRExportar;
+      var itens = conversasVisiveis();
+      if (!X || !itens.length) return;
+      var colunas = [
+        { titulo: 'Nome', valor: function (c) { return c.nome || ''; } },
+        { titulo: 'WhatsApp', valor: function (c) { return c.whatsapp ? formatarWhatsapp(c.whatsapp) : ''; } },
+        { titulo: 'Status', valor: function (c) { return c.status === 'aberta' ? 'Aberta' : 'Fechada'; } },
+        { titulo: 'Canal de origem', valor: function (c) { return X.rotuloCanal(canalConversa(c)); } },
+        { titulo: 'Página e origem', valor: function (c) { return c.pagina_origem || ''; } },
+        { titulo: 'Início', valor: function (c) { return fCompleto.format(new Date(c.criado_em)); } },
+        { titulo: 'Última atividade', valor: function (c) { return fCompleto.format(new Date(c.atualizado_em)); } },
+        { titulo: 'Não lidas', valor: function (c) { return c.nao_lidas_admin || 0; } }
+      ];
+      X.baixar((estado.soLeads ? 'leads' : 'conversas') + '-portfolio-br-' + X.hoje() + '.csv', X.csv(colunas, itens));
+      var aviso = $('[data-exportado-conversas]');
+      if (aviso) aviso.textContent = itens.length + (itens.length === 1 ? ' conversa exportada.' : ' conversas exportadas.');
     });
 
     function atualizarCabecalho() {

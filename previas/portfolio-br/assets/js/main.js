@@ -224,15 +224,98 @@
     });
   }
 
-  // ---------------- FAQ ----------------
+  // ---------------- FAQ (melhoria 13: links diretos #faq-..., busca e FAQPage no JSON-LD) ----------------
+  function normalizar(t) {
+    return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+  function slug(t) {
+    return normalizar(t).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '');
+  }
   var listaFaq = $('[data-lista-faq]');
+  var itensFaq = [];
   if (listaFaq) {
+    var usados = {};
     config.faq.forEach(function (item) {
+      var id = 'faq-' + (slug(item.pergunta) || 'pergunta');
+      while (usados[id]) id += '-2';
+      usados[id] = true;
       var det = criar('details', 'faq__item');
+      det.id = id;
       det.appendChild(criar('summary', 'faq__pergunta', item.pergunta));
-      det.appendChild(criar('p', 'faq__resposta', item.resposta));
+      var corpo = criar('div', 'faq__corpo');
+      corpo.appendChild(criar('p', 'faq__resposta', item.resposta));
+      var copiar = criar('button', 'faq__copiar', 'Copiar link');
+      copiar.type = 'button';
+      copiar.setAttribute('data-faq-copiar', id);
+      copiar.setAttribute('aria-label', 'Copiar link desta pergunta: ' + item.pergunta);
+      corpo.appendChild(copiar);
+      det.appendChild(corpo);
       listaFaq.appendChild(det);
+      itensFaq.push({ el: det, texto: normalizar(item.pergunta + ' ' + item.resposta + ' ' + (item.palavras || '')) });
     });
+
+    // Abrir a pergunta do link (#faq-...): na carga (a lista só existe agora) e quando o hash muda
+    var abrirDoHash = function () {
+      var alvo = location.hash.indexOf('#faq-') === 0 && document.getElementById(location.hash.slice(1));
+      if (!alvo || !listaFaq.contains(alvo)) return;
+      alvo.hidden = false;
+      alvo.open = true;
+      alvo.scrollIntoView({ block: 'start', behavior: 'instant' });
+      var s = alvo.querySelector('summary');
+      if (s) s.focus({ preventScroll: true });
+    };
+    if (document.readyState === 'complete') abrirDoHash(); else window.addEventListener('load', abrirDoHash, { once: true });
+    window.addEventListener('hashchange', abrirDoHash);
+
+    // Ao abrir uma pergunta, o endereço passa a apontar para ela (sem rolar nem criar histórico)
+    listaFaq.addEventListener('toggle', function (e) {
+      if (e.target.open && e.target.id && history.replaceState) history.replaceState(null, '', '#' + e.target.id);
+    }, true);
+
+    listaFaq.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-faq-copiar]');
+      if (!b) return;
+      var url = location.href.split('#')[0] + '#' + b.getAttribute('data-faq-copiar');
+      var feito = function (ok) {
+        b.textContent = ok ? 'Link copiado' : 'Copie o endereço da barra';
+        setTimeout(function () { b.textContent = 'Copiar link'; }, 2500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { feito(true); }, function () { feito(false); });
+      else feito(false);
+    });
+
+    // Busca: ignora acentos e maiúsculas; procura na pergunta, na resposta e nas palavras extras do config.js
+    var caixaBusca = $('[data-faq-busca]');
+    var entrada = $('[data-faq-entrada]');
+    if (caixaBusca && entrada && itensFaq.length > 3) {
+      var resultado = $('[data-faq-resultado]');
+      var vazio = $('[data-faq-vazio]');
+      var timer = null;
+      var buscar = function () {
+        var termos = normalizar(entrada.value).split(/\s+/).filter(Boolean);
+        var achados = 0;
+        itensFaq.forEach(function (it) {
+          var bate = termos.every(function (t) { return it.texto.indexOf(t) !== -1; });
+          it.el.hidden = !bate;
+          if (bate) achados++;
+          // abre o que a busca achou (e fecha o que ela mesma abriu quando a busca muda)
+          if (termos.length && bate && !it.el.open) { it.el.open = true; it.el.setAttribute('data-aberto-pela-busca', ''); }
+          if ((!termos.length || !bate) && it.el.hasAttribute('data-aberto-pela-busca')) { it.el.open = false; it.el.removeAttribute('data-aberto-pela-busca'); }
+        });
+        resultado.textContent = !termos.length ? '' : achados === 0 ? 'Nenhuma pergunta encontrada.'
+          : achados === 1 ? '1 pergunta encontrada.' : achados + ' perguntas encontradas.';
+        vazio.hidden = !(termos.length && achados === 0);
+      };
+      entrada.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(buscar, 150); });
+      entrada.addEventListener('search', buscar);
+      var botaoChat = $('[data-faq-chat]');
+      botaoChat.addEventListener('click', function () {
+        var lancador = document.querySelector('.chat__lancador');
+        if (lancador) lancador.click();
+        else if (config.contato.whatsapp) window.open(linkContato().href, '_blank', 'noopener');
+      });
+      caixaBusca.hidden = false;
+    }
   }
 
   // ---------------- CTA final ----------------
@@ -316,7 +399,17 @@
     var ld = document.createElement('script');
     ld.type = 'application/ld+json';
     ld.setAttribute('data-ld-servico', '');
-    ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': [org, servico] });
+    var grafo = [org, servico];
+    if (config.faq && config.faq.length) {
+      grafo.push({
+        '@type': 'FAQPage',
+        '@id': urlSite + '#duvidas',
+        mainEntity: config.faq.map(function (f) {
+          return { '@type': 'Question', name: f.pergunta, acceptedAnswer: { '@type': 'Answer', text: f.resposta } };
+        })
+      });
+    }
+    ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': grafo });
     document.head.appendChild(ld);
   }
 })();

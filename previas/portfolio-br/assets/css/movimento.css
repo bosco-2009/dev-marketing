@@ -195,7 +195,11 @@
   opacity: 1;
   transform: none;
   transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms),
-              transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms);
+              transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms),
+              /* microinterações (melhoria 16): o "levantar" no hover usa translate, que soma com o transform */
+              translate var(--duracao-media) var(--curva-padrao),
+              box-shadow var(--duracao-media) var(--curva-padrao),
+              border-color var(--duracao-media) var(--curva-padrao);
 }
 /* Já visíveis na carga: aparecem sem animação */
 .revelar-ativo [data-revelar].revelado-imediato { transition: none; }

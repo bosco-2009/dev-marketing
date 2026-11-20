@@ -168,34 +168,42 @@
     ],
 
     // [PROVISÓRIO] revisar todas as respostas (dependem de políticas da empresa).
+    // palavras (opcional): sinônimos usados só pela busca do FAQ (melhoria 13)
     faq: [
       {
         pergunta: 'Quanto tempo leva para meu site ficar pronto?',
-        resposta: 'Depende do plano: de 7 a 20 dias úteis, contados a partir do envio do briefing completo, com textos e fotos.'
+        resposta: 'Depende do plano: de 7 a 20 dias úteis, contados a partir do envio do briefing completo, com textos e fotos.',
+        palavras: 'prazo entrega demora quando fica pronto'
       },
       {
         pergunta: 'O que eu preciso enviar?',
-        resposta: 'Depois do pagamento, você preenche um briefing simples: nome do negócio, serviços, contatos, logo (se tiver) e fotos. Se não tiver fotos ou logo, a gente orienta.'
+        resposta: 'Depois do pagamento, você preenche um briefing simples: nome do negócio, serviços, contatos, logo (se tiver) e fotos. Se não tiver fotos ou logo, a gente orienta.',
+        palavras: 'material conteúdo textos imagens logotipo'
       },
       {
         pergunta: 'O domínio (www.seunegocio.com.br) está incluso?',
-        resposta: 'Ajudamos você a registrar o domínio no seu próprio nome, no Registro.br. O valor anual do domínio é pago diretamente ao Registro.br.'
+        resposta: 'Ajudamos você a registrar o domínio no seu próprio nome, no Registro.br. O valor anual do domínio é pago diretamente ao Registro.br.',
+        palavras: 'endereço url site próprio .com.br'
       },
       {
         pergunta: 'Tem mensalidade?',
-        resposta: 'O valor do plano é pago uma única vez. Manutenção e alterações depois da entrega podem ser contratadas à parte, se você quiser.'
+        resposta: 'O valor do plano é pago uma única vez. Manutenção e alterações depois da entrega podem ser contratadas à parte, se você quiser.',
+        palavras: 'taxa mensal anuidade custo fixo assinatura manutenção'
       },
       {
         pergunta: 'Meu site vai aparecer no Google?',
-        resposta: 'Todos os planos incluem SEO básico: títulos, descrições e estrutura que o Google entende. A posição nos resultados depende de vários fatores e ninguém pode garantir o primeiro lugar.'
+        resposta: 'Todos os planos incluem SEO básico: títulos, descrições e estrutura que o Google entende. A posição nos resultados depende de vários fatores e ninguém pode garantir o primeiro lugar.',
+        palavras: 'seo busca pesquisa encontrar ranking'
       },
       {
         pergunta: 'Quais as formas de pagamento?',
-        resposta: 'Pix, boleto ou cartão de crédito, tudo pelo Mercado Pago.'
+        resposta: 'Pix, boleto ou cartão de crédito, tudo pelo Mercado Pago.',
+        palavras: 'pagar parcelar parcelas crédito'
       },
       {
         pergunta: 'Atendem qualquer cidade?',
-        resposta: 'Sim. O atendimento é 100% online, para pequenos negócios de todo o Brasil.'
+        resposta: 'Sim. O atendimento é 100% online, para pequenos negócios de todo o Brasil.',
+        palavras: 'estado região atendimento online remoto'
       }
     ],
 
