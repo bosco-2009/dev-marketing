@@ -237,7 +237,8 @@
     },
 
     // Só projetos REAIS e autorizados pelo cliente. Lista vazia = seção oculta.
-    // Formato: { nome, segmento, url, imagem, alt }
+    // Formato: { nome, segmento, url, foto, alt }. foto = nome-base gerado por testes/portfolio/gerar.py
+    // (assets/img/portfolio/<foto>-480|800|1200.webp|png). O campo antigo imagem (um único arquivo) ainda funciona.
     portfolio: {
       projetos: []
     },

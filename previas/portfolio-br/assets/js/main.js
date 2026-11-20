@@ -142,12 +142,43 @@
   // portfolio.html: mensagem quando ainda não há projetos.
   var portfolioVazio = $('[data-portfolio-vazio]');
   if (portfolioVazio) portfolioVazio.hidden = projetos.length > 0;
+  // Imagens responsivas (melhoria 21): geradas por testes/portfolio/gerar.py em
+  // assets/img/portfolio/<foto>-<largura>.webp|png. WebP para quem suporta, PNG como reserva.
+  var LARGURAS_PORTFOLIO = [480, 800, 1200];
+  // Grade: 1 coluna no celular, 2 a partir de 40rem, 3 a partir de 64rem (container de 72rem).
+  var TAMANHOS_PORTFOLIO = '(min-width: 64rem) min(23rem, 31vw), (min-width: 40rem) 46vw, 92vw';
+  function fotoResponsiva(p) {
+    var base = 'assets/img/portfolio/' + p.foto + '-';
+    function lista(ext) {
+      return LARGURAS_PORTFOLIO.map(function (l) { return base + l + '.' + ext + ' ' + l + 'w'; }).join(', ');
+    }
+    var picture = criar('picture', 'projeto__foto');
+    var webp = criar('source');
+    webp.type = 'image/webp';
+    webp.srcset = lista('webp');
+    webp.sizes = TAMANHOS_PORTFOLIO;
+    picture.appendChild(webp);
+    var img = criar('img');
+    img.sizes = TAMANHOS_PORTFOLIO;
+    img.srcset = lista('png');
+    img.src = base + '800.png';
+    img.alt = p.alt || ('Site criado para ' + p.nome);
+    img.width = 1200;
+    img.height = 900;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    picture.appendChild(img);
+    return picture;
+  }
+
   var secaoPortfolio = $('[data-secao-portfolio]');
   var listaPortfolio = $('[data-lista-portfolio]');
   if (secaoPortfolio && listaPortfolio && projetos.length > 0) {
     projetos.forEach(function (p) {
       var li = criar('li', 'projeto');
-      if (p.imagem) {
+      if (p.foto && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.foto)) {
+        li.appendChild(fotoResponsiva(p));
+      } else if (p.imagem) {
         var img = criar('img');
         img.src = p.imagem;
         img.alt = p.alt || ('Site criado para ' + p.nome);

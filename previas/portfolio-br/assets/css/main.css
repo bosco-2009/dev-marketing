@@ -945,7 +945,8 @@ a:hover { color: var(--cor-acao-hover); }
   border-radius: var(--raio-lg);
   background: var(--cor-superficie);
 }
-.projeto img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--cor-fundo-neutro); }
+.projeto__foto { display: block; }
+.projeto img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; background: var(--cor-fundo-neutro); }
 .projeto__info { padding: var(--esp-4) var(--esp-5) var(--esp-5); }
 .projeto__nome { font-size: var(--texto-lg); }
 .projeto__segmento { color: var(--cor-texto-suave); font-size: var(--texto-sm); }
