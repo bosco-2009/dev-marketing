@@ -407,8 +407,10 @@
       return true;
     }
 
+    var retomando = null; // evita dois chat_iniciar seguidos (abrir o chat durante a retomada automática)
     function retomarConversa() {
-      return rpc('chat_iniciar', credenciais({ p_criar: false })).then(function (linhas) {
+      if (retomando) return retomando;
+      retomando = rpc('chat_iniciar', credenciais({ p_criar: false })).then(function (linhas) {
         var c = linhas && linhas[0];
         if (!c) {
           // A conversa foi apagada no painel: volta ao formulário inicial.
@@ -424,7 +426,8 @@
         return buscarMensagens();
       }).catch(function (e) {
         if (!tratarAcessoNegado(e)) iniciarReserva();
-      });
+      }).then(function (r) { retomando = null; return r; });
+      return retomando;
     }
 
     var buscando = null;
@@ -568,6 +571,19 @@
     }
 
     botao.addEventListener('click', function () { definirAberto(!aberto, false); });
+
+    // Desempenho: o supabase-js (e o Realtime) só são baixados quando o visitante abre o chat ou já tem
+    // conversa salva. Ao primeiro sinal de intenção (mouse, dedo ou foco no botão) o download começa,
+    // para o chat abrir pronto, sem criar cliente nem abrir conexão.
+    var aquecido = false;
+    function aquecer() {
+      if (aquecido) return;
+      aquecido = true;
+      if (window.PBRSupabase.aquecer) window.PBRSupabase.aquecer();
+    }
+    botao.addEventListener('pointerenter', aquecer);
+    botao.addEventListener('touchstart', aquecer, { passive: true });
+    botao.addEventListener('focus', aquecer);
     fechar.addEventListener('click', function () { definirAberto(false, true); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && aberto) { definirAberto(false, true); }
@@ -596,10 +612,15 @@
 
     // ------------------------------------------------------------- retomada automática
     // Quem já conversou recebe respostas mesmo com o painel fechado (selo de não lidas).
+    // Só depois do evento load e com o navegador ocioso, para não disputar a primeira pintura.
     if (estado.iniciada) {
-      var retomar = function () { retomarConversa(); };
-      if ('requestIdleCallback' in window) window.requestIdleCallback(retomar, { timeout: 3000 });
-      else setTimeout(retomar, 1500);
+      var retomar = function () { if (!conversa) retomarConversa(); };
+      var agendar = function () {
+        if ('requestIdleCallback' in window) window.requestIdleCallback(retomar, { timeout: 3000 });
+        else setTimeout(retomar, 1500);
+      };
+      if (document.readyState === 'complete') agendar();
+      else window.addEventListener('load', agendar, { once: true });
     }
   }
 })();

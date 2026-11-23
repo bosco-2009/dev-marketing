@@ -4,6 +4,8 @@
  *
  *   PBRSupabase.configurado()           -> true se config.js tiver supabase.url e supabase.anonKey
  *   PBRSupabase.cliente(opcoes) : Promise<SupabaseClient>
+ *   PBRSupabase.aquecer()               -> começa a baixar a biblioteca (sem criar cliente nem abrir conexão);
+ *                                          usado quando o visitante demonstra intenção (ex.: passa o dedo/mouse no chat)
  *
  * Só a URL do projeto e a chave pública (anon/publishable) ficam no front.
  */
@@ -63,5 +65,11 @@
     });
   }
 
-  window.PBRSupabase = { configurado: configurado, cliente: cliente };
+  // Só baixa o arquivo (fica no cache da página); erros são ignorados e o próximo cliente() tenta de novo.
+  function aquecer() {
+    if (!configurado()) return;
+    carregarBiblioteca().catch(function () { /* tenta de novo ao abrir */ });
+  }
+
+  window.PBRSupabase = { configurado: configurado, cliente: cliente, aquecer: aquecer };
 })();
