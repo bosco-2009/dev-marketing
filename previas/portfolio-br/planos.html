@@ -162,6 +162,24 @@
     </section>
 
     <section class="secao secao--compacta" aria-label="Contratação">
+      <!-- Melhoria 39: aparece só quando há um pedido pendente salvo neste navegador (planos.js) -->
+      <div class="container pedido-aberto-caixa" data-pedido-aberto hidden>
+        <section class="pedido-aberto" aria-labelledby="pedido-aberto-titulo">
+          <svg class="icone pedido-aberto__icone" aria-hidden="true"><use href="#i-sacola"/></svg>
+          <div class="pedido-aberto__corpo">
+            <h2 id="pedido-aberto-titulo" class="pedido-aberto__titulo">Você tem um pedido em aberto</h2>
+            <p class="pedido-aberto__texto" data-pedido-aberto-texto></p>
+            <div class="pedido-aberto__acoes">
+              <button class="botao botao--primario botao--pequeno" type="button" data-pedido-aberto-concluir>
+                <svg class="icone" aria-hidden="true"><use href="#i-cadeado"/></svg>
+                <span data-pedido-aberto-concluir-texto>Concluir pagamento</span>
+              </button>
+              <a class="botao botao--contorno botao--pequeno" href="pedido.html" data-pedido-aberto-acompanhar>Acompanhar pedido</a>
+            </div>
+            <p class="pedido-aberto__erro" role="alert" data-pedido-aberto-erro hidden></p>
+          </div>
+        </section>
+      </div>
       <div class="container checkout">
         <form class="checkout__form" data-form-checkout novalidate>
           <fieldset class="checkout__grupo">

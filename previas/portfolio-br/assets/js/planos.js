@@ -5,6 +5,7 @@
  *
  * O preço exibido vem do config.js; o preço COBRADO vem do servidor (tabela planos).
  * O código e o token do pedido ficam no localStorage para a página obrigado.html consultar o status.
+ * Com um pedido pendente salvo aqui, mostra o aviso "Você tem um pedido em aberto" (melhoria 39).
  */
 (function () {
   'use strict';
@@ -268,6 +269,105 @@
         form.removeAttribute('aria-busy');
       });
   });
+
+  // ------------------------------------------------------------------ pedido em aberto (melhoria 39)
+  // Quem volta do Mercado Pago sem pagar vê um aviso discreto com "Concluir pagamento" (reabre a MESMA
+  // preferência pela Edge Function criar-pagamento, modo reabrir) e "Acompanhar pedido".
+  // Usa só o que planos.js já guardou (código + token); não grava nada novo nem mostra dados pessoais.
+  var caixaAberto = $('[data-pedido-aberto]');
+  var DIAS_REABRIR = 30; // mesmo limite da função pedido_preferencia_para_reabrir
+  var MENSAGENS_REABRIR = {
+    pagamento_em_andamento: 'Já existe um pagamento em processamento para este pedido (Pix ou boleto). Conclua pelo app do seu banco ou acompanhe o pedido.',
+    pedido_nao_pendente: 'Este pedido não está mais aguardando pagamento. Veja a situação em "Acompanhar pedido".',
+    pedido_nao_reabrivel: 'Este pagamento não pode mais ser reaberto. Se ainda quiser o site, faça um novo pedido abaixo.',
+    acesso_negado: 'Não encontramos este pedido. Se ainda quiser o site, faça um novo pedido abaixo.'
+  };
+  var CODIGO_OK = /^PBR-[A-HJ-NP-Z2-9]{6}$/;
+  var TOKEN_OK = /^[0-9a-f]{64}$/;
+
+  function pedidoRecente() {
+    var todos = lerPedidos();
+    var ultimoId = null;
+    try { ultimoId = localStorage.getItem('pbr_ultimo_pedido'); } catch (e) { /* */ }
+    var p = ultimoId && todos[ultimoId];
+    if (!p || !CODIGO_OK.test(p.codigo) || !TOKEN_OK.test(p.token)) return null;
+    var criado = Date.parse(p.criado_em);
+    if (!criado || Date.now() - criado > DIAS_REABRIR * 864e5) return null;
+    return p;
+  }
+
+  function erroAberto(texto) {
+    var alvo = $('[data-pedido-aberto-erro]', caixaAberto);
+    alvo.textContent = texto || '';
+    alvo.hidden = !texto;
+  }
+
+  function mostrarPedidoAberto(p, d) {
+    var nomePlano = d.plano_nome || p.plano_nome || '';
+    $('[data-pedido-aberto-texto]', caixaAberto).textContent =
+      'O pedido ' + d.codigo + (nomePlano ? ' (plano ' + nomePlano + ')' : '') +
+      ' ainda aguarda pagamento. Você pode concluir agora, sem preencher nada de novo.';
+    $('[data-pedido-aberto-acompanhar]', caixaAberto).setAttribute('href', 'pedido.html?pedido=' + encodeURIComponent(d.codigo));
+
+    var botaoConcluir = $('[data-pedido-aberto-concluir]', caixaAberto);
+    var textoConcluir = $('[data-pedido-aberto-concluir-texto]', caixaAberto);
+    var reabrindo = false;
+    function liberar() {
+      reabrindo = false;
+      botaoConcluir.removeAttribute('aria-disabled');
+      botaoConcluir.removeAttribute('data-carregando');
+      textoConcluir.textContent = 'Concluir pagamento';
+    }
+    botaoConcluir.addEventListener('click', function () {
+      if (reabrindo) return;
+      reabrindo = true;
+      erroAberto('');
+      // aria-disabled (e não disabled): o foco continua no botão durante a espera e depois de um erro
+      botaoConcluir.setAttribute('aria-disabled', 'true');
+      botaoConcluir.setAttribute('data-carregando', '');
+      textoConcluir.textContent = 'Abrindo o pagamento…';
+      fetch(config.supabase.url.replace(/\/$/, '') + '/functions/v1/criar-pagamento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: config.supabase.anonKey },
+        body: JSON.stringify({ reabrir: true, codigo: p.codigo, token: p.token })
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (dados) { return { ok: r.ok, dados: dados }; });
+        })
+        .then(function (res) {
+          var dd = res.dados || {};
+          if (!res.ok || !dd.init_point) throw new Error(dd.erro || 'falha');
+          if (!urlCheckoutSegura(dd.init_point)) throw new Error('url_invalida');
+          textoConcluir.textContent = 'Abrindo o Mercado Pago…';
+          location.assign(dd.init_point);
+        })
+        .catch(function (err) {
+          var codigo = err && err.message;
+          erroAberto(MENSAGENS_REABRIR[codigo] || 'Não foi possível reabrir o pagamento agora. Tente de novo em instantes ou acompanhe o pedido.');
+          liberar();
+        });
+    });
+    window.addEventListener('pageshow', function (ev) { if (ev.persisted) liberar(); });
+    caixaAberto.hidden = false;
+  }
+
+  (function verificarPedidoAberto() {
+    if (!caixaAberto || !window.PBRSupabase || !window.PBRSupabase.configurado()) return;
+    var p = pedidoRecente();
+    if (!p) return;
+    // O status vem do servidor (pedido_consultar valida o token); o aviso só aparece para "pendente".
+    fetch(config.supabase.url.replace(/\/$/, '') + '/rest/v1/rpc/pedido_consultar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: config.supabase.anonKey },
+      body: JSON.stringify({ p_codigo: p.codigo, p_token: p.token })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (linhas) {
+        var d = linhas && linhas[0];
+        if (d && d.status === 'pendente' && d.codigo === p.codigo) mostrarPedidoAberto(p, d);
+      })
+      .catch(function () { /* sem rede: o aviso simplesmente não aparece */ });
+  })();
 
   // Ao voltar pelo botão "voltar" do navegador (bfcache), reabilita o botão.
   window.addEventListener('pageshow', function () {

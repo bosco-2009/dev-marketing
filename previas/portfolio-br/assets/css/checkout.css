@@ -522,3 +522,35 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
   font-size: var(--texto-xs);
 }
 .acompanhar__atualizado[hidden] { display: none; }
+
+/* ---------------- Pedido em aberto (melhoria 39) ---------------- */
+.pedido-aberto-caixa { margin-bottom: var(--esp-6); }
+.pedido-aberto-caixa[hidden] { display: none; }
+.pedido-aberto {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--esp-3);
+  align-items: start;
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-destaque);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+.pedido-aberto__icone { width: 1.5rem; height: 1.5rem; margin-top: 0.1rem; color: var(--cor-acao); }
+.pedido-aberto__corpo { display: grid; gap: var(--esp-2); min-width: 0; }
+.pedido-aberto__titulo { font-size: var(--texto-base); line-height: 1.3; }
+.pedido-aberto__texto { color: var(--cor-texto-suave); font-size: var(--texto-sm); overflow-wrap: anywhere; }
+.pedido-aberto__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); margin-top: var(--esp-1); }
+.pedido-aberto__erro {
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-erro-suave);
+  color: var(--cor-erro);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+.pedido-aberto__erro[hidden] { display: none; }
+@media (min-width: 48rem) {
+  .pedido-aberto { padding: var(--esp-4) var(--esp-5); gap: var(--esp-4); }
+}
