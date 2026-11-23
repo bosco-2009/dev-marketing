@@ -120,6 +120,9 @@
     }
     var c = linkContato();
     acoes.appendChild(el('a', 'botao botao--contorno', c.rotulo, { href: c.href, target: '_blank', rel: 'noopener' }));
+    if (estado === 'aprovado' && pedido) {
+      acoes.appendChild(el('a', 'botao botao--contorno', 'Acompanhar meu pedido', { href: 'pedido.html?pedido=' + encodeURIComponent(pedido.codigo), 'data-acompanhar-link': '' }));
+    }
     if (estado === 'aprovado') acoes.appendChild(el('a', 'botao botao--contorno', 'Voltar ao início', { href: 'index.html' }));
 
     if (estado !== ultimoEstado) {

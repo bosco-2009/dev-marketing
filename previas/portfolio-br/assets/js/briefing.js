@@ -355,7 +355,8 @@
         form.hidden = true;
         mostrarAviso('sucesso', 'Briefing enviado! Obrigado.',
           'Já recebemos as informações e vamos começar o seu site. Você pode voltar aqui e editar o briefing até começarmos a produção.',
-          [{ rotulo: 'Editar o briefing', primario: false, attrs: { href: 'briefing.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-editar': '' } }]);
+          [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } },
+           { rotulo: 'Editar o briefing', primario: false, attrs: { href: 'briefing.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-editar': '' } }]);
         aviso.querySelector('[data-aviso-titulo]').setAttribute('tabindex', '-1');
         aviso.querySelector('[data-aviso-titulo]').focus();
       })
@@ -375,13 +376,14 @@
       if (info.pedido_status !== 'aprovado') {
         mostrarAviso('pendente', 'Pagamento ainda não confirmado',
           'O briefing fica disponível assim que o Mercado Pago confirmar o pagamento do pedido ' + acesso.codigo + '.',
-          [{ rotulo: 'Ver status do pedido', primario: true, attrs: { href: 'obrigado.html' } }]);
+          [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
         return;
       }
       var b = info.briefing;
       if (b && b.status !== 'novo') {
         mostrarAviso('bloqueado', 'Seu briefing já está com a gente',
-          'Status: ' + (STATUS_BRIEFING[b.status] || b.status) + '. Para mudar alguma informação agora, fale com a gente.');
+          'Status: ' + (STATUS_BRIEFING[b.status] || b.status) + '. Para mudar alguma informação agora, fale com a gente.',
+          [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
         return;
       }
       var rascunho = lerJSON(CHAVE_RASCUNHO);

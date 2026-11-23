@@ -272,6 +272,22 @@
               <p class="admin-recuperar__sem" data-recuperar-sem hidden>O cliente não deixou WhatsApp neste pedido.</p>
               <p class="admin-recuperar__chamado" role="status" data-recuperar-chamado></p>
             </section>
+            <section class="admin-etapa" data-pedido-etapa hidden aria-labelledby="etapa-titulo">
+              <h4 id="etapa-titulo" class="admin-etapa__titulo">Etapa que o cliente vê</h4>
+              <p class="admin-etapa__texto" data-pedido-etapa-texto></p>
+              <div class="admin-status-controle" data-pedido-etapa-controle hidden>
+                <label for="pedido-etapa">Mudar a etapa</label>
+                <select id="pedido-etapa" data-pedido-etapa-select>
+                  <option value="novo">Briefing recebido (cliente pode editar)</option>
+                  <option value="em_producao">Em produção</option>
+                  <option value="em_revisao">Em produção: ajustes finais</option>
+                  <option value="entregue">Site entregue</option>
+                </select>
+              </div>
+              <p class="admin-erro" role="alert" data-pedido-etapa-erro hidden></p>
+              <p class="visualmente-oculto" role="status" data-pedido-etapa-ok></p>
+              <p class="admin-dica admin-etapa__dica">O cliente acompanha em “Acompanhar pedido” (pedido.html), pelo aparelho da compra ou pelo link pessoal. A etapa segue o status do briefing.</p>
+            </section>
             <dl class="admin-dados" data-pedido-dados></dl>
             <h4 class="admin-pedido__subtitulo">Notificações do Mercado Pago</h4>
             <ol class="admin-eventos" data-pedido-eventos></ol>

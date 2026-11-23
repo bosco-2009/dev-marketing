@@ -193,9 +193,11 @@
 
   function carregar() {
     if (!estado) return Promise.resolve();
-    var briefings = estado.sb.from('briefings').select('pedido_id, status').then(function (r) {
+    var briefings = estado.sb.from('briefings').select('id, pedido_id, status').then(function (r) {
       var mapa = {};
-      ((r && r.data) || []).forEach(function (b) { mapa[b.pedido_id] = b.status; });
+      var ids = {};
+      ((r && r.data) || []).forEach(function (b) { mapa[b.pedido_id] = b.status; ids[b.pedido_id] = b.id; });
+      estado.briefingIds = ids;
       return mapa;
     }, function () { return {}; });
     function lerPedidos() {
@@ -397,6 +399,7 @@
       dl.appendChild(dd);
     }
     renderizarRecuperacao();
+    renderizarEtapa(p);
     linha('Cliente', p.nome);
     linha('E-mail', p.email, 'mailto:' + p.email);
     linha('WhatsApp', whatsappFormatado(p.whatsapp), linkWhatsapp(p.whatsapp));
@@ -431,6 +434,55 @@
       });
 
     if (focar) $('[data-pedido-titulo]').focus();
+  }
+
+  // Etapa que o cliente vê em pedido.html (melhoria 30). Segue o status do briefing, que o dono muda aqui
+  // ou na aba Briefings; sem briefing, a etapa é "pagamento confirmado" (ou o status do pagamento).
+  var ETAPA_CLIENTE = {
+    novo: 'Briefing recebido (o cliente ainda pode editar)',
+    em_producao: 'Em produção',
+    em_revisao: 'Em produção: ajustes finais',
+    entregue: 'Site entregue'
+  };
+  function renderizarEtapa(p) {
+    var caixa = $('[data-pedido-etapa]');
+    if (!caixa) return;
+    var erro = $('[data-pedido-etapa-erro]');
+    erro.hidden = true;
+    caixa.hidden = p.status !== 'aprovado';
+    if (caixa.hidden) return;
+    var st = estado.briefings[p.id];
+    var temBriefing = !!(st && estado.briefingIds && estado.briefingIds[p.id]);
+    $('[data-pedido-etapa-texto]').textContent = temBriefing
+      ? 'Agora: ' + (ETAPA_CLIENTE[st] || st) + '.'
+      : 'Agora: Pagamento confirmado, aguardando o briefing. A etapa pode ser mudada depois que o cliente enviar o briefing.';
+    $('[data-pedido-etapa-controle]').hidden = !temBriefing;
+    var sel = $('[data-pedido-etapa-select]');
+    if (!temBriefing) return;
+    sel.value = st;
+    sel.onchange = function () {
+      var novo = sel.value;
+      var id = p.id;
+      sel.disabled = true;
+      erro.hidden = true;
+      estado.sb.from('briefings').update({ status: novo }).eq('id', estado.briefingIds[id]).select('id, status')
+        .then(function (r) {
+          if (!estado) return;
+          if (r.error || !r.data || !r.data.length) throw r.error || new Error('sem permissão');
+          estado.briefings[id] = novo;
+          renderizarLista();
+          if (estado.selecionado === id) renderizarDetalhe(false);
+          var aviso = $('[data-pedido-etapa-ok]');
+          if (aviso) aviso.textContent = 'Etapa atualizada: ' + (ETAPA_CLIENTE[novo] || novo) + '.';
+        })
+        .catch(function () {
+          if (!estado) return;
+          sel.value = estado.briefings[id];
+          erro.textContent = 'Não foi possível mudar a etapa. Tente de novo.';
+          erro.hidden = false;
+        })
+        .then(function () { sel.disabled = false; });
+    };
   }
 
   function encerrar() {
