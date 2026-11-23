@@ -637,3 +637,7 @@
 .admin-kpi__seta { display: inline-block; min-width: 1em; color: var(--cor-texto-suave); }
 .admin-kpi__seta[data-direcao='sobe'] { color: var(--cor-sucesso); }
 .admin-kpi__seta[data-direcao='desce'] { color: var(--cor-erro); }
+
+/* Briefing pendente há mais de 24 h (melhoria 34): reaproveita o bloco .admin-recuperar */
+.admin-item__tag--aviso { background: var(--cor-destaque-suave); color: var(--cor-texto); font-weight: var(--peso-semi); }
+.admin-recuperar[data-modo="briefing"] { border-left-color: var(--cor-acao); }

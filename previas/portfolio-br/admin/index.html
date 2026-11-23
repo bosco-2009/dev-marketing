@@ -208,6 +208,7 @@
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="aprovado">Aprovados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="abandonado" title="Pendentes há mais de 1 hora">Abandonados</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-briefing" title="Aprovados há mais de 24 horas sem briefing">Sem briefing</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="recusado">Recusados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="cancelado">Cancelados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="reembolsado">Reembolsados</button>
@@ -257,7 +258,7 @@
           </header>
           <div class="admin-pedido__corpo">
             <section class="admin-recuperar" data-recuperar hidden aria-labelledby="recuperar-titulo">
-              <h4 id="recuperar-titulo" class="admin-recuperar__titulo">Checkout abandonado</h4>
+              <h4 id="recuperar-titulo" class="admin-recuperar__titulo" data-recuperar-titulo>Checkout abandonado</h4>
               <p class="admin-recuperar__texto" data-recuperar-texto></p>
               <div data-recuperar-whats>
                 <label class="admin-recuperar__rotulo" for="recuperar-mensagem">Mensagem (você pode editar antes de abrir o WhatsApp)</label>

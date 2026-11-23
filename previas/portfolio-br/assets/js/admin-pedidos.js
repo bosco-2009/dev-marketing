@@ -31,15 +31,48 @@
     return Math.floor(h / 24) + ' dias';
   }
   // Quando o dono abriu o WhatsApp para cada pedido (só neste navegador; conveniência, não é dado do cliente).
-  function lerChamados() {
-    try { var v = JSON.parse(localStorage.getItem(CHAVE_CHAMADOS) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+  function lerChamados(modo) {
+    try { var v = JSON.parse(localStorage.getItem(chaveChamados(modo)) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
   }
-  function marcarChamado(id) {
-    var mapa = lerChamados();
+  function marcarChamado(id, modo) {
+    var mapa = lerChamados(modo);
     mapa[id] = new Date().toISOString();
-    try { localStorage.setItem(CHAVE_CHAMADOS, JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
+    try { localStorage.setItem(chaveChamados(modo), JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
     return mapa[id];
   }
+  // Briefing pendente (melhoria 34): aprovado há mais de 24 horas e o cliente ainda não mandou o briefing.
+  // Mesma ideia: o dono abre o WhatsApp com a mensagem pronta; o link de acompanhamento vai SEM o token.
+  var BRIEFING_MS = 24 * 60 * 60 * 1000;
+  var CHAVE_LEMBRETES = 'pbr-admin-lembrete-briefing';
+  function semBriefing(p, agora) {
+    var desde = p.pago_em || p.atualizado_em;
+    return p.status === 'aprovado' && !!desde && !(estado && estado.briefings[p.id]) &&
+      (agora || Date.now()) - new Date(desde).getTime() > BRIEFING_MS;
+  }
+  // Qual aviso o pedido precisa agora: 'abandono', 'briefing' ou nenhum.
+  function modoAtencao(p, agora) {
+    if (abandonado(p, agora)) return 'abandono';
+    if (semBriefing(p, agora)) return 'briefing';
+    return '';
+  }
+  function chaveChamados(modo) { return modo === 'briefing' ? CHAVE_LEMBRETES : CHAVE_CHAMADOS; }
+  function linkAcompanhar() {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    return site.url ? site.url.replace(/\/?$/, '/') + 'pedido.html' : '';
+  }
+  function mensagemBriefing(p) {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
+    var link = linkAcompanhar();
+    return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! Aqui é da ' + (site.nome || 'Portfólio BR') + '. ' +
+      'Obrigado pela compra do plano ' + p.plano_nome + ' (pedido ' + p.codigo + ')! ' +
+      'Para começarmos o seu site, falta só o briefing: algumas perguntas sobre o seu negócio, textos e fotos. ' +
+      (link ? 'Você pode preencher e acompanhar as etapas em ' + link + '?pedido=' + encodeURIComponent(p.codigo) +
+        ' (abra no aparelho em que fez a compra ou pelo link pessoal que enviamos). ' : '') +
+      'Se preferir, posso tirar as dúvidas por aqui.';
+  }
+  function mensagemPara(p, modo) { return modo === 'briefing' ? mensagemBriefing(p) : mensagemRecuperacao(p); }
+
   function mensagemRecuperacao(p) {
     var cfg = window.PBR_CONFIG || {};
     var site = cfg.site || {};
@@ -127,7 +160,7 @@
 
   function chaveAbandono() {
     var agora = Date.now();
-    return estado.pedidos.filter(function (p) { return abandonado(p, agora); }).map(function (p) { return p.id; }).join(',');
+    return estado.pedidos.map(function (p) { var m = modoAtencao(p, agora); return m ? m + ':' + p.id : ''; }).filter(Boolean).join(',');
   }
 
   function prepararRecuperacao() {
@@ -138,7 +171,7 @@
     $('[data-recuperar-padrao]').onclick = function () {
       var p = pedidoSelecionado();
       if (!p) return;
-      campo.value = mensagemRecuperacao(p);
+      campo.value = mensagemPara(p, modoAtencao(p));
       atualizarLinkWhats();
       campo.focus();
     };
@@ -146,8 +179,9 @@
     link.onclick = function () {
       var p = pedidoSelecionado();
       if (!p) return;
-      marcarChamado(p.id);
-      mostrarChamado(p.id);
+      var modo = modoAtencao(p);
+      marcarChamado(p.id, modo);
+      mostrarChamado(p.id, modo);
       renderizarLista();
     };
   }
@@ -163,8 +197,8 @@
     link.href = linkWhatsapp(p.whatsapp) + '?text=' + encodeURIComponent($('[data-recuperar-mensagem]').value);
   }
 
-  function mostrarChamado(id) {
-    var quando = lerChamados()[id];
+  function mostrarChamado(id, modo) {
+    var quando = lerChamados(modo)[id];
     $('[data-recuperar-chamado]').textContent = quando ? 'Você abriu o WhatsApp para este cliente em ' + data(quando) + '.' : '';
   }
 
@@ -172,20 +206,26 @@
     var caixa = $('[data-recuperar]');
     if (!caixa) return;
     var p = pedidoSelecionado();
-    var ativo = !!p && abandonado(p);
-    if (!ativo) { caixa.hidden = true; caixa.removeAttribute('data-pedido'); return; }
-    var mesmo = caixa.getAttribute('data-pedido') === p.id && !caixa.hidden;
+    var modo = p ? modoAtencao(p) : '';
+    if (!modo) { caixa.hidden = true; caixa.removeAttribute('data-pedido'); return; }
+    var chave = modo + ':' + p.id;
+    var mesmo = caixa.getAttribute('data-pedido') === chave && !caixa.hidden;
     caixa.hidden = false;
-    caixa.setAttribute('data-pedido', p.id);
-    $('[data-recuperar-texto]').textContent = 'Pagamento pendente há ' + tempoParado(p.criado_em) +
-      '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
+    caixa.setAttribute('data-pedido', chave);
+    caixa.setAttribute('data-modo', modo);
+    $('[data-recuperar-titulo]').textContent = modo === 'briefing' ? 'Briefing pendente' : 'Checkout abandonado';
+    $('[data-recuperar-texto]').textContent = modo === 'briefing'
+      ? 'Pago há ' + tempoParado(p.pago_em || p.atualizado_em) + ' e o briefing ainda não chegou. ' +
+        'Sem ele a produção não começa; um lembrete com o link de acompanhamento costuma resolver.'
+      : 'Pagamento pendente há ' + tempoParado(p.criado_em) +
+        '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
     var temWhats = String(p.whatsapp || '').replace(/\D/g, '').length >= 10;
     $('[data-recuperar-whats]').hidden = !temWhats;
     $('[data-recuperar-sem]').hidden = temWhats;
     // Preserva o texto que o dono está editando quando a lista recarrega.
-    if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemRecuperacao(p);
+    if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemPara(p, modo);
     if (temWhats) atualizarLinkWhats();
-    mostrarChamado(p.id);
+    mostrarChamado(p.id, modo);
   }
 
   var timerRecarga = null;
@@ -270,6 +310,7 @@
     return estado.pedidos.filter(function (p) {
       if (!noRecorte(p)) return false;
       if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
+      else if (estado.filtro === 'sem-briefing') { if (!semBriefing(p)) return false; }
       else if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
       if (!estado.busca) return true;
       return [p.codigo, p.nome, p.email].some(function (c) { return normalizar(c).indexOf(estado.busca) !== -1; });
@@ -291,11 +332,13 @@
     recorte.forEach(function (p) {
       contagem[p.status] = (contagem[p.status] || 0) + 1;
       if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
+      if (semBriefing(p, agora)) contagem['sem-briefing'] = (contagem['sem-briefing'] || 0) + 1;
     });
-    var chamados = lerChamados();
+    var chamados = lerChamados('abandono');
+    var lembrados = lerChamados('briefing');
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
-      var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : ROTULOS[f] + 's';
+      var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
     var aprovados = recorte.filter(function (p) { return p.status === 'aprovado'; });
@@ -310,10 +353,16 @@
       botaoExportar.disabled = !itens.length;
     }
 
-    // O selo da aba conta todos os pendentes, sem o recorte.
+    // O selo da aba conta, sem o recorte, os pendentes e os aprovados há mais de 24 h sem briefing.
     var pendentes = estado.pedidos.filter(function (p) { return p.status === 'pendente'; }).length;
+    var semBrief = estado.pedidos.filter(function (p) { return semBriefing(p, agora); }).length;
+    var atencao = pendentes + semBrief;
     var selo = $('[data-selo-aba="pedidos"]');
-    if (selo) { selo.hidden = !pendentes; selo.textContent = pendentes ? String(pendentes) : ''; selo.title = pendentes + ' pendente(s)'; }
+    if (selo) {
+      selo.hidden = !atencao;
+      selo.textContent = atencao ? String(atencao) : '';
+      selo.title = pendentes + ' pendente(s)' + (semBrief ? ' e ' + semBrief + ' sem briefing há mais de 24 h' : '');
+    }
 
     itens.forEach(function (p) {
       var li = el('li');
@@ -330,7 +379,9 @@
       }
       if (p.status === 'aprovado') {
         var temBriefing = !!estado.briefings[p.id];
-        l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : ''), temBriefing ? 'briefing ✓' : 'sem briefing'));
+        var atrasado = semBriefing(p, agora);
+        l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
+          temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
       }
       b.appendChild(l1);
       b.appendChild(l2);
