@@ -339,7 +339,12 @@
   var itensFaq = [];
   if (listaFaq) {
     var usados = {};
-    config.faq.forEach(function (item) {
+    // data-faq-filtro="checkout" (planos.html): só as perguntas marcadas com checkout: true no config.js
+    var filtroFaq = listaFaq.getAttribute('data-faq-filtro');
+    var perguntasFaq = (config.faq || []).filter(function (item) { return !filtroFaq || item[filtroFaq] === true; });
+    var secaoFaq = listaFaq.closest('[data-faq-secao]');
+    if (secaoFaq) secaoFaq.hidden = !perguntasFaq.length;
+    perguntasFaq.forEach(function (item) {
       var id = 'faq-' + (slug(item.pergunta) || 'pergunta');
       while (usados[id]) id += '-2';
       usados[id] = true;

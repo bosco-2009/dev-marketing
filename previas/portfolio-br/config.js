@@ -71,6 +71,20 @@
       textoParcelamento: 'Pix, boleto ou cartão em até 12x pelo Mercado Pago.'
     },
 
+    // planos.html: "O que acontece depois de pagar", logo abaixo do botão de pagar (melhoria 35).
+    // As etapas são as mesmas de pedido.html (pago → briefing → produção → entregue).
+    // {prazo} vira o prazo do plano escolhido (config.planos[].prazo). [PROVISÓRIO] revisar os textos.
+    depoisDoPagamento: {
+      titulo: 'O que acontece depois de pagar',
+      etapas: [
+        { titulo: 'Pagamento confirmado', texto: 'Você vê a confirmação na tela e recebe o comprovante do Mercado Pago por e-mail.' },
+        { titulo: 'Briefing', texto: 'Você conta sobre o seu negócio num formulário simples: serviços, contatos, logo e fotos.' },
+        { titulo: 'Em produção', texto: 'Criamos o seu site. {prazo}.' },
+        { titulo: 'Site entregue', texto: 'Você aprova a versão final, pede os ajustes incluídos no plano e combinamos a publicação.' }
+      ],
+      acompanhar: 'Depois de pagar, você recebe um link para acompanhar cada etapa do seu pedido.'
+    },
+
     // Linha do tempo "Como funciona" (home): rótulo de prazo de cada passo. Texto vazio = sem rótulo.
     // Os números NÃO ficam aqui: {dias} vem dos dias úteis em config.planos[].prazo (ex.: "7, 15 ou 20") e
     // {suporte} vem de config.legal.suportePosEntregaDias. Mudou um prazo lá? A linha do tempo acompanha.
@@ -176,6 +190,7 @@
 
     // [PROVISÓRIO] revisar todas as respostas (dependem de políticas da empresa).
     // palavras (opcional): sinônimos usados só pela busca do FAQ (melhoria 13)
+    // checkout: true (opcional): a pergunta também aparece em planos.html, em "Dúvidas sobre o pagamento" (melhoria 35)
     faq: [
       {
         pergunta: 'Quanto tempo leva para meu site ficar pronto?',
@@ -206,6 +221,24 @@
         pergunta: 'Quais as formas de pagamento?',
         resposta: 'Pix, boleto ou cartão de crédito, tudo pelo Mercado Pago.',
         palavras: 'pagar parcelar parcelas crédito'
+      },
+      {
+        pergunta: 'Pagando com Pix, quando o pedido é confirmado?',
+        resposta: 'Você paga com o QR Code ou o código copia e cola na tela do Mercado Pago. A confirmação costuma levar alguns minutos e aparece na página de acompanhamento do pedido, junto com o link do briefing.',
+        palavras: 'pix qr code copia e cola confirmação pagamento aprovado',
+        checkout: true
+      },
+      {
+        pergunta: 'Posso parcelar o pagamento?',
+        resposta: 'Sim, no cartão de crédito, pelo Mercado Pago. O número de parcelas e se há juros aparecem na tela do Mercado Pago antes de você confirmar.',
+        palavras: 'parcelas parcelado vezes cartão crédito juros',
+        checkout: true
+      },
+      {
+        pergunta: 'Posso desistir e pedir reembolso?',
+        resposta: 'Sim. Em até 7 dias da compra, você pode desistir e devolvemos o valor pago integralmente, como prevê o Código de Defesa do Consumidor. Depois desse prazo, as regras de cancelamento estão nos termos de uso.',
+        palavras: 'reembolso devolução dinheiro cancelar cancelamento arrependimento estorno',
+        checkout: true
       },
       {
         pergunta: 'Atendem qualquer cidade?',

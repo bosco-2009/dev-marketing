@@ -119,6 +119,40 @@
   opcoes.addEventListener('change', atualizarResumo);
   atualizarResumo();
 
+  // ------------------------------------------------------------------ o que acontece depois de pagar (melhoria 35)
+  // Mesmas etapas de pedido.html, textos de config.depoisDoPagamento. {prazo} = prazo do plano escolhido.
+  var depois = $('[data-depois-pagar]');
+  var cfgDepois = config.depoisDoPagamento;
+  function textoEtapa(t, p) {
+    var prazo = p && p.prazo ? p.prazo : 'No prazo do plano escolhido';
+    return String(t).replace('{prazo}', prazo).replace(/\.\.$/, '.');
+  }
+  function atualizarDepois() {
+    var lista = $('[data-depois-lista]', depois);
+    var p = planoEscolhido();
+    lista.textContent = '';
+    cfgDepois.etapas.forEach(function (e, i) {
+      var li = el('li', 'depois-pagar__etapa');
+      li.appendChild(el('span', 'depois-pagar__numero', String(i + 1), { 'aria-hidden': 'true' }));
+      var corpo = el('div', 'depois-pagar__corpo');
+      corpo.appendChild(el('h3', 'depois-pagar__etapa-titulo', e.titulo));
+      corpo.appendChild(el('p', 'depois-pagar__texto', textoEtapa(e.texto, p)));
+      li.appendChild(corpo);
+      lista.appendChild(li);
+    });
+  }
+  if (depois && cfgDepois && cfgDepois.etapas && cfgDepois.etapas.length) {
+    if (cfgDepois.titulo) $('[data-depois-titulo]', depois).textContent = cfgDepois.titulo;
+    var notaAcompanhar = $('[data-depois-acompanhar]', depois);
+    if (cfgDepois.acompanhar) { notaAcompanhar.textContent = cfgDepois.acompanhar; notaAcompanhar.hidden = false; }
+    // O link para as dúvidas só aparece se a seção de dúvidas tiver perguntas
+    var temDuvidas = (config.faq || []).some(function (f) { return f.checkout === true; });
+    $('[data-depois-duvidas]', depois).hidden = !temDuvidas || !$('#duvidas-pagamento');
+    atualizarDepois();
+    opcoes.addEventListener('change', atualizarDepois);
+    depois.hidden = false;
+  }
+
   // ------------------------------------------------------------------ validação
   var campos = {
     nome: $('#checkout-nome'),

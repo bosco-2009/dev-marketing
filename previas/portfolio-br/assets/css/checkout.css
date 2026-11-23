@@ -168,10 +168,63 @@
 .checkout__resumo-itens li { display: flex; gap: var(--esp-2); }
 .checkout__resumo-itens .icone { margin-top: 0.1em; color: var(--cor-acao); }
 .checkout__resumo-whats { margin-top: var(--esp-3); font-size: var(--texto-sm); }
-.checkout__depois { padding-top: var(--esp-4); border-top: 1px solid var(--cor-borda); }
-.checkout__depois-titulo { font-size: var(--texto-base); letter-spacing: 0; }
-.checkout__depois-lista { margin-top: var(--esp-2); padding-left: var(--esp-5); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
-.checkout__depois-lista li + li { margin-top: var(--esp-1); }
+
+/* ---------------- O que acontece depois de pagar (melhoria 35) ---------------- */
+/* Logo abaixo do botão de pagar: as mesmas etapas de pedido.html, em versão compacta. */
+.depois-pagar {
+  display: grid;
+  gap: var(--esp-4);
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-fundo-suave);
+}
+.depois-pagar[hidden] { display: none; }
+.depois-pagar__titulo { font-size: var(--texto-md); letter-spacing: -0.01em; }
+.depois-pagar__lista { display: grid; margin: 0; padding: 0; list-style: none; }
+.depois-pagar__etapa {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--esp-3);
+  padding-bottom: var(--esp-4);
+}
+.depois-pagar__etapa:last-child { padding-bottom: 0; }
+.depois-pagar__etapa:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 2.25rem;
+  bottom: var(--esp-1);
+  left: calc(1rem - 1px);
+  width: 2px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-borda);
+}
+.depois-pagar__numero {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--cor-acao);
+  border-radius: 50%;
+  background: var(--cor-superficie);
+  color: var(--cor-acao-texto-suave);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-extra);
+}
+.depois-pagar__corpo { display: grid; gap: var(--esp-1); padding-top: 0.25rem; }
+.depois-pagar__etapa-titulo { font-size: var(--texto-base); letter-spacing: 0; }
+.depois-pagar__texto { color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.depois-pagar__nota,
+.depois-pagar__duvidas { font-size: var(--texto-sm); }
+.depois-pagar__nota { padding-top: var(--esp-3); border-top: 1px solid var(--cor-borda); }
+.depois-pagar__nota[hidden],
+.depois-pagar__duvidas[hidden] { display: none; }
+.depois-pagar__duvidas a { font-weight: var(--peso-negrito); }
+
+/* ---------------- Dúvidas sobre o pagamento (melhoria 35) ---------------- */
+.duvidas-pagamento[hidden] { display: none; }
+.duvidas-pagamento__mais { margin-top: var(--esp-5); text-align: center; font-size: var(--texto-sm); font-weight: var(--peso-negrito); }
 
 /* ---------------- Resultado (obrigado.html) ---------------- */
 .resultado {

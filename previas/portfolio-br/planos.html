@@ -211,6 +211,15 @@
             <span data-botao-pagar-texto>Ir para o pagamento seguro</span>
           </button>
           <p class="checkout__seguro">Você será levado ao site do Mercado Pago para pagar com Pix, boleto ou cartão. Não recebemos nem guardamos os dados do seu cartão.</p>
+
+          <!-- Etapas de pedido.html, com textos de config.js → depoisDoPagamento (melhoria 35). Sem JS fica oculto. -->
+          <section class="depois-pagar" aria-labelledby="depois-pagar-titulo" hidden data-depois-pagar>
+            <h2 class="depois-pagar__titulo" id="depois-pagar-titulo" data-depois-titulo>O que acontece depois de pagar</h2>
+            <ol class="depois-pagar__lista" data-depois-lista></ol>
+            <p class="depois-pagar__nota" data-depois-acompanhar hidden></p>
+            <p class="depois-pagar__duvidas" data-depois-duvidas hidden>Dúvidas sobre Pix, parcelamento ou reembolso?
+              <a href="#duvidas-pagamento">Veja as respostas</a></p>
+          </section>
         </form>
 
         <section class="checkout__resumo" aria-labelledby="resumo-titulo">
@@ -218,15 +227,19 @@
           <div data-resumo-plano>
             <p class="checkout__resumo-vazio">Escolha um plano para ver o resumo.</p>
           </div>
-          <div class="checkout__depois">
-            <h3 class="checkout__depois-titulo">Depois do pagamento</h3>
-            <ol class="checkout__depois-lista">
-              <li>Você recebe a confirmação na tela e o comprovante por e-mail.</li>
-              <li>Preenche o briefing contando sobre o seu negócio.</li>
-              <li>Aprova a primeira versão e pede os ajustes incluídos.</li>
-            </ol>
-          </div>
         </section>
+      </div>
+    </section>
+
+    <!-- Dúvidas de checkout: perguntas de config.js → faq com checkout: true (melhoria 35). Sem itens, fica oculta. -->
+    <section class="secao secao--compacta duvidas-pagamento" id="duvidas-pagamento" aria-labelledby="duvidas-pagamento-titulo" tabindex="-1" hidden data-faq-secao>
+      <div class="container container--estreito">
+        <header class="secao__cabecalho">
+          <p class="secao__sobretitulo">Antes de pagar</p>
+          <h2 id="duvidas-pagamento-titulo" class="secao__titulo">Dúvidas sobre o pagamento</h2>
+        </header>
+        <div class="faq" data-lista-faq data-faq-filtro="checkout"></div>
+        <p class="duvidas-pagamento__mais"><a href="index.html#duvidas">Ver todas as dúvidas frequentes</a></p>
       </div>
     </section>
 
