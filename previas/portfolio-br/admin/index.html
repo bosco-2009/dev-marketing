@@ -27,6 +27,7 @@
   <script src="../assets/js/admin-pedidos.js" defer></script>
   <script src="../assets/js/admin-briefings.js" defer></script>
   <script src="../assets/js/admin-resumo.js" defer></script>
+  <script src="../assets/js/admin-busca.js" defer></script>
 </head>
 <body class="admin">
   <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -98,6 +99,16 @@
     <!-- Painel (após login): abas Conversas e Pedidos -->
     <div class="admin-painel" data-tela="painel" hidden>
     <h1 class="visualmente-oculto">Painel da Portfólio BR</h1>
+    <!-- Busca global (melhoria 37): procura nos dados já carregados das três abas, sem consulta nova ao banco -->
+    <div class="admin-busca-global" role="search" aria-label="Busca em todo o painel" data-busca-global>
+      <label class="visualmente-oculto" for="busca-global">Buscar em conversas, pedidos e briefings</label>
+      <input id="busca-global" type="search" autocomplete="off" spellcheck="false"
+        placeholder="Buscar código, nome, e-mail ou mensagem"
+        aria-describedby="busca-global-dica" aria-controls="busca-global-resultados" data-busca-global-campo>
+      <p id="busca-global-dica" class="visualmente-oculto">Digite ao menos 2 letras. Use a seta para baixo para ir aos resultados e Esc para fechar.</p>
+      <p class="visualmente-oculto" role="status" data-busca-global-status></p>
+      <div id="busca-global-resultados" class="admin-busca-global__painel" data-busca-global-resultados hidden></div>
+    </div>
     <nav class="admin-abas" aria-label="Seções do painel">
       <a class="admin-aba" href="#conversas" data-aba-link="conversas" aria-current="page">Conversas <span class="admin-aba__selo" data-selo-aba="conversas" hidden></span></a>
       <a class="admin-aba" href="#pedidos" data-aba-link="pedidos">Pedidos <span class="admin-aba__selo" data-selo-aba="pedidos" hidden></span></a>

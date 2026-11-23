@@ -550,7 +550,8 @@
   }
 
   // Abre um pedido pelo id (usado pela aba Briefings).
-  function abrirPorId(id) {
+  // semRecarregar: a busca global (melhoria 37) abre com os dados já carregados, sem consulta nova.
+  function abrirPorId(id, semRecarregar) {
     if (!estado) return;
     estado.filtro = 'todos';
     estado.busca = '';
@@ -563,6 +564,7 @@
     var busca = $('[data-busca-pedidos]');
     if (busca) busca.value = '';
     $$('[data-filtro-pedido]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro-pedido') === 'todos')); });
+    if (semRecarregar) { renderizarLista(); abrir(id); return; }
     // Recarrega antes de abrir: o status do briefing pode ter acabado de mudar.
     carregar().then(function () { if (estado) abrir(id); });
   }

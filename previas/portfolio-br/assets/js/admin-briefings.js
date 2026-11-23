@@ -100,6 +100,8 @@
         }
         estado.conhecidos = ids;
         estado.lista = lista;
+        // Busca global (admin-busca.js) usa os briefings já carregados.
+        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'briefings', itens: lista, limiteAtingido: lista.length >= 500 } }));
         contarNovosNaoVistos();
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
@@ -269,5 +271,16 @@
     if (det) det.hidden = true;
   }
 
-  window.PBRAdminBriefings = { iniciar: iniciar, encerrar: encerrar };
+  // Busca global (melhoria 37): abre um briefing já carregado, mostrando "Todos" se o filtro o escondia.
+  function abrirPorId(id) {
+    if (!estado || !estado.lista.some(function (b) { return b.id === id; })) return;
+    var item = estado.lista.filter(function (b) { return b.id === id; })[0];
+    if (estado.filtro !== 'todos' && item.status !== estado.filtro) {
+      estado.filtro = 'todos';
+      $$('[data-filtro-briefing]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro-briefing') === 'todos')); });
+    }
+    abrir(id);
+  }
+
+  window.PBRAdminBriefings = { iniciar: iniciar, encerrar: encerrar, abrirPorId: abrirPorId };
 })();

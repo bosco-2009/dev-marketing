@@ -578,5 +578,24 @@
         mostrarErro(erroResposta, 'Não foi possível alterar o status.');
       }).then(function () { botaoStatus.disabled = false; });
     });
+
+    // Busca global (admin-busca.js): abre uma conversa já carregada. Se os filtros a escondem,
+    // volta para "Todas" sem período, origem ou "só leads", para ela aparecer marcada na lista.
+    window.PBRAdminChat = {
+      abrirPorId: function (id) {
+        if (!conversaPorId(id)) return;
+        if (conversasVisiveis().every(function (c) { return c.id !== id; })) {
+          estado.filtro = 'todas';
+          estado.periodo = 'tudo';
+          estado.origem = '';
+          estado.soLeads = false;
+          $$('[data-filtro]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro') === 'todas')); });
+          if (selPeriodo) selPeriodo.value = 'tudo';
+          if (selOrigem) selOrigem.value = '';
+          if (marcarLeads) marcarLeads.checked = false;
+        }
+        abrirConversa(id);
+      }
+    };
   }
 })();
