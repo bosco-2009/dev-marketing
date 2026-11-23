@@ -201,11 +201,14 @@
     var avisoHorario = el('div', 'chat__aviso');
     avisoHorario.hidden = true;
 
-    // Corpo: histórico
-    var log = el('div', 'chat__mensagens', null, { role: 'log', 'aria-live': 'polite', 'aria-label': 'Mensagens da conversa', tabindex: '0' });
+    // Corpo: histórico. Não é região viva (melhoria 36): o leitor de tela não relê o histórico ao abrir
+    // nem as mensagens do próprio visitante; só as respostas novas do atendente vão para o anúncio abaixo.
+    var log = el('div', 'chat__mensagens', null, { role: 'region', 'aria-label': 'Mensagens da conversa', tabindex: '0' });
     var boasVindas = el('p', 'chat__bolha chat__bolha--admin chat__bolha--boas-vindas');
     boasVindas.appendChild(oculto('Portfólio BR: '));
-    boasVindas.appendChild(document.createTextNode('Olá! 👋 Como podemos ajudar? Conte o que você precisa e respondemos por aqui.'));
+    boasVindas.appendChild(document.createTextNode('Olá! '));
+    boasVindas.appendChild(el('span', null, '👋', { 'aria-hidden': 'true' }));
+    boasVindas.appendChild(document.createTextNode(' Como podemos ajudar? Conte o que você precisa e respondemos por aqui.'));
     log.appendChild(boasVindas);
     var listaMensagens = el('ol', 'chat__lista', null, { role: 'list' });
     log.appendChild(listaMensagens);
@@ -215,17 +218,19 @@
 
     // Formulário inicial (nome e WhatsApp opcionais)
     var formInicio = el('form', 'chat__inicio', null, { novalidate: '' });
-    var campoNome = campo('chat-nome', 'Seu nome (opcional)', 'input', { type: 'text', autocomplete: 'name', maxlength: '80' });
+    var campoNome = campo('chat-nome', 'Seu nome (opcional)', 'input', {
+      type: 'text', autocomplete: 'name', maxlength: '80', 'aria-describedby': 'chat-privacidade'
+    });
     var campoZap = campo('chat-whatsapp', 'Seu WhatsApp (opcional)', 'input', {
       type: 'tel', autocomplete: 'tel', inputmode: 'tel', maxlength: '20', placeholder: '(11) 91234-5678',
-      'aria-describedby': 'chat-whatsapp-dica'
+      'aria-describedby': 'chat-whatsapp-dica chat-privacidade'
     });
     var dicaZap = el('p', 'chat__dica', 'Se preferir, respondemos também por lá.', { id: 'chat-whatsapp-dica' });
     campoZap.grupo.appendChild(dicaZap);
     formInicio.appendChild(campoNome.grupo);
     formInicio.appendChild(campoZap.grupo);
     formInicio.appendChild(el('p', 'chat__privacidade',
-      'Usamos esses dados só para responder você. Não enviamos propaganda.'));
+      'Usamos esses dados só para responder você. Não enviamos propaganda.', { id: 'chat-privacidade' }));
 
     // Compositor (mensagem)
     var formEnvio = el('form', 'chat__compositor', null, { novalidate: '' });
@@ -254,8 +259,13 @@
     painel.appendChild(log);
     painel.appendChild(rodapePainel);
 
+    // Anúncio para leitores de tela: só respostas novas do atendente (fora do painel, para ser ouvido
+    // também com o chat fechado). O histórico carregado ao abrir ou retomar não é anunciado.
+    var anuncio = el('p', 'visualmente-oculto', null, { 'aria-live': 'polite', 'data-chat-anuncio': '' });
+
     raiz.appendChild(painel);
     raiz.appendChild(botao);
+    raiz.appendChild(anuncio);
     document.body.appendChild(raiz);
     document.documentElement.classList.add('tem-chat');
 
@@ -318,8 +328,26 @@
       return (new Date().toDateString() === d.toDateString() ? formatoHora : formatoDia).format(d);
     }
 
-    function adicionarMensagens(novas) {
+    var historicoCarregado = false; // vira true depois da primeira lista vinda do servidor
+    var timerAnuncio = null;
+    function anunciar(texto) {
+      // limpa e escreve no quadro seguinte, para o mesmo texto ser anunciado de novo se repetir
+      anuncio.textContent = '';
+      clearTimeout(timerAnuncio);
+      timerAnuncio = setTimeout(function () { anuncio.textContent = texto; }, 100);
+    }
+    function anunciarDoAtendente(lista) {
+      if (!lista.length) return;
+      var ultima = lista[lista.length - 1].texto;
+      var curta = ultima.length > 200 ? ultima.slice(0, 200) + '…' : ultima;
+      anunciar(lista.length === 1
+        ? 'Nova mensagem da Portfólio BR: ' + curta
+        : lista.length + ' novas mensagens da Portfólio BR. A última: ' + curta);
+    }
+
+    function adicionarMensagens(novas, anunciarNovas) {
       var adicionou = false;
+      var doAtendente = [];
       novas.forEach(function (m) {
         if (!m || idsVistos[m.id]) return;
         idsVistos[m.id] = true;
@@ -330,12 +358,14 @@
         var hora = el('time', 'chat__hora', quando(m.criado_em), { datetime: m.criado_em });
         li.appendChild(hora);
         listaMensagens.appendChild(li);
+        if (m.autor === 'admin') doAtendente.push(m);
         adicionou = true;
       });
       if (adicionou) {
         mensagens.sort(function (a, b) { return a.criado_em < b.criado_em ? -1 : 1; });
         log.scrollTop = log.scrollHeight;
         atualizarNaoLidas();
+        if (anunciarNovas) anunciarDoAtendente(doAtendente);
       }
     }
 
@@ -401,6 +431,7 @@
       conversa = null;
       mensagens = [];
       idsVistos = {};
+      historicoCarregado = false;
       listaMensagens.textContent = '';
       atualizarModo();
       atualizarNaoLidas();
@@ -434,7 +465,10 @@
     function buscarMensagens() {
       if (buscando) return buscando;
       buscando = rpc('chat_listar', credenciais({ p_depois: ultimaData() }))
-        .then(function (lista) { adicionarMensagens(lista || []); })
+        .then(function (lista) {
+          adicionarMensagens(lista || [], historicoCarregado);
+          historicoCarregado = true;
+        })
         .catch(function (e) { tratarAcessoNegado(e); })
         .then(function () { buscando = null; });
       return buscando;
@@ -488,10 +522,12 @@
         if (!whatsappValido(zap)) {
           mostrarErro(mensagemDeErro({ message: 'whatsapp_invalido' }));
           campoZap.entrada.setAttribute('aria-invalid', 'true');
+          campoZap.entrada.setAttribute('aria-describedby', 'chat-erro chat-whatsapp-dica chat-privacidade');
           campoZap.entrada.focus();
           return;
         }
         campoZap.entrada.removeAttribute('aria-invalid');
+        campoZap.entrada.setAttribute('aria-describedby', 'chat-whatsapp-dica chat-privacidade');
         passoInicial = rpc('chat_iniciar', credenciais({
           p_nome: campoNome.entrada.value.trim() || null,
           p_whatsapp: apenasDigitos(zap) || null,
@@ -503,6 +539,7 @@
           conversa = linhas && linhas[0];
           if (!conversa) throw new Error('falha_iniciar');
           estado.iniciada = true;
+          historicoCarregado = true; // conversa nova: não há histórico a ignorar
           salvarEstado(estado);
           atualizarModo();
           ligarRealtime();
@@ -557,6 +594,7 @@
       botao.setAttribute('aria-expanded', String(valor));
       raiz.setAttribute('data-aberto', String(valor));
       document.documentElement.classList.toggle('chat-aberto', valor);
+      atualizarModal();
       atualizarRecolhido();
       if (valor) {
         atualizarHorario();
@@ -585,8 +623,35 @@
     botao.addEventListener('touchstart', aquecer, { passive: true });
     botao.addEventListener('focus', aquecer);
     fechar.addEventListener('click', function () { definirAberto(false, true); });
+    // Esc fecha e devolve o foco ao botão, só quando o foco está no chat (ou em lugar nenhum),
+    // para não roubar o Esc de menus e diálogos da página.
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && aberto) { definirAberto(false, true); }
+      if (e.key !== 'Escape' || !aberto || e.defaultPrevented) return;
+      var ativo = document.activeElement;
+      if (ativo && ativo !== document.body && !raiz.contains(ativo)) return;
+      e.preventDefault();
+      definirAberto(false, true);
+    });
+
+    // No celular o painel cobre a tela inteira: vira diálogo modal e o Tab circula dentro dele
+    // (a página por trás está coberta). No computador é uma janela lateral não modal.
+    var telaCheia = window.matchMedia('(max-width: 47.99rem)');
+    function atualizarModal() {
+      painel.setAttribute('aria-modal', String(aberto && telaCheia.matches));
+    }
+    if (telaCheia.addEventListener) telaCheia.addEventListener('change', atualizarModal);
+    function focaveis() {
+      return Array.prototype.filter.call(
+        painel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+        function (x) { return x.getClientRects().length > 0; });
+    }
+    painel.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab' || !telaCheia.matches) return;
+      var lista = focaveis();
+      if (!lista.length) return;
+      var primeiro = lista[0], ultimo = lista[lista.length - 1];
+      if (e.shiftKey && document.activeElement === primeiro) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primeiro.focus(); }
     });
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) { atualizarNaoLidas(); if (conversa && !realtimeConectado) buscarMensagens(); }
