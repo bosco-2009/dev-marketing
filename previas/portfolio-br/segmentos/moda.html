@@ -15,6 +15,10 @@
 
   <!-- Open Graph / redes sociais -->
   <meta property="og:type" content="website">
+  <meta property="article:published_time" content="2026-11-19">
+  <meta property="article:modified_time" content="2026-11-19">
+  <meta property="article:author" content="https://bosco-2009.github.io/empresa-jp/blog/autor.html">
+  <meta property="article:section" content="Presença online">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:site_name" content="Portfólio BR">
   <meta property="og:title" content="Site para loja de roupas, moda e acessórios — Portfólio BR">
@@ -31,6 +35,7 @@
   <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
   <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="alternate" type="application/rss+xml" title="Blog Portfólio BR (RSS)" href="../blog/feed.xml">
 
   <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/tokens.css">
@@ -60,6 +65,7 @@
     "@graph": [
       {
         "@type": "Service",
+        "@id": "https://bosco-2009.github.io/empresa-jp/segmentos/moda.html#servico",
         "name": "Site para loja de roupas, moda e acessórios",
         "serviceType": "Criação de site profissional",
         "description": "Vitrine organizada com fotos, tamanhos e cores, e a venda continuando no WhatsApp. Veja o que um site resolve para a sua loja de moda.",
@@ -69,15 +75,26 @@
           "@type": "Country",
           "name": "Brasil"
         },
+        "availableChannel": {
+          "@type": "ServiceChannel",
+          "name": "Atendimento online",
+          "serviceUrl": "https://bosco-2009.github.io/empresa-jp/planos.html",
+          "availableLanguage": "pt-BR"
+        },
         "audience": {
           "@type": "BusinessAudience",
           "name": "Lojas de moda"
         },
         "provider": {
           "@type": "Organization",
+          "@id": "https://bosco-2009.github.io/empresa-jp/#organizacao",
           "name": "Portfólio BR",
           "url": "https://bosco-2009.github.io/empresa-jp/",
-          "logo": "https://bosco-2009.github.io/empresa-jp/assets/img/icon-512.png"
+          "logo": "https://bosco-2009.github.io/empresa-jp/assets/img/icon-512.png",
+          "knowsAbout": [
+            "Criação de sites profissionais",
+            "Sites para lojas de moda"
+          ]
         },
         "image": "https://bosco-2009.github.io/empresa-jp/assets/img/og/segmento-moda.png"
       },
