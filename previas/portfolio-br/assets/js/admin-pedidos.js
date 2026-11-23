@@ -215,6 +215,7 @@
         var novos = r.data || [];
         avisarAprovados(novos);
         estado.pedidos = novos;
+        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: novos.length >= 500 } }));
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
       })

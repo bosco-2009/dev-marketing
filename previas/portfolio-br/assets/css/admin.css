@@ -116,6 +116,7 @@
 .admin-abas {
   display: flex;
   gap: var(--esp-1);
+  overflow-x: auto; /* rede de segurança: quatro abas em telas muito estreitas */
   padding: 0 var(--margem-lateral);
   border-bottom: 1px solid var(--cor-borda);
   background: var(--cor-superficie);
@@ -132,6 +133,14 @@
   text-decoration: none;
 }
 .admin-aba:hover { color: var(--cor-texto); }
+@media (max-width: 29.99rem) {
+  .admin-abas { gap: 0; justify-content: space-between; padding: 0 var(--esp-1); }
+  .admin-aba { gap: var(--esp-1); padding: var(--esp-2) 0.4rem; font-size: var(--texto-sm); }
+}
+@media (max-width: 23.4rem) {
+  .admin-aba { gap: 0.2rem; padding: var(--esp-2) 0.25rem; letter-spacing: -0.01em; }
+  .admin-aba__selo { min-width: 1.1rem; padding: 0 0.25rem; }
+}
 .admin-aba[aria-current='page'] { border-bottom-color: var(--cor-acao); color: var(--cor-texto); }
 .admin-aba__selo {
   min-width: 1.3rem;
@@ -550,3 +559,81 @@
 .admin-etapa__texto { font-size: var(--texto-sm); }
 .admin-etapa .admin-status-controle { max-width: 20rem; }
 .admin-etapa__dica { margin: 0; }
+
+/* ---------------- Resumo do mês (melhoria 32) ---------------- */
+.admin-resumo-mes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--esp-4) var(--margem-lateral) var(--esp-8);
+  background: var(--cor-fundo-suave);
+}
+.admin-resumo-mes[hidden] { display: none; }
+.admin-resumo-mes__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  max-width: 72rem;
+  margin: 0 auto var(--esp-4);
+}
+.admin-resumo-mes__titulo { margin: 0; padding-bottom: 0.4rem; font-size: var(--texto-lg); }
+.admin-resumo-mes__mes { flex: 1 1 12rem; max-width: 16rem; }
+.admin-resumo-mes__estado,
+.admin-resumo-mes__nota {
+  max-width: 72rem;
+  margin: var(--esp-3) auto 0;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+}
+.admin-resumo-mes__estado[hidden],
+.admin-resumo-mes__nota[hidden] { display: none; }
+
+.admin-kpis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-3);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 30rem) { .admin-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .admin-kpis { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); } }
+.admin-kpis:empty { display: none; }
+
+.admin-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-1);
+  min-width: 0;
+  container-type: inline-size;
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-sm);
+}
+.admin-kpi__rotulo { margin: 0; color: var(--cor-texto-suave); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.admin-kpi__valor {
+  margin: 0;
+  color: var(--cor-texto);
+  font-size: var(--texto-xl);
+  font-size: clamp(1.25rem, 12cqi, 2rem); /* acompanha a largura do cartão (valores em reais cabem numa linha) */
+  font-weight: var(--peso-extra);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; /* "R$ 1.494,00" nunca quebra no meio */
+}
+.admin-kpi__detalhe { margin: 0; color: var(--cor-texto-suave); font-size: var(--texto-xs); }
+.admin-kpi__comparacao {
+  margin: auto 0 0;
+  padding-top: var(--esp-2);
+  border-top: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  font-size: var(--texto-xs);
+}
+.admin-kpi__seta { display: inline-block; min-width: 1em; color: var(--cor-texto-suave); }
+.admin-kpi__seta[data-direcao='sobe'] { color: var(--cor-sucesso); }
+.admin-kpi__seta[data-direcao='desce'] { color: var(--cor-erro); }

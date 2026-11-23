@@ -26,6 +26,7 @@
   <script src="../assets/js/admin-respostas.js" defer></script>
   <script src="../assets/js/admin-pedidos.js" defer></script>
   <script src="../assets/js/admin-briefings.js" defer></script>
+  <script src="../assets/js/admin-resumo.js" defer></script>
 </head>
 <body class="admin">
   <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -101,6 +102,7 @@
       <a class="admin-aba" href="#conversas" data-aba-link="conversas" aria-current="page">Conversas <span class="admin-aba__selo" data-selo-aba="conversas" hidden></span></a>
       <a class="admin-aba" href="#pedidos" data-aba-link="pedidos">Pedidos <span class="admin-aba__selo" data-selo-aba="pedidos" hidden></span></a>
       <a class="admin-aba" href="#briefings" data-aba-link="briefings">Briefings <span class="admin-aba__selo" data-selo-aba="briefings" hidden></span></a>
+      <a class="admin-aba" href="#resumo" data-aba-link="resumo">Resumo</a>
     </nav>
 
     <!-- Conversas -->
@@ -346,6 +348,21 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Resumo do mês (melhoria 32): calculado no navegador com os dados já carregados -->
+    <section class="admin-resumo-mes" data-aba="resumo" hidden aria-labelledby="resumo-titulo">
+      <div class="admin-resumo-mes__topo">
+        <h2 id="resumo-titulo" class="admin-resumo-mes__titulo">Resumo do mês</h2>
+        <div class="admin-refino__campo admin-resumo-mes__mes">
+          <label for="resumo-mes">Mês</label>
+          <select id="resumo-mes" data-resumo-mes></select>
+        </div>
+      </div>
+      <p class="admin-resumo-mes__estado" data-resumo-estado>Carregando os dados do painel…</p>
+      <ul class="admin-kpis" role="list" data-resumo-cartoes></ul>
+      <p class="admin-resumo-mes__nota" data-resumo-limite hidden></p>
+      <p class="admin-resumo-mes__nota">Comparação com o mês anterior. Datas no fuso deste navegador.</p>
     </section>
     </div>
   </main>

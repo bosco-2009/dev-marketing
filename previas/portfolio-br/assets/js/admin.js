@@ -120,9 +120,14 @@
       if (window.PBRAdminBriefings) window.PBRAdminBriefings.encerrar();
     }
 
-    // -------------------------------------------------------------- abas (#conversas / #pedidos)
+    // Dados carregados → aba Resumo (admin-resumo.js calcula no navegador, sem consulta nova).
+    function avisarDados(tipo, itens, limiteAtingido) {
+      document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: tipo, itens: itens, limiteAtingido: !!limiteAtingido } }));
+    }
+
+    // -------------------------------------------------------------- abas (#conversas / #pedidos / #briefings / #resumo)
     function mostrarAba() {
-      var aba = ({ '#pedidos': 'pedidos', '#briefings': 'briefings' })[location.hash] || 'conversas';
+      var aba = ({ '#pedidos': 'pedidos', '#briefings': 'briefings', '#resumo': 'resumo' })[location.hash] || 'conversas';
       $$('[data-aba]').forEach(function (s) { s.hidden = s.getAttribute('data-aba') !== aba; });
       $$('[data-aba-link]').forEach(function (l) {
         if (l.getAttribute('data-aba-link') === aba) l.setAttribute('aria-current', 'page');
@@ -260,6 +265,7 @@
       pararReserva();
       estado.chatIniciado = false;
       estado.conversas = [];
+      avisarDados('limpar');
       estado.selecionada = null;
       lista.textContent = '';
       caixaMensagens.textContent = '';
@@ -325,6 +331,7 @@
         .then(function (r) {
           if (r.error) throw r.error;
           estado.conversas = (r.data || []).filter(function (c) { return c.mensagens && c.mensagens.length; });
+          avisarDados('conversas', estado.conversas, (r.data || []).length >= 300);
           renderizarLista();
           atualizarCabecalho();
         })
