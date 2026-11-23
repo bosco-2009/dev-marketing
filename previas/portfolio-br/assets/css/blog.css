@@ -61,3 +61,18 @@
 .artigo__mais ul { display: grid; gap: var(--esp-2); margin-top: var(--esp-3); }
 .artigo__mais li + li { margin-top: 0; }
 .artigo__mais a { font-weight: var(--peso-semi); }
+
+/* Melhoria 33: autor do blog, link do autor no artigo e links do RSS */
+.artigo__meta a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.artigo__meta a:hover { color: var(--cor-destaque); }
+.blog-links { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-5); margin: var(--esp-4) 0 0; padding: 0; font-size: var(--texto-sm); }
+.blog-links a { color: var(--cor-texto-invertido); text-underline-offset: 0.2em; }
+.blog-links a:hover { color: var(--cor-destaque); }
+.autor__titulo { margin-bottom: var(--esp-4); font-size: var(--texto-xl); line-height: 1.25; }
+.autor__lista { display: grid; gap: var(--esp-3); margin: 0; padding: 0; font-size: var(--texto-md); }
+.autor__lista li { display: flex; gap: var(--esp-3); align-items: flex-start; }
+.autor__lista .icone { flex: none; margin-top: 0.2em; color: var(--cor-acao); }
+.autor__nota { margin-top: var(--esp-5); color: var(--cor-texto-suave); }
+.autor__nota + .autor__nota { margin-top: var(--esp-3); }
+.autor__nota a { font-weight: var(--peso-semi); overflow-wrap: anywhere; }
+.autor > * { max-width: 46rem; }

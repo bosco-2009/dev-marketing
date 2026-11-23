@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feed RSS do blog (melhoria 33). Ao publicar um artigo: novo <item> no topo, lastBuildDate e o teste testes/funcoes/blog-seo.test.mjs. -->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blog Portfólio BR</title>
+    <link>https://bosco-2009.github.io/empresa-jp/blog/</link>
+    <atom:link href="https://bosco-2009.github.io/empresa-jp/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Artigos curtos e práticos sobre sites, Google e presença online para pequenos negócios.</description>
+    <language>pt-BR</language>
+    <lastBuildDate>Thu, 19 Nov 2026 00:00:00 -0300</lastBuildDate>
+    <image>
+      <url>https://bosco-2009.github.io/empresa-jp/assets/img/icon-512.png</url>
+      <title>Blog Portfólio BR</title>
+      <link>https://bosco-2009.github.io/empresa-jp/blog/</link>
+    </image>
+    <item>
+      <title>Site ou só Instagram? O que faz sentido para o seu negócio</title>
+      <link>https://bosco-2009.github.io/empresa-jp/blog/site-ou-instagram.html</link>
+      <guid isPermaLink="true">https://bosco-2009.github.io/empresa-jp/blog/site-ou-instagram.html</guid>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0300</pubDate>
+      <description>O Instagram é ótimo para ser visto; o site é o lugar onde o cliente decide. Entenda o papel de cada um.</description>
+    </item>
+    <item>
+      <title>O que um site profissional precisa ter: o checklist do pequeno negócio</title>
+      <link>https://bosco-2009.github.io/empresa-jp/blog/o-que-um-site-profissional-precisa-ter.html</link>
+      <guid isPermaLink="true">https://bosco-2009.github.io/empresa-jp/blog/o-que-um-site-profissional-precisa-ter.html</guid>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0300</pubDate>
+      <description>Um checklist direto do que não pode faltar: do botão de WhatsApp ao endereço, passando pelo Google e pela LGPD.</description>
+    </item>
+    <item>
+      <title>Como funciona a criação do seu site com a Portfólio BR</title>
+      <link>https://bosco-2009.github.io/empresa-jp/blog/como-funciona-a-criacao-do-seu-site.html</link>
+      <guid isPermaLink="true">https://bosco-2009.github.io/empresa-jp/blog/como-funciona-a-criacao-do-seu-site.html</guid>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0300</pubDate>
+      <description>Do pagamento ao site no ar, passo a passo: o que você envia, o que a gente faz e como funcionam os ajustes.</description>
+    </item>
+  </channel>
+</rss>
