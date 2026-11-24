@@ -792,3 +792,46 @@
   .retomada__cartao { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; padding: var(--esp-4) var(--esp-5); }
   .retomada__acoes { grid-column: auto; justify-content: flex-end; }
 }
+
+/* ===================== Renderização adiada abaixo da dobra (melhoria 109) ===================== */
+/* content-visibility: auto deixa o navegador pular estilo/layout/pintura das seções fora da tela até
+   que cheguem perto dela. O tamanho reservado (contain-intrinsic-block-size) é a altura do CONTEÚDO
+   (sem o padding da seção) na largura em que ela é maior dentro de cada faixa (320 px; 768–1023 px; 1024–1280 px)
+   mais ~2%: nunca menor que a real, para o conteúdo de uma seção ainda pulada não vazar sobre a seguinte (o axe
+   mediria o contraste contra o fundo errado). testes/e2e/visibilidade-conteudo.test.js confere a margem; "auto" faz o navegador lembrar a altura real depois da primeira renderização.
+   Só na tela: a impressão e o "Salvar como PDF" continuam com tudo renderizado. A busca do navegador (Ctrl+F) e as âncoras (#faq-...)
+   funcionam normalmente com "auto"; a seção do hero nunca entra (ela é o LCP). */
+@media screen {
+  .hero ~ .secao {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto var(--altura-estimada, 60rem);
+  }
+  #servicos { --altura-estimada: 1840px; }
+  #para-quem { --altura-estimada: 2560px; }
+  #como-funciona { --altura-estimada: 1380px; }
+  #simulador { --altura-estimada: 1350px; }
+  #planos { --altura-estimada: 2580px; }
+  #garantias { --altura-estimada: 1130px; }
+  #duvidas { --altura-estimada: 1470px; }
+  #contato { --altura-estimada: 550px; }
+}
+@media screen and (min-width: 48rem) {
+  #servicos { --altura-estimada: 970px; }
+  #para-quem { --altura-estimada: 1340px; }
+  #como-funciona { --altura-estimada: 940px; }
+  #simulador { --altura-estimada: 820px; }
+  #planos { --altura-estimada: 2000px; }
+  #garantias { --altura-estimada: 640px; }
+  #duvidas { --altura-estimada: 1120px; }
+  #contato { --altura-estimada: 400px; }
+}
+@media screen and (min-width: 64rem) {
+  #servicos { --altura-estimada: 780px; }
+  #para-quem { --altura-estimada: 920px; }
+  #como-funciona { --altura-estimada: 620px; }
+  #simulador { --altura-estimada: 790px; }
+  #planos { --altura-estimada: 1050px; }
+  #garantias { --altura-estimada: 530px; }
+  #duvidas { --altura-estimada: 1120px; }
+  #contato { --altura-estimada: 400px; }
+}

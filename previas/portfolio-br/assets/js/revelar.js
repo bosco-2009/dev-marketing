@@ -40,8 +40,20 @@
 
   // O que já está visível na carga aparece sem animação (nada "some" diante do visitante).
   var alturaTela = window.innerHeight;
+  // Seções abaixo da dobra usam content-visibility: auto (melhoria 109). Medir um elemento lá dentro obrigaria
+  // o navegador a montar o layout que ele pulou; então mede-se antes a seção (cuja caixa já existe) e, se ela
+  // começa abaixo do limite, nada dentro dela está visível.
+  var topoSecao = new Map();
+  function acimaDe(el, limite) {
+    var secao = el.closest('section');
+    if (secao) {
+      if (!topoSecao.has(secao)) topoSecao.set(secao, secao.getBoundingClientRect().top);
+      if (topoSecao.get(secao) >= limite) return false;
+    }
+    return el.getBoundingClientRect().top < limite;
+  }
   elementos.forEach(function (el) {
-    if (el.getBoundingClientRect().top < alturaTela * 0.92) el.classList.add('revelado', 'revelado-imediato');
+    if (acimaDe(el, alturaTela * 0.92)) el.classList.add('revelado', 'revelado-imediato');
   });
   html.classList.add('revelar-ativo');
 
@@ -69,7 +81,7 @@
     });
   }, { rootMargin: '0px 0px -15% 0px', threshold: 0.2 });
   linhasTempo.forEach(function (lista) {
-    if (lista.getBoundingClientRect().top < alturaTela * 0.6) {
+    if (acimaDe(lista, alturaTela * 0.6)) {
       lista.classList.add('linha-tempo--viva', 'linha-tempo--imediata');
     } else {
       observadorLinha.observe(lista);

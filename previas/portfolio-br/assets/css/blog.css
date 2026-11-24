@@ -161,3 +161,25 @@
 }
 .artigo__corpo .relacionado--segmento .relacionado__imagem { border-radius: 0; }
 @media print { .miniatura { display: none; } }
+
+/* ===================== Renderização adiada no fim dos artigos (melhoria 109) ===================== */
+/* "Plano indicado", chamada e "Leia também" (com as miniaturas) ficam sempre abaixo da dobra nos artigos:
+   o navegador só os renderiza quando chegam perto da tela. Alturas = a maior do conteúdo em cada faixa
+   (320 px; 768–1280 px) + ~2%, nunca menor que a real
+   (testes/e2e/visibilidade-conteudo.test.js); "auto" guarda a altura real. Só na tela (impressão intacta). */
+@media screen {
+  .artigo > .artigo__corpo > .indicado,
+  .artigo > .artigo__corpo > .artigo__chamada,
+  .artigo > .artigo__corpo > .artigo__mais {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto var(--altura-estimada, 20rem);
+  }
+  .artigo > .artigo__corpo > .indicado { --altura-estimada: 355px; }
+  .artigo > .artigo__corpo > .artigo__chamada { --altura-estimada: 270px; }
+  .artigo > .artigo__corpo > .artigo__mais { --altura-estimada: 1130px; }
+}
+@media screen and (min-width: 48rem) {
+  .artigo > .artigo__corpo > .indicado { --altura-estimada: 225px; }
+  .artigo > .artigo__corpo > .artigo__chamada { --altura-estimada: 160px; }
+  .artigo > .artigo__corpo > .artigo__mais { --altura-estimada: 440px; }
+}
