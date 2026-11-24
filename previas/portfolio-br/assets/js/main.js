@@ -554,11 +554,29 @@
   if (listaPlanos && config.site && config.site.url) {
     var urlSite = config.site.url.replace(/\/?$/, '/');
     var idOrg = urlSite + '#organizacao';
+    // Melhoria 80: só entra o que é real. Vazio, marcado [PROVISÓRIO] ou em formato inválido fica de fora.
+    var real = function (v) {
+      v = String(v == null ? '' : v).trim();
+      return v && !/provis[óo]rio/i.test(v) ? v : '';
+    };
     var org = { '@type': 'Organization', '@id': idOrg };
-    if (config.contato.email) org.email = config.contato.email;
-    if (config.contato.whatsapp) org.telephone = '+' + config.contato.whatsapp;
-    if (config.empresa.razaoSocial) org.legalName = config.empresa.razaoSocial;
-    if (config.empresa.cnpj) org.taxID = config.empresa.cnpj;
+    if (real(config.site.nome)) org.name = real(config.site.nome);
+    var email = real(config.contato.email);
+    if (/^[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}$/i.test(email)) org.email = email;
+    if (whatsDisponivel) {
+      org.telephone = '+' + config.contato.whatsapp;
+      org.contactPoint = {
+        '@type': 'ContactPoint',
+        contactType: 'customer service',
+        telephone: org.telephone,
+        availableLanguage: 'pt-BR',
+        areaServed: 'BR'
+      };
+    }
+    var instagram = real(config.contato.instagram).replace(/^@/, '');
+    if (/^[\w.]{1,30}$/.test(instagram)) org.sameAs = ['https://www.instagram.com/' + instagram + '/'];
+    if (real(config.empresa.razaoSocial)) org.legalName = real(config.empresa.razaoSocial);
+    if (/^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/.test(real(config.empresa.cnpj))) org.taxID = real(config.empresa.cnpj);
     var servico = {
       '@type': 'Service',
       '@id': urlSite + '#servico',
