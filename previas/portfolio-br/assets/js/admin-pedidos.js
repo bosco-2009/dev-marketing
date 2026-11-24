@@ -23,6 +23,26 @@
   function abandonado(p, agora) {
     return p.status === 'pendente' && !!p.criado_em && (agora || Date.now()) - new Date(p.criado_em).getTime() > ABANDONO_MS;
   }
+  // Pix/boleto gerado (melhoria 108): pendente COM pagamento registrado no Mercado Pago (mp_payment_id), à espera
+  // do Pix ou do boleto. Cartão em análise (in_process/authorized/in_mediation) não entra: lá não há o que o cliente pagar.
+  // Os demais pendentes nunca chegaram a gerar pagamento ("Sem pagamento"). Só dados já carregados, nada novo no banco.
+  var CHAVE_PIX = 'pbr-admin-lembrete-pix';
+  var MP_AGUARDANDO_CLIENTE = { pending: true };
+  function pagamentoGerado(p) {
+    return p.status === 'pendente' && !!p.mp_payment_id && !!MP_AGUARDANDO_CLIENTE[p.mp_status];
+  }
+  function semPagamento(p) {
+    return p.status === 'pendente' && !p.mp_payment_id;
+  }
+  // Nome do meio de pagamento pelo detalhe do MP (só os dois detalhes conhecidos; o resto fica genérico).
+  function tipoGerado(p) {
+    return p.mp_status_detalhe === 'pending_waiting_transfer' ? 'Pix'
+      : p.mp_status_detalhe === 'pending_waiting_payment' ? 'boleto' : '';
+  }
+  function rotuloGerado(p) {
+    var t = tipoGerado(p);
+    return t === 'Pix' ? 'Pix gerado' : t === 'boleto' ? 'boleto gerado' : 'Pix/boleto gerado';
+  }
   function tempoParado(iso) {
     var min = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
     if (min < 120) return min + ' min';
@@ -121,7 +141,7 @@
     return n.length >= 12 && n.indexOf('55') === 0 ? n.slice(2) : n;
   }
   function contatadoAqui(p) {
-    return ['abandono', 'briefing', 'boas-vindas'].some(function (m) { return !!lerChamados(m)[p.id]; }) ||
+    return ['abandono', 'pix', 'briefing', 'boas-vindas'].some(function (m) { return !!lerChamados(m)[p.id]; }) ||
       !!lerMapa(CHAVE_DISPENSADOS)[p.id];
   }
   function semContato(p, agora) {
@@ -134,8 +154,9 @@
     return !contatadoAqui(p);
   }
 
-  // Qual aviso o pedido precisa agora: 'abandono', 'briefing', 'boas-vindas' ou nenhum.
+  // Qual aviso o pedido precisa agora: 'pix', 'abandono', 'briefing', 'boas-vindas' ou nenhum.
   function modoAtencao(p, agora) {
+    if (pagamentoGerado(p)) return 'pix';
     if (abandonado(p, agora)) return 'abandono';
     if (semBriefing(p, agora)) return 'briefing';
     // Depois de chamar (ou marcar), o bloco continua aberto para mostrar o registro até trocar de pedido.
@@ -165,7 +186,7 @@
   }
 
   function chaveChamados(modo) {
-    return modo === 'briefing' ? CHAVE_LEMBRETES : modo === 'boas-vindas' ? CHAVE_BOAS_VINDAS : CHAVE_CHAMADOS;
+    return modo === 'briefing' ? CHAVE_LEMBRETES : modo === 'boas-vindas' ? CHAVE_BOAS_VINDAS : modo === 'pix' ? CHAVE_PIX : CHAVE_CHAMADOS;
   }
   function lerMapa(chave) {
     try { var v = JSON.parse(localStorage.getItem(chave) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
@@ -232,7 +253,25 @@
       'Qualquer dúvida, é só me chamar por aqui.';
   }
   function mensagemPara(p, modo) {
-    return modo === 'briefing' ? (briefingParado(p) ? mensagemBriefingParado(p) : mensagemBriefing(p)) : modo === 'boas-vindas' ? mensagemBoasVindas(p) : mensagemRecuperacao(p);
+    return modo === 'briefing' ? (briefingParado(p) ? mensagemBriefingParado(p) : mensagemBriefing(p)) : modo === 'boas-vindas' ? mensagemBoasVindas(p)
+      : modo === 'pix' ? mensagemPix(p) : mensagemRecuperacao(p);
+  }
+
+  // Lembrete do Pix/boleto gerado: sem valor e sem link de novo pagamento (o código gerado continua valendo até vencer;
+  // um pedido com pagamento registrado não reabre a preferência, melhoria 100). Acompanhamento só com o código, sem token.
+  function mensagemPix(p) {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
+    var tipo = tipoGerado(p);
+    var meio = tipo === 'Pix' ? 'o Pix' : tipo === 'boleto' ? 'o boleto' : 'o pagamento (Pix ou boleto)';
+    var link = linkAcompanhar();
+    return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! Aqui é da ' + (site.nome || 'Portfólio BR') + '. ' +
+      'Vi que ' + meio + ' do seu pedido ' + p.codigo + ' (plano ' + p.plano_nome + ') foi gerado, ' +
+      'mas o pagamento ainda não foi confirmado pelo Mercado Pago. ' +
+      'Se ainda quiser seguir, é só pagar pelo mesmo código que apareceu na compra; a confirmação chega sozinha. ' +
+      (link ? 'Você pode acompanhar em ' + link + '?pedido=' + encodeURIComponent(p.codigo) +
+        ' (abra no aparelho em que fez a compra). ' : '') +
+      'Se o código venceu ou ficou alguma dúvida, me avise por aqui que eu ajudo.';
   }
 
   function mensagemRecuperacao(p) {
@@ -433,7 +472,8 @@
     caixa.setAttribute('data-pedido', chave);
     caixa.setAttribute('data-modo', modo);
     $('[data-recuperar-titulo]').textContent = parado ? 'Briefing parado' : modo === 'briefing' ? 'Briefing pendente'
-      : modo === 'boas-vindas' ? 'Cliente ainda sem mensagem sua' : 'Checkout abandonado';
+      : modo === 'boas-vindas' ? 'Cliente ainda sem mensagem sua' : modo === 'pix' ? rotuloGerado(p).replace(/^./, function (c) { return c.toUpperCase(); }) + ', pagamento não confirmado'
+      : 'Checkout abandonado';
     $('[data-recuperar-texto]').textContent = parado
       ? 'Pago há ' + diasUteisTexto(parado) + ' e o briefing ainda não chegou. Sem ele a produção não começa; ' +
         'a mensagem pronta leva o link direto do briefing (só o código do pedido, sem o token).'
@@ -443,6 +483,9 @@
       : modo === 'boas-vindas'
         ? 'Pago há ' + tempoParado(p.pago_em || p.atualizado_em) + '. Nenhuma resposta sua no chat de uma conversa com este ' +
           'WhatsApp e nenhum WhatsApp aberto por este painel. Uma mensagem de boas-vindas mostra ao cliente que tem alguém cuidando do pedido.'
+        : modo === 'pix'
+        ? 'O cliente chegou a gerar o pagamento (pedido criado há ' + tempoParado(p.criado_em) + '), mas o Mercado Pago ainda não confirmou. ' +
+          'Quem gera o ' + (tipoGerado(p) || 'Pix ou boleto') + ' costuma querer comprar: um lembrete gentil ajuda. Nada é enviado sozinho.'
         : 'Pagamento pendente há ' + tempoParado(p.criado_em) +
           '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
     var jaFalei = $('[data-recuperar-contatado]');
@@ -450,7 +493,7 @@
     var temWhats = String(p.whatsapp || '').replace(/\D/g, '').length >= 10;
     $('[data-recuperar-whats]').hidden = !temWhats;
     var rotuloLink = $('[data-recuperar-link-texto]');
-    if (rotuloLink) rotuloLink.textContent = modo === 'briefing' ? 'Lembrar no WhatsApp' : 'Chamar no WhatsApp';
+    if (rotuloLink) rotuloLink.textContent = modo === 'briefing' || modo === 'pix' ? 'Lembrar no WhatsApp' : 'Chamar no WhatsApp';
     $('[data-recuperar-sem]').hidden = temWhats;
     // Preserva o texto que o dono está editando quando a lista recarrega.
     if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemPara(p, modo);
@@ -592,6 +635,8 @@
     return estado.pedidos.filter(function (p) {
       if (!noRecorte(p)) return false;
       if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
+      else if (estado.filtro === 'pix-gerado') { if (!pagamentoGerado(p)) return false; }
+      else if (estado.filtro === 'sem-pagamento') { if (!semPagamento(p)) return false; }
       else if (estado.filtro === 'sem-briefing') { if (!semBriefing(p)) return false; }
       else if (estado.filtro === 'briefing-parado') { if (!briefingParado(p)) return false; }
       else if (estado.filtro === 'sem-contato') { if (!semContato(p)) return false; }
@@ -617,16 +662,20 @@
     recorte.forEach(function (p) {
       contagem[p.status] = (contagem[p.status] || 0) + 1;
       if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
+      if (pagamentoGerado(p)) contagem['pix-gerado'] = (contagem['pix-gerado'] || 0) + 1;
+      if (semPagamento(p)) contagem['sem-pagamento'] = (contagem['sem-pagamento'] || 0) + 1;
       if (semBriefing(p, agora)) contagem['sem-briefing'] = (contagem['sem-briefing'] || 0) + 1;
       if (briefingParado(p, agora)) contagem['briefing-parado'] = (contagem['briefing-parado'] || 0) + 1;
       if (semContato(p, agora)) contagem['sem-contato'] = (contagem['sem-contato'] || 0) + 1;
       if (atrasado(p, agora)) contagem.atrasado = (contagem.atrasado || 0) + 1;
     });
     var chamados = lerChamados('abandono');
+    var pixLembrados = lerChamados('pix');
     var lembrados = lerChamados('briefing');
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
       var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing'
+        : f === 'pix-gerado' ? 'Pix/boleto gerado' : f === 'sem-pagamento' ? 'Sem pagamento'
         : f === 'briefing-parado' ? 'Briefing parado'
         : f === 'sem-contato' ? 'Sem contato' : f === 'atrasado' ? 'Atrasados' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
@@ -666,7 +715,11 @@
       var l2 = el('span', 'admin-item__linha');
       l2.appendChild(el('span', 'admin-item__previa', p.plano_nome + ' · ' + fReal.format(p.valor_centavos / 100)));
       l2.appendChild(el('span', 'admin-status admin-status--' + p.status, ROTULOS[p.status] || p.status));
-      if (abandonado(p, agora)) {
+      if (pagamentoGerado(p)) {
+        l2.appendChild(el('span', 'admin-item__tag admin-item__tag--aviso', rotuloGerado(p) + (pixLembrados[p.id] ? ' · lembrado' : ''),
+          { title: 'Pagamento gerado no Mercado Pago (' + (p.mp_status_detalhe || p.mp_status) + '), ainda não confirmado' +
+            (pixLembrados[p.id] ? '; lembrete aberto no WhatsApp em ' + data(pixLembrados[p.id]) : '') }));
+      } else if (abandonado(p, agora)) {
         l2.appendChild(el('span', 'admin-item__tag admin-item__tag--alerta', chamados[p.id] ? 'abandonado · chamado' : 'abandonado · ' + tempoParado(p.criado_em)));
       }
       if (p.status === 'aprovado') {

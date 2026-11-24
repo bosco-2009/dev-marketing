@@ -26,7 +26,7 @@
   <script src="../assets/js/admin-tempo-real.js?v=4ec6be5b" defer></script>
   <script src="../assets/js/admin.js?v=3330b7fb" defer></script>
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
-  <script src="../assets/js/admin-pedidos.js?v=e1e1376c" defer></script>
+  <script src="../assets/js/admin-pedidos.js?v=cad9ae74" defer></script>
   <script src="../assets/js/admin-briefings.js?v=8573ff69" defer></script>
   <script src="../assets/js/admin-resumo.js?v=610a6be3" defer></script>
   <script src="../assets/js/admin-busca.js?v=2f5ed0f4" defer></script>
@@ -280,6 +280,8 @@
           <button type="button" class="admin-filtro" aria-pressed="true" data-filtro-pedido="todos">Todos</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="aprovado">Aprovados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pix-gerado" title="Pendentes que geraram Pix ou boleto no Mercado Pago, ainda não pagos">Pix/boleto gerado</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-pagamento" title="Pendentes que nunca chegaram a gerar um pagamento">Sem pagamento</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="abandonado" title="Pendentes há mais de 1 hora">Abandonados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-briefing" title="Aprovados há mais de 24 horas sem briefing">Sem briefing</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="briefing-parado" title="Aprovados há mais de 3 dias úteis sem briefing">Briefing parado</button>
