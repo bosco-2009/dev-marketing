@@ -268,6 +268,36 @@
       listaPortfolio.appendChild(li);
     });
     secaoPortfolio.hidden = false;
+
+    // Dados estruturados do portfólio (melhoria 61): só em portfolio.html e só com projetos REAIS do config.js.
+    // Sem projetos, nenhum JSON-LD de projeto existe (nada inventado), e sem avaliações.
+    var canonicalPortfolio = document.querySelector('link[rel="canonical"]');
+    if (canonicalPortfolio && /\/portfolio\.html$/.test(canonicalPortfolio.href) && config.site && config.site.url) {
+      var urlBase = config.site.url.replace(/\/?$/, '/');
+      var ldPortfolio = document.createElement('script');
+      ldPortfolio.type = 'application/ld+json';
+      ldPortfolio.setAttribute('data-ld-portfolio', '');
+      ldPortfolio.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': canonicalPortfolio.href + '#pagina',
+        url: canonicalPortfolio.href,
+        name: 'Portfólio',
+        inLanguage: 'pt-BR',
+        isPartOf: { '@id': urlBase + '#site' },
+        mainEntity: {
+          '@type': 'ItemList',
+          numberOfItems: projetos.length,
+          itemListElement: projetos.map(function (p, i) {
+            var obra = { '@type': 'CreativeWork', name: p.nome, creator: { '@id': urlBase + '#organizacao' } };
+            if (p.segmento) obra.genre = p.segmento;
+            if (p.url && /^https:\/\//.test(p.url)) obra.url = p.url;
+            return { '@type': 'ListItem', position: i + 1, item: obra };
+          })
+        }
+      });
+      document.head.appendChild(ldPortfolio);
+    }
   }
 
   // ---------------- Depoimentos (só reais) ----------------
