@@ -456,6 +456,7 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 .tabela-comparativa__nome { display: block; font-size: var(--texto-lg); font-weight: var(--peso-extra); }
 .tabela-comparativa__plano--destaque,
 .tabela-comparativa__destaque { background: var(--cor-acao-fundo-suave); }
+.tabela-comparativa__acoes th,
 .tabela-comparativa__acoes td { padding-block: var(--esp-4) var(--esp-5); }
 .tabela-comparativa__acoes .botao { width: 100%; }
 

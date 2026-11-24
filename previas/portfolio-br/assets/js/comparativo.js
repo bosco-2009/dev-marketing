@@ -2,6 +2,8 @@
  * comparativo.js — comparativo de planos em planos.html (#comparativo).
  * Linhas em config.comparativo; colunas, preço e prazo em config.planos.
  * Celular: abas acessíveis (padrão ARIA tabs: setas, Home/End). A partir de 48rem: tabela com cabeçalhos.
+ * Leitor de tela (melhoria 92): <caption>, cabeçalho para cada coluna e cada linha (inclusive a dos botões),
+ * nome do plano antes do selo no cabeçalho e "recurso: valor" em cada item das abas.
  * "Escolher este plano" marca o plano no formulário de contratação (planos.js) e leva o foco até ele.
  * Sem JavaScript a seção fica oculta. Todo texto entra por textContent.
  */
@@ -68,17 +70,26 @@
 
   // ------------------------------------------------------------ tabela (≥ 48rem)
   var tabela = el('table', 'tabela-comparativa');
-  var legenda = el('caption', 'visualmente-oculto', 'Comparativo dos planos: o que cada um inclui');
+  var legenda = el('caption', 'visualmente-oculto', 'Comparativo dos planos: o que cada um inclui. Cada linha é um recurso e cada coluna, um plano.');
   tabela.appendChild(legenda);
   var thead = el('thead');
   var tr = el('tr');
-  var canto = el('td', 'tabela-comparativa__canto');
+  var canto = el('th', 'tabela-comparativa__canto');
+  canto.scope = 'col';
+  canto.appendChild(el('span', 'visualmente-oculto', 'Recurso'));
   tr.appendChild(canto);
   planos.forEach(function (p) {
     var th = el('th', 'tabela-comparativa__plano' + (p.destaque ? ' tabela-comparativa__plano--destaque' : ''));
     th.scope = 'col';
-    if (p.destaque && p.selo) th.appendChild(el('span', 'tabela-comparativa__selo', p.selo));
+    // O selo aparece acima do nome, mas o leitor de tela ouve o nome primeiro ("Profissional, Mais escolhido"),
+    // porque o cabeçalho da coluna é repetido a cada célula
+    if (p.destaque && p.selo) {
+      var selo = el('span', 'tabela-comparativa__selo', p.selo);
+      selo.setAttribute('aria-hidden', 'true');
+      th.appendChild(selo);
+    }
     th.appendChild(el('span', 'tabela-comparativa__nome', p.nome));
+    if (p.destaque && p.selo) th.appendChild(el('span', 'visualmente-oculto', ', ' + p.selo));
     tr.appendChild(th);
   });
   thead.appendChild(tr);
@@ -97,8 +108,10 @@
     tbody.appendChild(linha);
   });
   var acoes = el('tr', 'tabela-comparativa__acoes');
-  var vazio = el('td');
-  acoes.appendChild(vazio);
+  var rotuloAcoes = el('th');
+  rotuloAcoes.scope = 'row';
+  rotuloAcoes.appendChild(el('span', 'visualmente-oculto', 'Contratar'));
+  acoes.appendChild(rotuloAcoes);
   planos.forEach(function (p) {
     var td = el('td', p.destaque ? 'tabela-comparativa__destaque' : null);
     td.appendChild(botaoEscolher(p));
@@ -112,6 +125,7 @@
   var lista = el('div', 'comparativo__lista-abas');
   lista.setAttribute('role', 'tablist');
   lista.setAttribute('aria-label', 'Planos');
+  lista.setAttribute('aria-orientation', 'horizontal');
   var abas = [];
   var paineis = [];
   planos.forEach(function (p, i) {
@@ -139,6 +153,7 @@
       var v = l.valores[p.id];
       var li = el('li', 'comparativo__item' + (v === false || v == null ? ' comparativo__item--nao' : ''));
       li.appendChild(el('span', 'comparativo__recurso', l.recurso));
+      li.appendChild(el('span', 'visualmente-oculto', ': '));
       li.appendChild(valor(v));
       itens.appendChild(li);
     });
@@ -164,7 +179,7 @@
   });
   lista.addEventListener('keydown', function (e) {
     var atual = abas.indexOf(document.activeElement);
-    if (atual < 0) return;
+    if (atual < 0 || e.altKey || e.ctrlKey || e.metaKey) return;
     var n = abas.length;
     var proxima = { ArrowRight: (atual + 1) % n, ArrowLeft: (atual - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
     if (proxima == null) return;
