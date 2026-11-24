@@ -310,8 +310,9 @@
 
     // Caminho até a raiz do site (as páginas podem estar em subpastas no futuro).
     function caminhoRaiz() {
-      var s = document.querySelector('script[src$="assets/js/chat.js"]');
-      return s ? s.getAttribute('src').replace(/assets\/js\/chat\.js$/, '') : '';
+      // O src pode ter o sufixo de versão ?v= (melhoria 69).
+      var s = document.querySelector('script[src*="assets/js/chat.js"]');
+      return s ? s.getAttribute('src').replace(/assets\/js\/chat\.js(\?.*)?$/, '') : '';
     }
 
     // ------------------------------------------------------------- horário

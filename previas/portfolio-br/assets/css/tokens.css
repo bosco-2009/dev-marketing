@@ -15,8 +15,8 @@
   font-weight: 400 800;
   font-display: swap;
   /* Subconjunto pt-BR e pesos 400–800 gerados por testes/fontes/subconjunto.py (mesma lista lá). */
-  src: url('../fonts/plus-jakarta-sans-latin-wght.woff2') format('woff2-variations'),
-       url('../fonts/plus-jakarta-sans-latin-wght.woff2') format('woff2');
+  src: url('../fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc') format('woff2-variations'),
+       url('../fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc') format('woff2');
   unicode-range: U+0020-007E, U+00A0, U+00A7, U+00A9-00AB, U+00AE, U+00B0, U+00B7, U+00BA-00BB,
                  U+00C0-00C3, U+00C7, U+00C9-00CA, U+00CD, U+00D3-00D5, U+00DA, U+00DC,
                  U+00E0-00E3, U+00E7, U+00E9-00EA, U+00ED, U+00F3-00F5, U+00FA, U+00FC,
