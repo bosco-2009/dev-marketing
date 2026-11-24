@@ -7,6 +7,7 @@
  * O código e o token do pedido ficam no localStorage para a página obrigado.html consultar o status.
  * Com um pedido pendente salvo aqui, mostra o aviso "Você tem um pedido em aberto" (melhoria 39).
  * Nome/e-mail/WhatsApp da última tentativa ficam neste aparelho para "Tentar de novo" (melhoria 60).
+ * No celular, barra fixa com o plano escolhido e "Continuar" quando o formulário sai da tela (melhoria 75).
  */
 (function () {
   'use strict';
@@ -561,6 +562,78 @@
         if (d && d.status === 'pendente' && d.codigo === p.codigo) mostrarPedidoAberto(p, d);
       })
       .catch(function () { /* sem rede: o aviso simplesmente não aparece */ });
+  })();
+
+  // ------------------------------------------------------------------ resumo fixo do plano no celular (melhoria 75)
+  // Abaixo de 48rem, quando o formulário sai da tela (a pessoa desceu ao resumo, às dúvidas ou ao comparativo),
+  // uma barra no rodapé da tela mostra o plano escolhido e o preço EXIBIDO (config.js) e "Continuar" leva ao
+  // 1º campo vazio. Some com o formulário visível ou o teclado aberto. O espaço no fim da página é reservado
+  // no CSS (checkout.css), então a barra nunca cobre conteúdo nem desloca o layout.
+  (function barraPlano() {
+    var barra = $('[data-barra-plano]');
+    if (!barra || !('IntersectionObserver' in window)) return;
+    var nomeBarra = $('[data-barra-plano-nome]', barra);
+    var precoBarra = $('[data-barra-plano-preco]', barra);
+    var celular = window.matchMedia('(max-width: 47.99rem)');
+    var formVisivel = true;
+    var teclado = false;
+
+    function atualizarTexto() {
+      var p = planoEscolhido();
+      nomeBarra.textContent = p ? 'Plano ' + p.nome : '';
+      precoBarra.textContent = p ? preco(p.precoCentavos) : '';
+    }
+    function decidir() {
+      var mostrar = celular.matches && !formVisivel && !teclado && !!planoEscolhido();
+      if (barra.hidden === !mostrar) return;
+      // Se o foco estava na barra e ela vai sumir, devolve o foco ao formulário (nunca fica num elemento oculto)
+      if (!mostrar && barra.contains(document.activeElement)) primeiroPendente().focus({ preventScroll: true });
+      barra.hidden = !mostrar;
+    }
+
+    // Formulário na tela (qualquer parte dele) → a barra sai do caminho
+    new IntersectionObserver(function (entradas) {
+      formVisivel = entradas[0].isIntersecting;
+      decidir();
+    }).observe(form);
+
+    // Teclado aberto: campo de texto com foco fora da barra, ou a área visível encolhida pelo teclado virtual
+    function campoDeTexto(alvo) {
+      return alvo && alvo.matches && alvo.matches('input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]), textarea, select, [contenteditable="true"]');
+    }
+    document.addEventListener('focusin', function (e) { teclado = campoDeTexto(e.target); decidir(); });
+    document.addEventListener('focusout', function () {
+      setTimeout(function () { teclado = campoDeTexto(document.activeElement) || tecladoVirtual(); decidir(); }, 0);
+    });
+    function tecladoVirtual() {
+      var vv = window.visualViewport;
+      return !!vv && vv.height < window.innerHeight * 0.75 && vv.scale <= 1.01; // zoom de pinça não conta
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function () {
+        teclado = campoDeTexto(document.activeElement) || tecladoVirtual();
+        decidir();
+      });
+    }
+    if (celular.addEventListener) celular.addEventListener('change', decidir);
+
+    // "Continuar": 1º campo vazio (ou inválido), depois o aceite; tudo pronto → o botão de pagar
+    function primeiroPendente() {
+      var ordem = ['nome', 'email', 'whatsapp'];
+      for (var i = 0; i < ordem.length; i++) {
+        if (!campos[ordem[i]].value.trim() || campos[ordem[i]].hasAttribute('aria-invalid')) return campos[ordem[i]];
+      }
+      return campos.aceite.checked ? botao : campos.aceite;
+    }
+    $('[data-barra-plano-continuar]', barra).addEventListener('click', function () {
+      var alvo = primeiroPendente();
+      barra.hidden = true; // sai já, sem esperar o observador
+      alvo.scrollIntoView({ block: 'center', behavior: rolagemSuave() });
+      alvo.focus({ preventScroll: true });
+    });
+
+    opcoes.addEventListener('change', function () { atualizarTexto(); decidir(); });
+    atualizarTexto();
   })();
 
   // Ao voltar pelo botão "voltar" do navegador (bfcache), reabilita o botão.

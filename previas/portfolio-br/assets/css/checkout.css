@@ -621,3 +621,60 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 .sim-lembrete__icone { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; color: var(--cor-acao); }
 .sim-lembrete__texto { color: var(--cor-texto); font-size: var(--texto-sm); overflow-wrap: anywhere; }
 .sim-lembrete__acoes { grid-column: 2; display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+
+/* ---------------- Resumo fixo do plano no celular (melhoria 75) ---------------- */
+/* Abaixo de 48rem, planos.js mostra a barra quando o formulário sai da tela. O fim da página (rodapé) ganha
+   a altura dela desde a 1ª pintura (sem JS, nada é reservado), então a barra nunca cobre conteúdo nem desloca
+   o layout (CLS 0). O botão do chat sobe junto enquanto ela está visível (translate não conta para o CLS). */
+.barra-plano {
+  --barra-plano-altura: calc(var(--esp-8) + var(--esp-2) + env(safe-area-inset-bottom, 0px));
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: calc(var(--z-header) - 1); /* abaixo do cabeçalho/menu e do chat */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  min-height: var(--barra-plano-altura);
+  padding: var(--esp-2) calc(var(--margem-lateral) + env(safe-area-inset-right, 0px))
+           calc(var(--esp-2) + env(safe-area-inset-bottom, 0px)) calc(var(--margem-lateral) + env(safe-area-inset-left, 0px));
+  border-top: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra-lg);
+}
+.barra-plano[hidden] { display: none; }
+.barra-plano__info { display: grid; min-width: 0; line-height: 1.25; }
+.barra-plano__nome {
+  overflow: hidden;
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.barra-plano__preco { font-size: var(--texto-md); font-weight: var(--peso-extra); letter-spacing: -0.02em; }
+.barra-plano__botao { flex-shrink: 0; gap: var(--esp-2); }
+
+/* Só no celular (a barra não existe a partir de 48rem): reserva no rodapé e chat acima da barra */
+@media not all and (min-width: 48rem) {
+  html:not(.sem-js) body:has([data-barra-plano]) .rodape {
+    padding-bottom: calc(var(--esp-7) + var(--esp-8) + var(--esp-2) + env(safe-area-inset-bottom, 0px));
+  }
+  html.tem-chat body:has([data-barra-plano]) .rodape {
+    padding-bottom: calc(var(--esp-7) + var(--area-botao-flutuante) + var(--esp-8) + var(--esp-2));
+  }
+  body:has(.barra-plano:not([hidden])) .chat__lancador {
+    translate: 0 calc(-1 * (var(--esp-8) + var(--esp-2) + env(safe-area-inset-bottom, 0px)));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Só a entrada é animada (sair é instantâneo); transform/opacity apenas */
+  .barra-plano:not([hidden]) { animation: barra-plano-entra var(--duracao-media) var(--curva-padrao); }
+  @keyframes barra-plano-entra { from { transform: translateY(100%); opacity: 0; } }
+}
+
+@media (min-width: 48rem) {
+  .barra-plano:not([hidden]) { display: none; }
+}

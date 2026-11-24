@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="assets/css/tokens.css?v=ab9d61fa">
   <link rel="stylesheet" href="assets/css/main.css?v=6576ecdd">
   <link rel="stylesheet" href="assets/css/chat.css?v=2cb578ea">
-  <link rel="stylesheet" href="assets/css/checkout.css?v=498ce14b">
+  <link rel="stylesheet" href="assets/css/checkout.css?v=7a840278">
   <link rel="stylesheet" href="assets/css/movimento.css?v=2fbd47c0">
 
   <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
@@ -54,7 +54,7 @@
   <script src="assets/js/origem.js?v=eb8d79e1" defer></script>
   <script src="assets/js/chat.js?v=0028a14d" defer></script>
   <script src="assets/js/resumo-erros.js?v=76cad3fe" defer></script>
-  <script src="assets/js/planos.js?v=d00ad033" defer></script>
+  <script src="assets/js/planos.js?v=ad5fcf2a" defer></script>
   <script src="assets/js/comparativo.js?v=8c80cd57" defer></script>
   <!-- Trilha (melhoria 22): BreadcrumbList igual à <nav aria-label="Trilha"> visível -->
   <script type="application/ld+json">
@@ -292,6 +292,19 @@
         <div class="comparativo__abas" data-comparativo-abas></div>
         <div class="comparativo__tabela" data-comparativo-tabela></div>
       </div>
+    </section>
+
+    <!-- Resumo fixo do plano no celular (melhoria 75): abaixo de 48rem, aparece quando o formulário sai da tela.
+         Nome e preço exibido vêm do config.js (planos.js). Sem JS fica oculto; o espaço no fim da página é reservado no CSS. -->
+    <section class="barra-plano" aria-label="Plano escolhido" hidden data-barra-plano>
+      <p class="barra-plano__info">
+        <span class="barra-plano__nome" data-barra-plano-nome></span>
+        <span class="barra-plano__preco" data-barra-plano-preco></span>
+      </p>
+      <button class="botao botao--primario botao--pequeno barra-plano__botao" type="button" data-barra-plano-continuar>
+        Continuar<span class="visualmente-oculto"> a contratação</span>
+        <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+      </button>
     </section>
   </main>
 
