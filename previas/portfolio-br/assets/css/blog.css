@@ -139,6 +139,19 @@
   margin-top: var(--esp-4);
 }
 .indicado__link { font-weight: var(--peso-semi); text-underline-offset: 0.2em; }
+/* Melhoria 116: "Continuar com o plano X" para quem já começou a contratar neste aparelho (posto pelo main.js) */
+.artigo__corpo .indicado__retomar {
+  margin-top: var(--esp-4);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-sm);
+}
+.indicado__retomar-link {
+  display: inline-block;
+  min-block-size: var(--alvo-minimo); /* 24 px: WCAG 2.5.8 */
+  font-weight: var(--peso-semi);
+  text-underline-offset: 0.2em;
+}
+.indicado__retomar-link::after { content: "\2192"; content: "\2192" / ""; display: inline-block; margin-inline-start: 0.35em; }
 .artigo__corpo .indicado__nota {
   margin-top: var(--esp-4);
   padding-top: var(--esp-3);
@@ -177,9 +190,13 @@
   .artigo > .artigo__corpo > .indicado { --altura-estimada: 355px; }
   .artigo > .artigo__corpo > .artigo__chamada { --altura-estimada: 270px; }
   .artigo > .artigo__corpo > .artigo__mais { --altura-estimada: 1130px; }
+  /* Melhoria 116: com "Continuar com o plano X" o bloco cresce (medido: até 88 px a 320; 40 px de 768 a 1280) */
+  .artigo > .artigo__corpo > .indicado:has(> .indicado__retomar) {
+    contain-intrinsic-block-size: auto calc(var(--altura-estimada) + var(--altura-retomar, 90px));
+  }
 }
 @media screen and (min-width: 48rem) {
-  .artigo > .artigo__corpo > .indicado { --altura-estimada: 225px; }
+  .artigo > .artigo__corpo > .indicado { --altura-estimada: 225px; --altura-retomar: 42px; }
   .artigo > .artigo__corpo > .artigo__chamada { --altura-estimada: 160px; }
   .artigo > .artigo__corpo > .artigo__mais { --altura-estimada: 440px; }
 }

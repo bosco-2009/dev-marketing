@@ -437,6 +437,36 @@
     if (link) link.setAttribute('href', link.getAttribute('href').replace(/\?plano=[^#&]*/, '?plano=' + encodeURIComponent(plano.id)));
   });
 
+  // ---------------- "Continuar com o plano X" no bloco indicado (melhoria 116) ----------------
+  // Só para quem já começou a contratar NESTE aparelho: lê a última tentativa (pbr_checkout_rascunho_v1, melhoria 60)
+  // com as mesmas regras do aviso da home (inicio.js: plano existente, até 30 dias, não dispensado há menos de 7 dias).
+  // Nada novo é guardado; o link leva ao formulário preenchido (?retomar=1) com a origem desta página.
+  (function () {
+    var bloco = $('[data-indicado]');
+    var acoes = bloco && $('.indicado__acoes', bloco);
+    var origem = bloco && $('[data-indicado-link]', bloco);
+    if (!acoes || !origem) return;
+    var r = null;
+    var d = null;
+    try {
+      r = JSON.parse(localStorage.getItem('pbr_checkout_rascunho_v1'));
+      d = JSON.parse(localStorage.getItem('pbr_retomada_dispensada_v1'));
+    } catch (e) { return; }
+    var plano = r && (config.planos || []).filter(function (p) { return p.id === r.plano_id; })[0];
+    var salvo = plano && typeof r.salvo_em === 'string' ? Date.parse(r.salvo_em) : NaN;
+    var agora = Date.now();
+    var dispensou = !!d && typeof d.em === 'number' && agora - d.em >= 0 && agora - d.em < 7 * 864e5 && d.rascunho === r.salvo_em;
+    if (!plano || !(agora - salvo >= 0 && agora - salvo <= 30 * 864e5) || dispensou) return;
+    var base = origem.getAttribute('href').split('?')[0];
+    var p = criar('p', 'indicado__retomar', 'Já começou a contratação? ');
+    p.setAttribute('data-indicado-retomar', '');
+    var a = criar('a', 'indicado__retomar-link', 'Continuar com o plano ' + plano.nome);
+    a.href = base + '?plano=' + encodeURIComponent(plano.id) + '&retomar=1'; // reentrada: formulário preenchido
+    a.setAttribute('data-origem-cta', origem.getAttribute('data-origem-cta') || '');
+    p.appendChild(a);
+    acoes.parentNode.insertBefore(p, acoes.nextSibling);
+  })();
+
   // ---------------- Como funciona: prazos da linha do tempo ----------------
   // Os números vêm de config.planos[].prazo e config.legal; os textos, de config.comoFunciona.prazos.
   // Se faltar um dado, o rótulo daquele passo continua oculto (nunca mostra prazo inventado).
