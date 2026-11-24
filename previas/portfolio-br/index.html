@@ -46,7 +46,7 @@
   <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
   <script src="config.js?v=0c1b57bf"></script>
   <script src="assets/js/inicio.js?v=43d42fdb"></script>
-  <script src="assets/js/main.js?v=6369af7b" defer></script>
+  <script src="assets/js/main.js?v=8949c99d" defer></script>
   <script src="assets/js/abertura.js?v=57c49d7f" defer></script>
   <script src="assets/js/revelar.js?v=1703afa0" defer></script>
   <script src="assets/js/mockup.js?v=9048b3a3" defer></script>
@@ -54,7 +54,7 @@
   <script src="assets/js/retomada.js?v=06c0df8d" defer></script>
   <script src="assets/js/supabase-client.js?v=790738d9" defer></script>
   <script src="assets/js/tema.js?v=9bbca718" defer></script>
-  <script src="assets/js/origem.js?v=9f48fcf2" defer></script>
+  <script src="assets/js/origem.js?v=28bfc009" defer></script>
   <script src="assets/js/chat.js?v=7b9999b2" defer></script>
 
   <!-- Dados estruturados: só informações fixas e reais. Os planos (Service/Offer) e contatos são
@@ -514,7 +514,7 @@
               <p class="sim__plano"><span data-sim-plano></span> <span class="sim__preco" data-sim-preco></span></p>
               <ul class="sim__motivos" role="list" data-sim-motivos></ul>
               <p class="sim__acoes">
-                <a class="botao botao--primario" href="planos.html" data-sim-cta>Contratar este plano</a>
+                <a class="botao botao--primario" href="planos.html" data-sim-cta data-origem-cta="home/simulador">Contratar este plano</a>
                 <a class="sim__exemplo" href="exemplos.html" data-sim-exemplo hidden>Ver um site de exemplo</a>
               </p>
             </div>
@@ -531,7 +531,7 @@
           <p class="secao__descricao">Pagamento único. <span data-texto-parcelamento></span></p>
         </header>
 
-        <ul class="planos" role="list" data-lista-planos></ul>
+        <ul class="planos" role="list" data-lista-planos data-origem-planos="home/planos"></ul>
         <p class="planos__comparar"><a href="planos.html#comparativo">Compare tudo o que cada plano inclui</a></p>
         <noscript>
           <p class="aviso-noscript">Ative o JavaScript para ver os planos ou fale com a gente pelo

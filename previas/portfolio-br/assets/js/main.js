@@ -262,6 +262,9 @@
       // Leva à página de contratação com o plano pré-selecionado.
       var botao = criar('a', 'botao ' + (plano.destaque ? 'botao--primario' : 'botao--contorno'), 'Quero o plano ' + plano.nome);
       botao.href = 'planos.html?plano=' + encodeURIComponent(plano.id);
+      // De onde veio o clique (melhoria 110): "home/planos", vindo de data-origem-planos da lista
+      var origemPlanos = listaPlanos.getAttribute('data-origem-planos');
+      if (origemPlanos) botao.setAttribute('data-origem-cta', origemPlanos);
       li.appendChild(botao);
 
       var hrefWhats = linkWhats('plano', { plano: plano.nome });
@@ -286,6 +289,8 @@
       var li = criar('li', 'planos-404__item' + (plano.destaque ? ' planos-404__item--destaque' : ''));
       var link = criar('a', 'planos-404__link');
       link.href = base404 + '?plano=' + encodeURIComponent(plano.id);
+      var origem404 = planos404.getAttribute('data-origem-planos'); // "erro/404" (melhoria 110)
+      if (origem404) link.setAttribute('data-origem-cta', origem404);
       link.appendChild(criar('span', 'planos-404__nome', plano.nome));
       link.appendChild(criar('span', 'planos-404__preco', formatarPreco(plano.precoCentavos)));
       link.appendChild(icone('seta'));

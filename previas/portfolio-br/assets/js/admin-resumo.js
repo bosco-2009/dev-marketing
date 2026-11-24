@@ -143,16 +143,23 @@
   // "… · cta: blog/site-ou-instagram" → "blog/site-ou-instagram". O origem.js sempre põe o cta por último;
   // exigir o fim do texto descarta um cta cortado no meio pelo limite de tamanho do campo.
   function ctaDe(texto) {
-    var m = /(?:^|· )cta: ((?:blog|segmento|exemplo)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
+    var m = /(?:^|· )cta: ((?:blog|segmento|exemplo|home|erro)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
     return m ? m[1] : '';
   }
 
   // "blog/site-ou-instagram" → { tipo: 'Artigo do blog', nome: 'Site ou instagram' }
+  // Atalhos fixos (melhoria 110): planos e simulador da home e planos da página 404.
+  var CTAS_FIXOS = {
+    'home/planos': { tipo: 'Página inicial', nome: 'Planos' },
+    'home/simulador': { tipo: 'Página inicial', nome: 'Simulador' },
+    'erro/404': { tipo: 'Página de erro', nome: 'Página não encontrada' }
+  };
   function rotuloCta(cta) {
+    if (CTAS_FIXOS[cta]) return { tipo: CTAS_FIXOS[cta].tipo, nome: CTAS_FIXOS[cta].nome };
     var p = cta.split('/');
     var nome = p[1].replace(/-/g, ' ');
     if (p[0] !== 'blog') nome = nome.replace(/^saude$/, 'saúde').replace(/^servicos$/, 'serviços');
-    var tipo = p[0] === 'blog' ? 'Artigo do blog' : p[0] === 'exemplo' ? 'Site de exemplo' : 'Página de segmento';
+    var tipo = { blog: 'Artigo do blog', exemplo: 'Site de exemplo', home: 'Página inicial', erro: 'Página de erro' }[p[0]] || 'Página de segmento';
     return { tipo: tipo, nome: nome.charAt(0).toUpperCase() + nome.slice(1) };
   }
 
@@ -426,7 +433,7 @@
       tabela.hidden = true;
       nota.hidden = true;
       vazio.hidden = false;
-      vazio.textContent = 'Nenhuma conversa ou pedido de ' + nomeMes(m, true) + ' passou por um artigo do blog ou página de segmento.';
+      vazio.textContent = 'Nenhuma conversa ou pedido de ' + nomeMes(m, true) + ' passou por um atalho para os planos (blog, segmentos, exemplos, simulador ou planos da página inicial).';
       return;
     }
     tabela.hidden = false;
