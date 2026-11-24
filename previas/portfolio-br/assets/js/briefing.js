@@ -267,7 +267,7 @@
     try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (e) { /* sem armazenamento: nada a apagar */ }
     preencher(briefingServidor || dadosVazios());
     $$('[aria-invalid]', form).forEach(function (i) { i.removeAttribute('aria-invalid'); });
-    $$('.campo__erro', form).forEach(function (p) { p.hidden = true; });
+    $$('.campo__erro', form).forEach(function (p) { p.textContent = ''; p.removeAttribute('data-mensagem'); p.hidden = true; });
     if (resumoErros) resumoErros.esconder();
     caixaConfirmar.hidden = true;
     bLimpar.hidden = true;
@@ -284,12 +284,13 @@
   var resumoErros = window.PBRResumoErros
     ? window.PBRResumoErros.criar({ id: 'b-resumo-erros', antesDe: $('[data-etapa="1"]', form) })
     : null;
+  // Mensagem do campo (melhoria 102): ao ficar certo, o texto é apagado (não só escondido), para não sobrar
+  // na descrição acessível; no envio da etapa não há anúncio extra: o resumo focado já lê os erros uma vez.
   function erroCampo(entrada, alvo, msg) {
-    if (msg) { entrada.setAttribute('aria-invalid', 'true'); alvo.textContent = msg; alvo.hidden = false; }
-    else {
-      entrada.removeAttribute('aria-invalid'); alvo.hidden = true;
-      if (resumoErros) resumoErros.remover(entrada);
-    }
+    if (window.PBRResumoErros && window.PBRResumoErros.marcarCampo) window.PBRResumoErros.marcarCampo(entrada, alvo, msg);
+    else if (msg) { entrada.setAttribute('aria-invalid', 'true'); alvo.textContent = msg; alvo.hidden = false; }
+    else { entrada.removeAttribute('aria-invalid'); alvo.textContent = ''; alvo.hidden = true; }
+    if (!msg && resumoErros) resumoErros.remover(entrada);
     return !msg;
   }
   // Rótulo curto do campo para o resumo ("Referência 2: ..."), já que a mensagem dos links se repete.

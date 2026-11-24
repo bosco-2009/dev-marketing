@@ -233,9 +233,15 @@
     aceite: function () { return campos.aceite.checked ? '' : 'Para continuar, aceite os termos de uso e a política de privacidade.'; }
   };
 
-  function marcarCampo(k, erro) {
+  // Rótulos curtos para o anúncio "Erro em <campo>: ..." ao sair do campo (melhoria 102)
+  var ROTULOS = { nome: 'Nome completo', email: 'E-mail', whatsapp: 'WhatsApp', aceite: 'Termos' };
+
+  // anunciar: só ao sair do campo (no envio, o resumo com o foco já é lido; anunciar de novo repetiria o aviso)
+  function marcarCampo(k, erro, anunciar) {
     var alvo = $('#checkout-' + k + '-erro');
-    if (erro) {
+    if (window.PBRResumoErros && window.PBRResumoErros.marcarCampo) {
+      window.PBRResumoErros.marcarCampo(campos[k], alvo, erro, { anunciar: !!anunciar, rotulo: ROTULOS[k] });
+    } else if (erro) {
       campos[k].setAttribute('aria-invalid', 'true');
       alvo.textContent = erro;
       alvo.hidden = false;
@@ -243,8 +249,8 @@
       campos[k].removeAttribute('aria-invalid');
       alvo.textContent = '';
       alvo.hidden = true;
-      if (resumoErros) resumoErros.remover(campos[k]);
     }
+    if (!erro && resumoErros) resumoErros.remover(campos[k]);
   }
 
   // Resumo "Corrija N campos" no topo do formulário, com links para cada campo (melhoria 59)
@@ -268,7 +274,7 @@
   // Enquanto digita: nenhuma mensagem nova; um erro já mostrado some assim que o valor fica certo.
   ['nome', 'email', 'whatsapp'].forEach(function (k) {
     campos[k].addEventListener('blur', function () {
-      if (campos[k].value.trim() || campos[k].hasAttribute('aria-invalid')) marcarCampo(k, REGRAS[k]());
+      if (campos[k].value.trim() || campos[k].hasAttribute('aria-invalid')) marcarCampo(k, REGRAS[k](), true);
     });
     campos[k].addEventListener('input', function () {
       if (campos[k].hasAttribute('aria-invalid') && !REGRAS[k]()) marcarCampo(k, '');

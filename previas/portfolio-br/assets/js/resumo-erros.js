@@ -9,6 +9,13 @@
  *   resumo.mostrar([{ campo: input, mensagem: 'Informe seu nome.', rotulo: 'Nome' }]); // foca o resumo
  *   resumo.remover(input);   // o campo ficou certo: some da lista (o resumo some quando zera)
  *   resumo.esconder();
+ *
+ * Erro de cada campo (melhoria 102): PBRResumoErros.marcarCampo(entrada, alvo, mensagem, opcoes)
+ *   - mensagem vazia: tira aria-invalid, esvazia e esconde a mensagem (nada sobra na descrição acessível:
+ *     o Chromium lê um elemento oculto quando ele é citado direto por aria-describedby);
+ *   - com mensagem: aria-invalid="true" e "Erro: " (só para leitor de tela) + a mensagem, ligada por aria-describedby;
+ *   - opcoes.anunciar (ao sair do campo): anuncia UMA vez numa região polite própria do formulário, e só se a
+ *     mensagem é nova; no envio não se anuncia nada (o foco vai para o resumo, que já é lido), para não repetir.
  */
 (function () {
   'use strict';
@@ -103,5 +110,57 @@
     return { mostrar: mostrar, remover: remover, esconder: esconder, elemento: caixa };
   }
 
-  window.PBRResumoErros = { criar: criar };
+  // Garante que o id da mensagem esteja em aria-describedby (sem duplicar nem tirar as dicas que já estão lá).
+  function ligarDescricao(entrada, id) {
+    var ids = (entrada.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+    if (ids.indexOf(id) === -1) { ids.push(id); entrada.setAttribute('aria-describedby', ids.join(' ')); }
+  }
+
+  // Uma região de anúncio por formulário, criada vazia na primeira chamada (antes de receber texto).
+  function regiaoDe(entrada) {
+    var form = entrada.form || entrada.closest('form') || document.body;
+    var r = form.querySelector('[data-anuncio-erro-campo]');
+    if (!r) {
+      r = document.createElement('p');
+      r.className = 'visualmente-oculto';
+      r.setAttribute('aria-live', 'polite');
+      r.setAttribute('aria-atomic', 'true');
+      r.setAttribute('data-anuncio-erro-campo', '');
+      form.appendChild(r);
+    }
+    return r;
+  }
+
+  function anunciar(regiao, texto) {
+    regiao.textContent = '';
+    // Troca no quadro seguinte: o mesmo texto anunciado de novo (outro campo) também é lido.
+    setTimeout(function () { regiao.textContent = texto; }, 60);
+  }
+
+  function marcarCampo(entrada, alvo, mensagem, opcoes) {
+    opcoes = opcoes || {};
+    var anterior = alvo.hidden ? '' : (alvo.getAttribute('data-mensagem') || '');
+    var regiao = opcoes.anunciar ? regiaoDe(entrada) : null;
+    if (mensagem) {
+      entrada.setAttribute('aria-invalid', 'true');
+      alvo.textContent = '';
+      var prefixo = document.createElement('span');
+      prefixo.className = 'visualmente-oculto';
+      prefixo.textContent = 'Erro: ';
+      alvo.appendChild(prefixo);
+      alvo.appendChild(document.createTextNode(mensagem));
+      alvo.setAttribute('data-mensagem', mensagem);
+      alvo.hidden = false;
+      ligarDescricao(entrada, alvo.id);
+      if (regiao && anterior !== mensagem) anunciar(regiao, (opcoes.rotulo ? 'Erro em ' + opcoes.rotulo + ': ' : 'Erro: ') + mensagem);
+    } else {
+      entrada.removeAttribute('aria-invalid');
+      alvo.textContent = '';
+      alvo.removeAttribute('data-mensagem');
+      alvo.hidden = true;
+    }
+    return !mensagem;
+  }
+
+  window.PBRResumoErros = { criar: criar, marcarCampo: marcarCampo };
 })();
