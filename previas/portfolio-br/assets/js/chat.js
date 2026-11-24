@@ -657,6 +657,15 @@
 
     botao.addEventListener('click', function () { definirAberto(!aberto, false); });
 
+    // Botões "Fale no chat" da página (ex.: 404, melhoria 86) abrem o chat (sem fechá-lo se já estiver aberto).
+    // Elementos [data-com-chat] começam ocultos e só aparecem com o widget montado.
+    document.querySelectorAll('[data-com-chat]').forEach(function (x) { x.hidden = false; });
+    document.querySelectorAll('[data-abrir-chat]').forEach(function (b) {
+      b.addEventListener('pointerenter', aquecer);
+      b.addEventListener('focus', aquecer);
+      b.addEventListener('click', function () { if (!aberto) definirAberto(true, false); });
+    });
+
     // Desempenho: o supabase-js (e o Realtime) só são baixados quando o visitante abre o chat ou já tem
     // conversa salva. Ao primeiro sinal de intenção (mouse, dedo ou foco no botão) o download começa,
     // para o chat abrir pronto, sem criar cliente nem abrir conexão.

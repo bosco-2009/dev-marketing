@@ -208,6 +208,26 @@
     });
   }
 
+  // ---------------- Planos em resumo na 404 (melhoria 86) ----------------
+  // Só nome e preço de config.planos; os links usam o endereço absoluto de data-planos-404
+  // (a 404 do GitHub Pages responde em qualquer caminho, então links relativos quebrariam).
+  var planos404 = $('[data-planos-404]');
+  var lista404 = planos404 && $('[data-planos-404-lista]', planos404);
+  if (lista404 && (config.planos || []).length) {
+    var base404 = planos404.getAttribute('data-planos-404');
+    config.planos.forEach(function (plano) {
+      var li = criar('li', 'planos-404__item' + (plano.destaque ? ' planos-404__item--destaque' : ''));
+      var link = criar('a', 'planos-404__link');
+      link.href = base404 + '?plano=' + encodeURIComponent(plano.id);
+      link.appendChild(criar('span', 'planos-404__nome', plano.nome));
+      link.appendChild(criar('span', 'planos-404__preco', formatarPreco(plano.precoCentavos)));
+      link.appendChild(icone('seta'));
+      li.appendChild(link);
+      lista404.appendChild(li);
+    });
+    planos404.hidden = false;
+  }
+
   // ---------------- Portfólio (só projetos reais) ----------------
   var projetos = (config.portfolio && config.portfolio.projetos) || [];
   // Links "Portfólio" do menu e do rodapé só aparecem com projetos reais.

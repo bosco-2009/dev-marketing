@@ -690,3 +690,67 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
   .etapas__item { break-inside: avoid; }
   .acompanhar__atualizado { gap: 0; }
 }
+
+/* ---------------- Planos em resumo na 404 (melhoria 86) ---------------- */
+.planos-404 {
+  display: grid;
+  gap: var(--esp-3);
+  margin-top: var(--esp-6);
+  text-align: center;
+}
+.planos-404[hidden],
+.planos-404__chat[hidden] { display: none; }
+.planos-404__titulo { font-size: var(--texto-lg); }
+.planos-404__texto { color: var(--cor-texto-suave); }
+.planos-404__lista {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.planos-404__link {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: var(--alvo-minimo);
+  padding: var(--esp-4) var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  text-align: left;
+  text-decoration: none;
+  box-shadow: var(--sombra-sm);
+  transition: border-color var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao);
+}
+.planos-404__item--destaque .planos-404__link { border-color: var(--cor-acao); box-shadow: inset 0 0 0 1px var(--cor-acao), var(--sombra-sm); }
+.planos-404__link:hover { border-color: var(--cor-acao); color: var(--cor-texto); }
+.planos-404__nome { flex: 1; font-weight: var(--peso-negrito); }
+.planos-404__preco { font-weight: var(--peso-negrito); color: var(--cor-acao); white-space: nowrap; }
+.planos-404__link .icone { flex: none; width: 1.25rem; height: 1.25rem; color: var(--cor-acao); }
+@media (prefers-reduced-motion: no-preference) {
+  .planos-404__link:hover { translate: 0 -2px; }
+}
+@media (min-width: 48rem) {
+  .planos-404__lista { grid-template-columns: repeat(3, 1fr); }
+  .planos-404__link { flex-direction: column; align-items: flex-start; gap: var(--esp-1); }
+  .planos-404__link .icone { align-self: flex-end; margin-top: calc(-1 * var(--esp-5)); }
+}
+.planos-404__chat { color: var(--cor-texto-suave); }
+.planos-404__chat-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--alvo-minimo);
+  padding: var(--esp-1) var(--esp-2);
+  border: 0;
+  background: none;
+  color: var(--cor-acao);
+  font: inherit;
+  font-weight: var(--peso-negrito);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.planos-404__chat-botao .icone { width: 1.25rem; height: 1.25rem; }
