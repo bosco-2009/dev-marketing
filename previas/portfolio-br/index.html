@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" class="sem-js" data-abertura>
+<html lang="pt-BR" class="sem-js" data-abertura data-retomada>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -39,18 +39,19 @@
   <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/tokens.css?v=7adca5c8">
   <link rel="stylesheet" href="assets/css/main.css?v=2a424f5c">
-  <link rel="stylesheet" href="assets/css/home.css?v=5e47001b">
+  <link rel="stylesheet" href="assets/css/home.css?v=e289135e">
   <link rel="stylesheet" href="assets/css/chat.css?v=2cb578ea" media="not all" data-chat-css>
   <link rel="stylesheet" href="assets/css/movimento.css?v=2fbd47c0">
 
   <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
   <script src="config.js?v=0c1b57bf"></script>
-  <script src="assets/js/inicio.js?v=14199e87"></script>
+  <script src="assets/js/inicio.js?v=22ed4fb3"></script>
   <script src="assets/js/main.js?v=d5b2ac94" defer></script>
   <script src="assets/js/abertura.js?v=57c49d7f" defer></script>
   <script src="assets/js/revelar.js?v=1703afa0" defer></script>
   <script src="assets/js/mockup.js?v=9048b3a3" defer></script>
   <script src="assets/js/simulador.js?v=d69ba6fd" defer></script>
+  <script src="assets/js/retomada.js?v=06c0df8d" defer></script>
   <script src="assets/js/supabase-client.js?v=b6c0292b" defer></script>
   <script src="assets/js/tema.js?v=9bbca718" defer></script>
   <script src="assets/js/origem.js?v=eb8d79e1" defer></script>
@@ -274,6 +275,29 @@
         </div>
       </div>
     </section>
+
+    <!-- Melhoria 90: "Continuar de onde parei". Só aparece (classe com-retomada, posta pelo inicio.js antes da
+         1ª pintura) quando este aparelho guarda a última tentativa de contratação (melhoria 60). Mostra só o
+         nome do plano; os dados pessoais continuam só no formulário de planos.html. -->
+    <section class="retomada" aria-labelledby="retomada-titulo" data-retomada-caixa>
+      <div class="container">
+        <div class="retomada__cartao">
+          <svg class="icone retomada__icone" aria-hidden="true"><use href="#i-devolver"/></svg>
+          <div class="retomada__texto">
+            <h2 id="retomada-titulo" class="retomada__titulo">Continue de onde parou</h2>
+            <p class="retomada__plano">Você começou a contratar o plano <strong data-retomada-plano>escolhido</strong>.</p>
+          </div>
+          <div class="retomada__acoes">
+            <a class="botao botao--primario botao--pequeno" href="planos.html?retomar=1" data-retomada-link>
+              Continuar contratação
+              <svg class="icone" aria-hidden="true"><use href="#i-seta"/></svg>
+            </a>
+            <button class="botao botao--contorno botao--pequeno" type="button" data-retomada-dispensar>Dispensar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <p class="visualmente-oculto" role="status" data-retomada-aviso></p>
 
     <!-- ===================== SERVIÇOS ===================== -->
     <section class="secao" id="servicos" aria-labelledby="servicos-titulo">

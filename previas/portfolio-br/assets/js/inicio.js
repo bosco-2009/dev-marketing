@@ -7,7 +7,10 @@
  *     o CSS segue o sistema (prefers-color-scheme). Páginas com data-tema-fixo ficam sempre claras;
  *   - põe "com-abertura" na home (<html data-abertura>) na primeira visita da sessão, se o visitante não pediu
  *     movimento reduzido. A animação da abertura é toda em CSS (movimento.css) e termina sozinha;
- *     abertura.js só permite pular e limpa no final.
+ *     abertura.js só permite pular e limpa no final;
+ *   - põe "com-retomada" na home (<html data-retomada>) quando este aparelho guarda a última tentativa de
+ *     contratação (pbr_checkout_rascunho_v1, melhoria 60) de um plano que existe, não dispensada há menos de 7 dias
+ *     (melhoria 90). O aviso "Continue de onde parou" já nasce no lugar, sem deslocar a página; retomada.js preenche.
  * Não faz nada além disso: mantenha este arquivo mínimo.
  */
 (function () {
@@ -31,5 +34,18 @@
       window.sessionStorage.setItem('pbr_abertura_vista', '1');
     } catch (e) { /* mantém jaViu = true */ }
     if (!reduzido && !jaViu) html.classList.add('com-abertura');
+  }
+
+  if (html.hasAttribute('data-retomada')) {
+    try {
+      var r = JSON.parse(window.localStorage.getItem('pbr_checkout_rascunho_v1'));
+      var d = JSON.parse(window.localStorage.getItem('pbr_retomada_dispensada_v1'));
+      var agora = Date.now();
+      var salvo = r && typeof r.salvo_em === 'string' ? Date.parse(r.salvo_em) : NaN;
+      var planos = (window.PBR_CONFIG && window.PBR_CONFIG.planos) || [];
+      var existe = !!r && planos.some(function (p) { return p.id === r.plano_id; });
+      var dispensou = !!d && typeof d.em === 'number' && agora - d.em >= 0 && agora - d.em < 7 * 864e5 && d.rascunho === r.salvo_em;
+      if (existe && salvo && agora - salvo <= 30 * 864e5 && !dispensou) html.classList.add('com-retomada');
+    } catch (e) { /* sem localStorage ou JSON inválido: sem aviso */ }
   }
 })();
