@@ -16,21 +16,21 @@
   <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/tokens.css?v=7adca5c8">
   <link rel="stylesheet" href="../assets/css/main.css?v=a641a8d2">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=9d7e3425">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=65bbcb52">
 
   <script src="../config.js?v=0c1b57bf" defer></script>
   <script src="../assets/js/supabase-client.js?v=790738d9" defer></script>
-  <script src="../assets/js/admin-avisos.js?v=2c4a2a0f" defer></script>
+  <script src="../assets/js/admin-avisos.js?v=f5fd336b" defer></script>
   <script src="../assets/js/admin-exportar.js?v=a238a6f4" defer></script>
   <script src="../assets/js/admin-paginacao.js?v=0252303b" defer></script>
   <script src="../assets/js/admin-tempo-real.js?v=2ba0a41c" defer></script>
-  <script src="../assets/js/admin.js?v=3330b7fb" defer></script>
+  <script src="../assets/js/admin.js?v=aa443ab7" defer></script>
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
-  <script src="../assets/js/admin-pedidos.js?v=cad9ae74" defer></script>
+  <script src="../assets/js/admin-pedidos.js?v=3edb6a86" defer></script>
   <script src="../assets/js/admin-briefings.js?v=8573ff69" defer></script>
   <script src="../assets/js/admin-resumo.js?v=883d9adf" defer></script>
-  <script src="../assets/js/admin-busca.js?v=2f5ed0f4" defer></script>
-  <script src="../assets/js/admin-atalhos.js?v=db5980ec" defer></script>
+  <script src="../assets/js/admin-busca.js?v=683c4e82" defer></script>
+  <script src="../assets/js/admin-atalhos.js?v=b2262748" defer></script>
 </head>
 <body class="admin">
   <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -277,6 +277,8 @@
       <h2 id="pedidos-titulo" class="visualmente-oculto">Pedidos</h2>
 
       <div class="admin-lista" data-pedidos-lista-painel>
+        <!-- Link direto "#pedidos/<codigo>" com código inválido ou inexistente (melhoria 118); vazio, não ocupa espaço -->
+        <p class="admin-erro admin-link-aviso" role="alert" data-pedido-link-aviso></p>
         <div class="admin-lista__filtros admin-lista__filtros--quebra" role="group" aria-label="Filtrar pedidos por status">
           <button type="button" class="admin-filtro" aria-pressed="true" data-filtro-pedido="todos">Todos</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="aprovado">Aprovados</button>

@@ -138,8 +138,9 @@
     }
 
     // -------------------------------------------------------------- abas (#conversas / #pedidos / #briefings / #resumo)
+    // "#pedidos/PBR-XXXXXX" (melhoria 118) continua sendo a aba Pedidos: vale só o que vem antes da barra.
     function mostrarAba() {
-      var aba = ({ '#pedidos': 'pedidos', '#briefings': 'briefings', '#resumo': 'resumo' })[location.hash] || 'conversas';
+      var aba = ({ '#pedidos': 'pedidos', '#briefings': 'briefings', '#resumo': 'resumo' })[location.hash.split('/')[0]] || 'conversas';
       $$('[data-aba]').forEach(function (s) { s.hidden = s.getAttribute('data-aba') !== aba; });
       $$('[data-aba-link]').forEach(function (l) {
         if (l.getAttribute('data-aba-link') === aba) l.setAttribute('aria-current', 'page');

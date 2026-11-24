@@ -340,11 +340,15 @@
     if (selOrigem) selOrigem.onchange = function () { estado.origem = selOrigem.value; renderizarLista(); };
     var botaoExportar = $('[data-exportar-pedidos]');
     if (botaoExportar) botaoExportar.onclick = exportar;
+    // Voltar (celular): fecha o pedido e o endereço volta a ser "#pedidos" (nova entrada: o "voltar" do navegador reabre).
     $('[data-pedido-voltar]').onclick = function () {
-      secao.classList.remove('mostrando-conversa');
-      var item = estado.selecionado && lista.querySelector('[data-id="' + estado.selecionado + '"]');
-      if (item) item.focus();
+      if (location.hash !== '#pedidos') history.pushState(history.state, '', '#pedidos');
+      estado.hashVisto = location.hash;
+      fecharDetalhe(true);
     };
+    // Link direto para um pedido (melhoria 118): "#pedidos/<codigo>" abre, voltar/avançar do navegador seguem o endereço.
+    window.addEventListener('hashchange', seguirEndereco);
+    window.addEventListener('popstate', seguirEndereco);
 
     prepararRecuperacao();
     prepararChecklist();
@@ -549,6 +553,8 @@
         document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: haMais, atrasados: contarAtrasados() } }));
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
+        // Primeira carga: o painel pode ter sido aberto já em "#pedidos/<codigo>".
+        if (!estado.carregou) { estado.carregou = true; seguirEndereco(); }
       })
       .catch(function () {
         $('[data-resumo-pedidos]').textContent = 'Não foi possível carregar os pedidos.';
@@ -796,8 +802,98 @@
     if (estado.manterBoasVindas !== id) estado.manterBoasVindas = null;
     estado.selecionado = id;
     $('.admin-pedidos').classList.add('mostrando-conversa');
+    avisarLink('');
+    marcarEndereco(pedidoPorId(id));
     renderizarLista();
     renderizarDetalhe(true);
+  }
+
+  // ------------------------------------------------ link direto "#pedidos/<codigo>" (melhoria 118)
+  // Só o código vai para o endereço (nada de nome, e-mail ou WhatsApp). Abrir da lista cria uma entrada no histórico
+  // (o "voltar" do navegador volta à lista); trocar de um pedido para outro só substitui a entrada atual.
+  var PREFIXO = '#pedidos/';
+  var FORMATO_CODIGO = /^PBR-[A-HJ-NP-Z2-9]{6}$/; // o mesmo "check" da tabela pedidos
+
+  function codigoDoEndereco() {
+    var h = location.hash;
+    if (h.indexOf(PREFIXO) !== 0) return null;
+    try { return decodeURIComponent(h.slice(PREFIXO.length)).trim().toUpperCase(); } catch (e) { return ''; }
+  }
+
+  function marcarEndereco(p) {
+    if (!p || !p.codigo) return;
+    var alvo = PREFIXO + p.codigo;
+    if (location.hash !== alvo) history[codigoDoEndereco() !== null ? 'replaceState' : 'pushState'](history.state, '', alvo);
+    estado.hashVisto = alvo;
+  }
+
+  function pedidoPorCodigo(codigo) {
+    return estado.pedidos.filter(function (x) { return x.codigo === codigo; })[0] ||
+      (estado.avulso && estado.avulso.codigo === codigo ? estado.avulso : undefined);
+  }
+
+  // Aviso acessível do link (código inválido ou inexistente). A região "alert" fica sempre no DOM; vazia, não ocupa espaço.
+  function avisarLink(texto) {
+    var aviso = $('[data-pedido-link-aviso]');
+    if (aviso && aviso.textContent !== texto) aviso.textContent = texto;
+  }
+
+  // Fecha o detalhe (endereço "#pedidos"): no celular volta à lista; o foco vai para o pedido que estava aberto.
+  function fecharDetalhe(focar) {
+    var id = estado.selecionado;
+    estado.selecionado = null;
+    $('.admin-pedidos').classList.remove('mostrando-conversa');
+    renderizarLista();
+    renderizarDetalhe(false);
+    if (!focar) return;
+    var lista = $('[data-lista-pedidos]');
+    var item = id && window.CSS && CSS.escape ? lista.querySelector('[data-id="' + CSS.escape(id) + '"]') : null;
+    if (item) item.focus();
+    else if ($('[data-busca-pedidos]')) $('[data-busca-pedidos]').focus();
+  }
+
+  // Endereço mudou (hashchange, voltar/avançar) ou primeira carga: abre/fecha o pedido para ficar igual ao endereço.
+  function seguirEndereco() {
+    if (!estado || !estado.carregou) return;
+    var h = location.hash;
+    if (h === estado.hashVisto) return; // hashchange e popstate chegam juntos no voltar/avançar
+    var anterior = estado.hashVisto || '';
+    estado.hashVisto = h;
+    var codigo = codigoDoEndereco();
+    if (codigo !== null) { abrirPorCodigo(codigo); return; }
+    if (h !== '#pedidos') return; // outra aba: o pedido aberto continua lá para quando o dono voltar
+    var aberto = estado.selecionado && pedidoPorId(estado.selecionado);
+    if (anterior.indexOf(PREFIXO) === 0) { if (aberto) fecharDetalhe(true); }
+    else if (aberto) marcarEndereco(aberto); // voltou de outra aba com um pedido aberto: o endereço mostra qual
+  }
+
+  function abrirPorCodigo(codigo) {
+    if (!FORMATO_CODIGO.test(codigo)) { naoEncontrado('O endereço não tem um código de pedido válido (formato PBR-XXXXXX).'); return; }
+    var p = pedidoPorCodigo(codigo);
+    if (p) { abrir(p.id); return; }
+    // Fora dos pedidos carregados (paginação, melhoria 49): busca só esse, pelo código, com o RLS do admin.
+    var alvo = location.hash;
+    estado.sb.from('pedidos').select(colunas).eq('codigo', codigo).limit(1).then(function (r) {
+      if (!estado || location.hash !== alvo) return; // o dono já foi para outro lugar
+      var achado = !r.error && r.data && r.data[0] && r.data[0].codigo === codigo ? r.data[0] : null;
+      if (r.error) { naoEncontrado('Não foi possível abrir o pedido ' + codigo + '. Confira a conexão e tente de novo.'); return; }
+      if (!achado) { naoEncontrado('Pedido ' + codigo + ' não encontrado. Confira o código do link.'); return; }
+      estado.avulso = achado;
+      abrir(achado.id);
+    }, function () {
+      if (estado && location.hash === alvo) naoEncontrado('Não foi possível abrir o pedido ' + codigo + '. Confira a conexão e tente de novo.');
+    });
+  }
+
+  // Código ruim: o endereço volta a "#pedidos" (substituindo, sem entrada nova) e a lista aparece com o aviso.
+  function naoEncontrado(texto) {
+    history.replaceState(history.state, '', '#pedidos');
+    estado.hashVisto = '#pedidos';
+    if (estado.selecionado) fecharDetalhe(false);
+    avisarLink(texto);
+    // A lista pode estar rolada (foco num item lá embaixo): traz o aviso para a vista, sem animação.
+    var aviso = $('[data-pedido-link-aviso]');
+    if (aviso && aviso.scrollIntoView) aviso.scrollIntoView({ block: 'nearest' });
   }
 
   function renderizarDetalhe(focar) {
@@ -977,6 +1073,9 @@
     clearInterval(estado.timer);
     clearInterval(estado.relogio);
     if (estado.paginacao) estado.paginacao.reiniciar();
+    window.removeEventListener('hashchange', seguirEndereco);
+    window.removeEventListener('popstate', seguirEndereco);
+    avisarLink('');
     estado = null;
     var lista = $('[data-lista-pedidos]');
     if (lista) lista.textContent = '';

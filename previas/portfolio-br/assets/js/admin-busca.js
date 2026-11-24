@@ -201,7 +201,7 @@
       else if (g.tipo === 'pedidos' && window.PBRAdminPedidos) window.PBRAdminPedidos.abrirPorId(id, true);
       else if (g.tipo === 'briefings' && window.PBRAdminBriefings) window.PBRAdminBriefings.abrirPorId(id);
     };
-    var atual = location.hash || '#conversas';
+    var atual = (location.hash || '#conversas').split('/')[0]; // #pedidos/PBR-… já é a aba Pedidos
     if (atual === g.hash) { abrir(); return; }
     window.addEventListener('hashchange', function uma() {
       window.removeEventListener('hashchange', uma);

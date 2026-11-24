@@ -102,6 +102,9 @@
   font-weight: var(--peso-semi);
 }
 .admin-erro[hidden] { display: none; }
+/* Aviso do link direto de pedido (melhoria 118): a região "alert" fica no DOM; vazia, some sem sair da árvore de acessibilidade. */
+.admin-link-aviso { flex: 0 0 auto; margin: var(--esp-3) var(--esp-4) 0; }
+.admin-link-aviso:empty { margin: 0; padding: 0; }
 
 .admin-vazio { padding: var(--esp-6) var(--esp-4); color: var(--cor-texto-suave); text-align: center; }
 .admin-vazio[hidden] { display: none; }

@@ -56,7 +56,7 @@
   function visivel(e) { return !!e && e.getClientRects().length > 0; }
   // Pelo endereço, e não pela seção visível: o "hashchange" que troca a seção chega depois da tecla.
   function abaAtual() {
-    return ({ '#pedidos': 'pedidos', '#briefings': 'briefings', '#resumo': 'resumo' })[location.hash] || 'conversas';
+    return ({ '#pedidos': 'pedidos', '#briefings': 'briefings', '#resumo': 'resumo' })[location.hash.split('/')[0]] || 'conversas';
   }
 
   function abrirLista() {
@@ -179,7 +179,8 @@
       var destino = ABAS[tecla && tecla.toLowerCase()];
       if (destino) {
         e.preventDefault();
-        if (location.hash !== destino) location.hash = destino;
+        // "g p" com um pedido aberto (#pedidos/PBR-…) não fecha o pedido: já está na aba.
+        if (location.hash.split('/')[0] !== destino) location.hash = destino;
         return;
       }
     }

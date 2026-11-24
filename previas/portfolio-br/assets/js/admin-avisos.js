@@ -110,7 +110,7 @@
   function marcarVisto(aba) { gravar(CHAVE_VISTO + aba, new Date().toISOString()); }
 
   function vendoAba(aba) {
-    var atual = location.hash ? location.hash.slice(1) : 'conversas';
+    var atual = location.hash ? location.hash.slice(1).split('/')[0] : 'conversas'; // #pedidos/PBR-… é a aba pedidos
     return atual === aba && atento();
   }
 
