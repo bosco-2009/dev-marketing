@@ -171,6 +171,8 @@
 .ex-hero__arte span:nth-child(3) { inset: 62% 52% 14% 16%; border-radius: 50%; background: var(--cor-branco); }
 
 .ex-secao { padding-block: var(--esp-8); }
+/* Destino dos links do menu do exemplo (tabindex="-1", melhoria 107): recebe o foco, sem contorno na seção inteira */
+.ex-secao:focus { outline: none; }
 .ex-secao--suave { background: var(--ex-fundo); }
 .ex-secao__titulo { color: var(--ex-2); font-size: var(--texto-2xl); }
 .ex-secao__texto { margin-top: var(--esp-3); max-width: 40rem; color: var(--cor-texto-suave); font-size: var(--texto-md); }

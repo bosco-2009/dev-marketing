@@ -158,6 +158,73 @@
     });
   }
 
+  // ---------------- Foco no destino das âncoras (melhoria 107) ----------------
+  // Um link interno (#como-funciona, planos.html#comparativo, "Pular para o conteúdo"...) rola até o destino, mas o
+  // navegador só move o foco se o destino for focável: sem isso, o próximo Tab volta para o topo e o leitor de tela
+  // não anuncia aonde se chegou. Destino sem foco próprio ganha tabindex="-1" só enquanto está focado (some no blur).
+  // As perguntas do FAQ (#faq-...) abrem e focam o próprio <summary> no bloco do FAQ, abaixo.
+  // A altura real do cabeçalho fixo vira --altura-topo (scroll-padding-top do <html>), para o destino nunca ficar
+  // coberto por ele, nem com o texto ampliado a 200% (WCAG 1.4.4 e 2.4.11).
+  var topo = $('.topo');
+  function medirTopo() {
+    if (!topo) return;
+    var h = topo.getBoundingClientRect().height;
+    // Sticky só conta enquanto fica preso no alto (no modo impressão o topo volta ao fluxo normal)
+    if (h > 0 && getComputedStyle(topo).position === 'sticky') document.documentElement.style.setProperty('--altura-topo', Math.ceil(h) + 'px');
+    else document.documentElement.style.removeProperty('--altura-topo');
+  }
+  if (topo) {
+    medirTopo();
+    if ('ResizeObserver' in window) new ResizeObserver(medirTopo).observe(topo);
+    else window.addEventListener('resize', medirTopo);
+  }
+
+  function destinoDoHash(hash) {
+    if (!hash || hash.length < 2) return null;
+    var id;
+    try { id = decodeURIComponent(hash.slice(1)); } catch (e) { return null; }
+    if (id.indexOf('faq-') === 0) return null;
+    var alvo = document.getElementById(id);
+    if (!alvo || alvo.closest('[hidden], [inert], [aria-hidden="true"]')) return null;
+    return alvo;
+  }
+  function focarDestino(alvo) {
+    if (!alvo || document.activeElement === alvo) return;
+    if (alvo.tabIndex < 0 && !alvo.hasAttribute('tabindex')) {
+      alvo.setAttribute('tabindex', '-1');
+      alvo.setAttribute('data-foco-ancora', '');
+      alvo.addEventListener('blur', function () {
+        alvo.removeAttribute('tabindex');
+        alvo.removeAttribute('data-foco-ancora');
+      }, { once: true });
+    }
+    alvo.focus({ preventScroll: true }); // a rolagem é do navegador (ou do chegarNoHash)
+  }
+  // Clique (ou Enter) num link para um ponto desta mesma página: o navegador rola (com o scroll-padding-top) e,
+  // logo depois, o foco vai para o destino sem rolar de novo.
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href*="#"]');
+    if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+    var url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search) return;
+    var alvo = destinoDoHash(url.hash);
+    if (!alvo) return;
+    setTimeout(function () { focarDestino(alvo); }, 0);
+  });
+  // Chegada de outra página com #destino (ex.: index.html#duvidas) e voltar/avançar no histórico
+  var focarHashAtual = function () { focarDestino(destinoDoHash(location.hash)); };
+  // Na chegada, o navegador rola até o destino antes de o JS montar o resto da página (planos, FAQ, simulador...),
+  // e o destino pode acabar mais abaixo: com a página pronta, alinha de novo (instantâneo) e foca.
+  var chegarNoHash = function () {
+    var alvo = destinoDoHash(location.hash);
+    if (!alvo) return;
+    alvo.scrollIntoView({ block: 'start', behavior: 'instant' });
+    focarDestino(alvo);
+  };
+  if (document.readyState === 'complete') chegarNoHash(); else window.addEventListener('load', chegarNoHash, { once: true });
+  window.addEventListener('hashchange', focarHashAtual);
+
   // ---------------- Planos ----------------
   var parcelamento = $('[data-texto-parcelamento]');
   if (parcelamento) parcelamento.textContent = config.pagamento.textoParcelamento;

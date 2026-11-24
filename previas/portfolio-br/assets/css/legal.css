@@ -15,7 +15,7 @@
 .legal h2 {
   margin-top: var(--esp-7);
   font-size: var(--texto-xl);
-  scroll-margin-top: 5.5rem;
+  /* O cabeçalho fixo já é descontado pelo scroll-padding-top do <html> (melhoria 107) */
 }
 .legal ul, .legal ol { padding-left: var(--esp-5); }
 .legal li + li { margin-top: var(--esp-2); }

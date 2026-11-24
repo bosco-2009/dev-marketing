@@ -33,7 +33,9 @@
       jaViu = window.sessionStorage.getItem('pbr_abertura_vista') === '1';
       window.sessionStorage.setItem('pbr_abertura_vista', '1');
     } catch (e) { /* mantém jaViu = true */ }
-    if (!reduzido && !jaViu) html.classList.add('com-abertura');
+    // Chegou num ponto da página (index.html#duvidas, melhoria 107): vai direto ao destino, sem abertura
+    var comDestino = window.location.hash.length > 1;
+    if (!reduzido && !jaViu && !comDestino) html.classList.add('com-abertura');
   }
 
   if (html.hasAttribute('data-retomada')) {

@@ -15,7 +15,8 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  /* Cabeçalho fixo: altura medida pelo main.js (--altura-topo, melhoria 107); sem JS, a altura mínima dele */
+  scroll-padding-top: calc(var(--altura-topo, 4rem) + var(--esp-4));
   /* Mantém elementos focados/rolados fora da área do botão flutuante */
   scroll-padding-bottom: calc(var(--area-botao-flutuante) + var(--esp-4));
 }
@@ -150,6 +151,9 @@ a:hover { color: var(--cor-acao-hover); }
   transform: translateY(-200%);
 }
 .pular-link:focus { transform: none; color: var(--cor-texto-invertido); }
+/* Destinos de âncora focados pelo main.js ou pelo "Pular para o conteúdo" (melhoria 107): o foco só marca o ponto
+   de partida do próximo Tab e o que o leitor de tela anuncia; não são controles, então sem contorno na seção inteira */
+main[tabindex="-1"]:focus, [data-foco-ancora]:focus { outline: none; }
 
 .aviso-rascunho { display: none; }
 /* modo-rascunho é posto pelo inicio.js antes da primeira pintura (sem deslocar o layout) */
@@ -517,7 +521,6 @@ a:hover { color: var(--cor-acao-hover); }
   cursor: pointer;
 }
 .faq__item[hidden] { display: none; }
-.faq__item { scroll-margin-top: 5.5rem; }
 .faq__corpo { padding: 0 var(--esp-5) var(--esp-4); }
 .faq__corpo .faq__resposta { padding: 0; }
 .faq__copiar {
