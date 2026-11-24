@@ -328,6 +328,23 @@
     secaoDepoimentos.hidden = false;
   }
 
+  // ---------------- Plano indicado no fim de artigos e segmentos (melhoria 65) ----------------
+  // O bloco já vem pronto no HTML (gravado por testes/conteudo/indicado.mjs). Aqui só se confere com o
+  // config.js, para uma mudança de nome/resumo/regra valer mesmo antes de o HTML ser gravado de novo.
+  document.querySelectorAll('[data-indicado]').forEach(function (bloco) {
+    var id = (config.planoIndicado || {})[bloco.getAttribute('data-indicado')];
+    var plano = id && (config.planos || []).filter(function (p) { return p.id === id; })[0];
+    if (!plano) return; // sem regra válida, fica o que está no HTML
+    bloco.querySelectorAll('[data-indicado-nome]').forEach(function (el) {
+      if (el.textContent !== plano.nome) el.textContent = plano.nome;
+    });
+    var resumo = $('[data-indicado-resumo]', bloco);
+    if (resumo && resumo.textContent !== plano.resumo) resumo.textContent = plano.resumo;
+    var link = $('[data-indicado-link]', bloco);
+    if (link && link.textContent !== 'Ver o plano ' + plano.nome) link.textContent = 'Ver o plano ' + plano.nome;
+    if (link) link.setAttribute('href', link.getAttribute('href').replace(/\?plano=[^#&]*/, '?plano=' + encodeURIComponent(plano.id)));
+  });
+
   // ---------------- Como funciona: prazos da linha do tempo ----------------
   // Os números vêm de config.planos[].prazo e config.legal; os textos, de config.comoFunciona.prazos.
   // Se faltar um dado, o rótulo daquele passo continua oculto (nunca mostra prazo inventado).

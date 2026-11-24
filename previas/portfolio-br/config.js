@@ -270,6 +270,23 @@
       }
     ],
 
+    // Plano indicado no fim dos artigos do blog e das páginas de segmento (melhoria 65).
+    // Chave 'blog:<arquivo>' ou 'segmento:<id>' → id de config.planos. Mudou aqui? Rode
+    //   node testes/conteudo/indicado.mjs --gravar
+    // para gravar o bloco no HTML (funciona sem JS); o main.js também atualiza nome e resumo na hora.
+    // O teste testes/funcoes/indicado.test.mjs confere se o HTML está igual a esta regra.
+    planoIndicado: { // [PROVISÓRIO] confirmar a indicação de cada página
+      'blog:site-ou-instagram': 'essencial',
+      'blog:o-que-um-site-profissional-precisa-ter': 'profissional',
+      'blog:como-funciona-a-criacao-do-seu-site': 'profissional',
+      'segmento:restaurante': 'premium', // cardápio com pedido pelo WhatsApp
+      'segmento:moda': 'premium', // catálogo de produtos
+      'segmento:beleza': 'profissional',
+      'segmento:saude': 'profissional',
+      'segmento:servicos': 'profissional',
+      'segmento:pet': 'profissional'
+    },
+
     // Simulador "Qual plano é para mim?" da home. Usa os ids de config.planos.
     // A recomendação é o MAIOR plano (na ordem de config.planos) entre as regras que se aplicam.
     simulador: { // [PROVISÓRIO] confirmar as regras de recomendação

@@ -105,3 +105,42 @@
 .artigo__corpo .relacionado__resumo { margin-top: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
 .artigo__corpo .artigo__mais-todos { margin-top: var(--esp-4); }
 @media (prefers-reduced-motion: reduce) { .relacionado { transition: none; } }
+
+/* Melhoria 65: "Plano indicado" no fim dos artigos e das páginas de segmento (bloco gravado no HTML) */
+.artigo__corpo .indicado {
+  margin-top: var(--esp-7);
+  padding: var(--esp-5);
+  border: 1px solid var(--cor-borda);
+  border-top: 4px solid var(--cor-acao);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-sm);
+  font-size: var(--texto-base);
+  line-height: 1.6;
+}
+.artigo__corpo section > .indicado { margin-top: var(--esp-5); }
+.indicado > * + * { margin-top: var(--esp-2); }
+.indicado__rotulo {
+  color: var(--cor-acao);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-negrito);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.artigo__corpo .indicado__titulo { margin-top: var(--esp-1); font-size: var(--texto-xl); line-height: 1.2; }
+.indicado__resumo { color: var(--cor-texto-suave); }
+.artigo__corpo .indicado__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-5);
+  margin-top: var(--esp-4);
+}
+.indicado__link { font-weight: var(--peso-semi); text-underline-offset: 0.2em; }
+.artigo__corpo .indicado__nota {
+  margin-top: var(--esp-4);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--cor-borda);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-sm);
+}
