@@ -78,7 +78,7 @@
 
   function mensagemDeErro(erro) {
     var m = (erro && (erro.message || erro.msg)) || '';
-    if (m.indexOf('limite_mensagens') !== -1) return 'Você enviou muitas mensagens seguidas. Aguarde alguns minutos e tente de novo.';
+    if (m.indexOf('limite_mensagens') !== -1) return 'Você enviou muitas mensagens seguidas. Aguarde um pouco antes de enviar de novo.';
     if (m.indexOf('limite_conversas') !== -1) return 'Muitas conversas sendo iniciadas agora. Tente de novo em alguns minutos.';
     if (m.indexOf('whatsapp_invalido') !== -1) return 'Confira o WhatsApp: use DDD + número, por exemplo (11) 91234-5678.';
     if (m.indexOf('texto_invalido') !== -1) return 'Escreva uma mensagem de até 2.000 caracteres.';
