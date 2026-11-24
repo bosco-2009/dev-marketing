@@ -458,6 +458,7 @@
     }
 
     var totalEspera = $('[data-espera-total]');
+    var seloAba = $('[data-selo-aba="conversas"]');
     function atualizarEsperas() {
       var agora = Date.now();
       $$('[data-espera]', lista).forEach(function (t) {
@@ -471,6 +472,23 @@
       // Única região viva da fila: muda só quando o total muda (o "há N min" não é anunciado).
       var texto = n === 0 ? 'Nenhuma conversa aguardando resposta.' : n === 1 ? '1 conversa aguardando resposta.' : n + ' conversas aguardando resposta.';
       if (totalEspera && totalEspera.textContent !== texto) totalEspera.textContent = texto;
+      // Selo da aba "Conversas" (melhoria 122): quantas precisam de resposta, visível de qualquer aba.
+      // O número é visual; o leitor de tela ouve "Conversas, N aguardando resposta" pelo texto oculto.
+      if (seloAba) {
+        var chave = String(n);
+        if (seloAba.getAttribute('data-total') !== chave) {
+          seloAba.setAttribute('data-total', chave);
+          seloAba.hidden = !n;
+          seloAba.textContent = '';
+          if (n) {
+            seloAba.appendChild(el('span', null, n > 99 ? '99+' : String(n), { 'aria-hidden': 'true' }));
+            seloAba.appendChild(oculto(n === 1 ? ', 1 aguardando resposta' : ', ' + n + ' aguardando resposta'));
+            seloAba.title = n === 1 ? '1 conversa aguardando resposta' : n + ' conversas aguardando resposta';
+          } else {
+            seloAba.removeAttribute('title');
+          }
+        }
+      }
     }
 
     function renderizarLista() {
