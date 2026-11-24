@@ -22,6 +22,8 @@
 }
 .seg__topo .pagina-topo__texto { max-width: 40rem; }
 .seg__acoes { margin-top: var(--esp-5); }
+/* Datas da página (melhoria 117): mesma linha discreta do blog (.artigo__meta), depois dos botões */
+.seg__meta { margin-top: var(--esp-4); }
 
 /* Espaço entre os blocos de cada seção (o blog.css só espaça os filhos diretos do corpo) */
 .seg section > * + * { margin-top: var(--esp-4); }
