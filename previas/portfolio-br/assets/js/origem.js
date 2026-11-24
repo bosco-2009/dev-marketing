@@ -62,7 +62,7 @@
     var alvo = evento.target && evento.target.closest ? evento.target.closest('a[data-origem-cta]') : null;
     if (!alvo) return;
     var de = limpo(alvo.getAttribute('data-origem-cta') || '');
-    if (!/^(blog|segmento)\/[a-z0-9-]+$/.test(de)) return;
+    if (!/^(blog|segmento|exemplo)\/[a-z0-9-]+$/.test(de)) return;
     try { localStorage.setItem(CHAVE_CTA, JSON.stringify({ de: de, em: Date.now() })); } catch (e) { /* armazenamento bloqueado */ }
   }
 

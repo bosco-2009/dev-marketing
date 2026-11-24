@@ -188,3 +188,19 @@
 
 .ex-rodape { padding-block: var(--esp-6) calc(var(--esp-6) + var(--area-botao-flutuante)); background: var(--cor-noite-950); color: var(--cor-texto-invertido-suave); font-size: var(--texto-sm); }
 .ex-rodape a { color: var(--cor-texto-invertido); }
+
+/* Faixa final "Gostou deste exemplo?" (melhoria 95): fecha o site de exemplo com as cores da Portfólio BR,
+   como a faixa de aviso do topo, para nunca parecer parte do negócio fictício. Gerada por testes/conteudo/indicado.mjs. */
+.ex-chamada-final { padding-block: var(--esp-7); background: var(--cor-noite-900); color: var(--cor-texto-invertido); }
+.ex-chamada-final__grade { display: grid; gap: var(--esp-5); }
+@media (min-width: 56rem) { .ex-chamada-final__grade { grid-template-columns: 1fr auto; align-items: center; gap: var(--esp-7); } }
+.ex-chamada-final__rotulo { color: var(--cor-destaque); font-size: var(--texto-xs); font-weight: var(--peso-negrito); letter-spacing: 0.06em; text-transform: uppercase; }
+.ex-chamada-final__titulo { margin-top: var(--esp-2); color: var(--cor-texto-invertido); font-size: var(--texto-2xl); text-wrap: balance; }
+.ex-chamada-final__resumo { margin-top: var(--esp-3); max-width: 40rem; color: var(--cor-texto-invertido-suave); font-size: var(--texto-md); }
+.ex-chamada-final__resumo strong { color: var(--cor-texto-invertido); }
+.ex-chamada-final__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-3) var(--esp-5); }
+@media (min-width: 56rem) { .ex-chamada-final__acoes { flex-direction: column; align-items: stretch; text-align: center; } }
+.ex-chamada-final__link { display: inline-flex; align-items: center; justify-content: center; min-block-size: var(--alvo-minimo); color: var(--cor-destaque); font-weight: var(--peso-negrito); }
+.ex-chamada-final__link:hover { color: var(--cor-texto-invertido); }
+/* o rodapé logo abaixo é ainda mais escuro: uma linha fina separa os dois */
+.ex-chamada-final + .ex-rodape { border-top: 1px solid rgb(255 255 255 / 0.08); }

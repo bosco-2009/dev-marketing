@@ -143,7 +143,7 @@
   // "… · cta: blog/site-ou-instagram" → "blog/site-ou-instagram". O origem.js sempre põe o cta por último;
   // exigir o fim do texto descarta um cta cortado no meio pelo limite de tamanho do campo.
   function ctaDe(texto) {
-    var m = /(?:^|· )cta: ((?:blog|segmento)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
+    var m = /(?:^|· )cta: ((?:blog|segmento|exemplo)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
     return m ? m[1] : '';
   }
 
@@ -151,8 +151,9 @@
   function rotuloCta(cta) {
     var p = cta.split('/');
     var nome = p[1].replace(/-/g, ' ');
-    if (p[0] === 'segmento') nome = nome.replace(/^saude$/, 'saúde').replace(/^servicos$/, 'serviços');
-    return { tipo: p[0] === 'blog' ? 'Artigo do blog' : 'Página de segmento', nome: nome.charAt(0).toUpperCase() + nome.slice(1) };
+    if (p[0] !== 'blog') nome = nome.replace(/^saude$/, 'saúde').replace(/^servicos$/, 'serviços');
+    var tipo = p[0] === 'blog' ? 'Artigo do blog' : p[0] === 'exemplo' ? 'Site de exemplo' : 'Página de segmento';
+    return { tipo: tipo, nome: nome.charAt(0).toUpperCase() + nome.slice(1) };
   }
 
   // Linhas por conteúdo no mês: conversas iniciadas, pedidos iniciados e, destes, os pagos (como na conversão).
