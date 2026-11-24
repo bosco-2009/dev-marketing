@@ -802,3 +802,42 @@
 
 /* Fila "Aguardando resposta" (melhoria 62): tempo de espera relativo no item */
 .admin-item__tag--espera { background: var(--cor-destaque-suave); color: var(--cor-texto); font-weight: var(--peso-semi); }
+
+/* Lista de verificação por pedido (melhoria 66): checkbox nativos, salvos só no navegador do dono */
+.admin-checklist {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0 0 var(--esp-4);
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+.admin-checklist[hidden] { display: none; }
+.admin-checklist__topo { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--esp-1) var(--esp-3); }
+.admin-checklist__titulo { font-size: var(--texto-base); letter-spacing: 0; }
+.admin-checklist__conta { margin: 0; color: var(--cor-texto-suave); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.admin-checklist__conta[data-completo] { color: var(--cor-verde-800); }
+.admin-checklist__grupo { min-width: 0; margin: 0; padding: 0; border: 0; }
+.admin-checklist__itens { display: grid; gap: var(--esp-1); margin: 0; padding: 0; list-style: none; }
+.admin-checklist__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: var(--esp-2);
+  min-height: 2.75rem;
+  padding: var(--esp-1) 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+.admin-checklist__item:last-child { border-bottom: 0; }
+.admin-checklist__item input { width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--cor-acao); cursor: pointer; }
+.admin-checklist__item label { font-size: var(--texto-sm); cursor: pointer; }
+.admin-checklist__item input:checked + label { font-weight: var(--peso-semi); }
+.admin-checklist__data { grid-column: 2; color: var(--cor-texto-suave); font-size: var(--texto-xs); }
+.admin-checklist__data:empty { display: none; }
+.admin-checklist__dica { margin: 0; }
+@media (min-width: 30rem) {
+  .admin-checklist__item { grid-template-columns: auto 1fr auto; }
+  .admin-checklist__data { grid-column: auto; text-align: right; }
+}
+.admin-item__tag--checklist { background: var(--cor-fundo); color: var(--cor-texto-suave); box-shadow: inset 0 0 0 1px var(--cor-borda); }

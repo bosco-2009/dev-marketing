@@ -81,6 +81,28 @@
     if (semContato(p, agora) || (estado && estado.manterBoasVindas === p.id && p.status === 'aprovado')) return 'boas-vindas';
     return '';
   }
+  // Lista de verificação do dono por pedido aprovado (melhoria 66): só neste navegador, nada novo no banco.
+  // Guarda { idDoPedido: { item: dataISO } }: só o id e a data de cada marcação, nenhum dado do cliente.
+  var CHAVE_CHECKLIST = 'pbr-admin-checklist';
+  var CHECKLIST = ['briefing', 'dominio', 'versao', 'ajustes', 'publicado'];
+  var CHECKLIST_ROTULOS = { briefing: 'Briefing recebido', dominio: 'Domínio', versao: 'Primeira versão', ajustes: 'Ajustes', publicado: 'Publicado' };
+  function lerChecklist(id) {
+    var v = lerMapa(CHAVE_CHECKLIST)[id];
+    return v && typeof v === 'object' ? v : {};
+  }
+  function contarChecklist(id) {
+    var marcas = lerChecklist(id);
+    return CHECKLIST.filter(function (k) { return !!marcas[k]; }).length;
+  }
+  // Devolve false se o navegador não deixou salvar (modo privado, cota cheia).
+  function gravarChecklist(id, item, marcado) {
+    var mapa = lerMapa(CHAVE_CHECKLIST);
+    var marcas = mapa[id] && typeof mapa[id] === 'object' ? mapa[id] : {};
+    if (marcado) marcas[item] = new Date().toISOString(); else delete marcas[item];
+    if (Object.keys(marcas).length) mapa[id] = marcas; else delete mapa[id];
+    try { localStorage.setItem(CHAVE_CHECKLIST, JSON.stringify(mapa)); return true; } catch (e) { return false; }
+  }
+
   function chaveChamados(modo) {
     return modo === 'briefing' ? CHAVE_LEMBRETES : modo === 'boas-vindas' ? CHAVE_BOAS_VINDAS : CHAVE_CHAMADOS;
   }
@@ -214,6 +236,7 @@
     };
 
     prepararRecuperacao();
+    prepararChecklist();
     // Um pedido vira "abandonado" com o passar do tempo, sem evento no banco: confere a cada minuto.
     estado.relogio = setInterval(function () {
       if (estado && chaveAbandono() !== estado.chaveAbandono) { renderizarLista(); if (estado.selecionado) renderizarRecuperacao(); }
@@ -546,6 +569,9 @@
         l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
           temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
         if (semContato(p, agora)) l2.appendChild(el('span', 'admin-item__tag admin-item__tag--contato', 'sem contato'));
+        var feitos = contarChecklist(p.id);
+        l2.appendChild(el('span', 'admin-item__tag ' + (feitos === CHECKLIST.length ? 'admin-item__tag--ok' : 'admin-item__tag--checklist'),
+          'etapas ' + feitos + ' de ' + CHECKLIST.length, { title: 'Lista de verificação: ' + feitos + ' de ' + CHECKLIST.length + ' etapas marcadas' }));
       }
       b.appendChild(l1);
       b.appendChild(l2);
@@ -630,6 +656,7 @@
     }
     renderizarRecuperacao();
     renderizarEtapa(p);
+    renderizarChecklist(p);
     linha('Cliente', p.nome);
     linha('E-mail', p.email, 'mailto:' + p.email);
     linha('WhatsApp', whatsappFormatado(p.whatsapp), linkWhatsapp(p.whatsapp));
@@ -664,6 +691,57 @@
       });
 
     if (focar) $('[data-pedido-titulo]').focus();
+  }
+
+  function prepararChecklist() {
+    var caixa = $('[data-checklist]');
+    if (!caixa) return;
+    $$('[data-checklist-item]', caixa).forEach(function (cx) {
+      cx.onchange = function () {
+        var p = pedidoSelecionado();
+        if (!p) return;
+        var item = cx.getAttribute('data-checklist-item');
+        var salvou = gravarChecklist(p.id, item, cx.checked);
+        var aviso = $('[data-checklist-aviso]');
+        if (!salvou) {
+          cx.checked = !cx.checked;
+          aviso.textContent = 'Não foi possível salvar neste navegador (armazenamento bloqueado ou cheio).';
+          return;
+        }
+        renderizarChecklist(p);
+        renderizarLista();
+        aviso.textContent = (cx.checked ? 'Marcado: ' : 'Desmarcado: ') + CHECKLIST_ROTULOS[item] + '. ' +
+          contarChecklist(p.id) + ' de ' + CHECKLIST.length + ' concluídas.';
+      };
+    });
+    // Outra aba do painel mudou a lista: acompanha sem recarregar.
+    window.addEventListener('storage', function (e) {
+      if (!estado || e.key !== CHAVE_CHECKLIST) return;
+      renderizarLista();
+      var p = pedidoSelecionado();
+      if (p) renderizarChecklist(p);
+    });
+  }
+
+  function renderizarChecklist(p) {
+    var caixa = $('[data-checklist]');
+    if (!caixa) return;
+    if (caixa.getAttribute('data-pedido') !== p.id) $('[data-checklist-aviso]').textContent = '';
+    caixa.setAttribute('data-pedido', p.id);
+    caixa.hidden = p.status !== 'aprovado';
+    if (caixa.hidden) return;
+    var marcas = lerChecklist(p.id);
+    CHECKLIST.forEach(function (k) {
+      var cx = $('[data-checklist-item="' + k + '"]', caixa);
+      var quando = marcas[k];
+      cx.checked = !!quando;
+      $('[data-checklist-data="' + k + '"]', caixa).textContent = quando ? 'em ' + data(quando)
+        : k === 'briefing' && estado.briefings[p.id] ? 'o briefing já chegou pelo site' : '';
+    });
+    var feitos = contarChecklist(p.id);
+    var conta = $('[data-checklist-conta]');
+    conta.textContent = feitos + ' de ' + CHECKLIST.length + ' concluídas';
+    if (feitos === CHECKLIST.length) conta.setAttribute('data-completo', ''); else conta.removeAttribute('data-completo');
   }
 
   // Etapa que o cliente vê em pedido.html (melhoria 30). Segue o status do briefing, que o dono muda aqui

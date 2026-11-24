@@ -358,6 +358,45 @@
               <p class="visualmente-oculto" role="status" data-pedido-etapa-ok></p>
               <p class="admin-dica admin-etapa__dica">O cliente acompanha em “Acompanhar pedido” (pedido.html), pelo aparelho da compra ou pelo link pessoal. A etapa segue o status do briefing.</p>
             </section>
+            <!-- Lista de verificação do dono (melhoria 66): só neste navegador (localStorage), nada no banco -->
+            <section class="admin-checklist" data-checklist hidden aria-labelledby="checklist-titulo">
+              <div class="admin-checklist__topo">
+                <h4 id="checklist-titulo" class="admin-checklist__titulo">Lista de verificação</h4>
+                <p class="admin-checklist__conta" data-checklist-conta></p>
+              </div>
+              <fieldset class="admin-checklist__grupo">
+                <legend class="visualmente-oculto">Etapas concluídas deste pedido</legend>
+                <ul class="admin-checklist__itens" role="list">
+                  <li class="admin-checklist__item">
+                    <input type="checkbox" id="checklist-briefing" data-checklist-item="briefing" aria-describedby="checklist-briefing-data">
+                    <label for="checklist-briefing">Briefing recebido</label>
+                    <span class="admin-checklist__data" id="checklist-briefing-data" data-checklist-data="briefing"></span>
+                  </li>
+                  <li class="admin-checklist__item">
+                    <input type="checkbox" id="checklist-dominio" data-checklist-item="dominio" aria-describedby="checklist-dominio-data">
+                    <label for="checklist-dominio">Domínio</label>
+                    <span class="admin-checklist__data" id="checklist-dominio-data" data-checklist-data="dominio"></span>
+                  </li>
+                  <li class="admin-checklist__item">
+                    <input type="checkbox" id="checklist-versao" data-checklist-item="versao" aria-describedby="checklist-versao-data">
+                    <label for="checklist-versao">Primeira versão</label>
+                    <span class="admin-checklist__data" id="checklist-versao-data" data-checklist-data="versao"></span>
+                  </li>
+                  <li class="admin-checklist__item">
+                    <input type="checkbox" id="checklist-ajustes" data-checklist-item="ajustes" aria-describedby="checklist-ajustes-data">
+                    <label for="checklist-ajustes">Ajustes</label>
+                    <span class="admin-checklist__data" id="checklist-ajustes-data" data-checklist-data="ajustes"></span>
+                  </li>
+                  <li class="admin-checklist__item">
+                    <input type="checkbox" id="checklist-publicado" data-checklist-item="publicado" aria-describedby="checklist-publicado-data">
+                    <label for="checklist-publicado">Publicado</label>
+                    <span class="admin-checklist__data" id="checklist-publicado-data" data-checklist-data="publicado"></span>
+                  </li>
+                </ul>
+              </fieldset>
+              <p class="visualmente-oculto" role="status" data-checklist-aviso></p>
+              <p class="admin-dica admin-checklist__dica">Só para você se organizar: fica salva neste navegador e o cliente não vê.</p>
+            </section>
             <dl class="admin-dados" data-pedido-dados></dl>
             <h4 class="admin-pedido__subtitulo">Notificações do Mercado Pago</h4>
             <ol class="admin-eventos" data-pedido-eventos></ol>
