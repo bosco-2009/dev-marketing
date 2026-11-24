@@ -596,6 +596,7 @@
 /* Etapa que o cliente vê em pedido.html (melhoria 30) */
 .admin-etapa {
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* o seletor (até 20rem) não passa da caixa a 320 px */
   gap: var(--esp-2);
   margin: 0 0 var(--esp-4);
   padding: var(--esp-4);
@@ -607,7 +608,8 @@
 .admin-etapa[hidden], .admin-etapa [hidden] { display: none; }
 .admin-etapa__titulo { font-size: var(--texto-base); letter-spacing: 0; }
 .admin-etapa__texto { font-size: var(--texto-sm); }
-.admin-etapa .admin-status-controle { max-width: 20rem; }
+.admin-etapa .admin-status-controle { max-width: 20rem; grid-template-columns: minmax(0, 1fr); }
+.admin-etapa .admin-status-controle select { min-width: 0; max-width: 100%; }
 .admin-etapa__dica { margin: 0; }
 
 /* ---------------- Resumo do mês (melhoria 32) ---------------- */

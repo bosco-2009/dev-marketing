@@ -10,6 +10,8 @@
  * ou página de segmento) que levou o visitante aos planos. Lê o "cta: blog/..." / "cta: segmento/..." que o origem.js
  * (melhoria 65) põe no fim de conversas.pagina_origem e de pedidos.origem. Também só com os dados já carregados.
  *
+ * Melhoria 83: cartão "Pedidos atrasados" — contagem de agora enviada pela aba Pedidos (evento pbr:admin-dados).
+ *
  * Melhoria 76: botão "Baixar CSV" — os cartões do mês escolhido (com o mês anterior ao lado) e a tabela "De onde vieram
  * os pedidos", montados no navegador com o PBRExportar.csv (mesmo escape contra fórmulas). Só contagens e valores:
  * nenhum nome, e-mail, WhatsApp, código de pedido ou texto digitado por visitante entra no arquivo.
@@ -22,7 +24,7 @@
   var fNum = new Intl.NumberFormat('pt-BR');
   var fPct = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 
-  var dados = { conversas: null, pedidos: null, limiteConversas: false, limitePedidos: false };
+  var dados = { conversas: null, pedidos: null, limiteConversas: false, limitePedidos: false, atrasados: null };
   var mesEscolhido = null; // { ano, mes } (mês 0–11), hora local do navegador
 
   function $(s, r) { return (r || document).querySelector(s); }
@@ -212,6 +214,11 @@
       cartao(lista, 'Conversão do checkout', pct(hoje.taxa),
         hoje.iniciados ? inteiro(hoje.iniciadosPagos) + ' de ' + inteiro(hoje.iniciados) + (hoje.iniciados === 1 ? ' pedido iniciado foi pago' : ' pedidos iniciados foram pagos') : 'Nenhum pedido iniciado no mês',
         comparar(hoje.taxa, antes.taxa, a, pct, 'taxa'));
+      // Melhoria 83: situação de agora (não do mês escolhido), sem comparação.
+      if (dados.atrasados != null) {
+        cartao(lista, 'Pedidos atrasados', inteiro(dados.atrasados), 'Agora: briefing recebido há mais dias úteis que o prazo do plano',
+          { seta: '', texto: dados.atrasados ? 'Veja na aba Pedidos, filtro Atrasados' : 'Nenhum site passou do prazo' });
+      }
     }
 
     renderizarConteudos(m);
@@ -348,7 +355,7 @@
   document.addEventListener('pbr:admin-dados', function (e) {
     var d = e.detail || {};
     if (d.tipo === 'limpar') {
-      dados = { conversas: null, pedidos: null, limiteConversas: false, limitePedidos: false };
+      dados = { conversas: null, pedidos: null, limiteConversas: false, limitePedidos: false, atrasados: null };
       var status = $('[data-resumo-baixado]');
       if (status) status.textContent = '';
     } else if (d.tipo === 'conversas') {
@@ -357,7 +364,15 @@
     } else if (d.tipo === 'pedidos') {
       dados.pedidos = d.itens || [];
       dados.limitePedidos = !!d.limiteAtingido;
+      dados.atrasados = typeof d.atrasados === 'number' ? d.atrasados : null;
     } else return;
+    renderizar();
+  });
+
+  // O relógio da aba Pedidos avisa quando um pedido passa do prazo sem mudança no banco.
+  document.addEventListener('pbr:admin-atrasados', function (e) {
+    if (dados.pedidos == null || !e.detail || typeof e.detail.atrasados !== 'number') return;
+    dados.atrasados = e.detail.atrasados;
     renderizar();
   });
 

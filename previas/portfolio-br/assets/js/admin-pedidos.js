@@ -39,6 +39,59 @@
     try { localStorage.setItem(chave, JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
     return mapa[id];
   }
+  // Pedido atrasado em produção (melhoria 83): briefing recebido há mais dias úteis do que o prazo do plano e o site
+  // ainda não entregue. O prazo vem de config.planos[].prazoDias (número de dias úteis) ou, sem ele, dos "N dias úteis"
+  // escritos em config.planos[].prazo. Plano sem prazo numérico confiável nunca fica "atrasado" (melhor nada do que um
+  // alarme falso). Dias úteis = segunda a sexta no fuso do navegador (feriados não são descontados). Só leitura.
+  function prazoDiasDe(planoId, lista) {
+    var planos = lista || (window.PBR_CONFIG && window.PBR_CONFIG.planos) || [];
+    var plano = planos.filter(function (x) { return x && x.id === planoId; })[0];
+    if (!plano) return null;
+    var n = Number(plano.prazoDias);
+    if (plano.prazoDias != null && isFinite(n) && n > 0 && Math.floor(n) === n) return n;
+    var m = /(\d+)\s*dias?\s+úte/i.exec(plano.prazo || '');
+    return m && +m[1] > 0 ? +m[1] : null;
+  }
+  // Dias úteis completos desde a data de início (o próprio dia do briefing não conta) até hoje.
+  function diasUteisDesde(iso, agora) {
+    var d = new Date(iso);
+    if (!isFinite(d.getTime())) return null;
+    var fim = new Date(agora || Date.now());
+    var dia = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var hoje = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
+    var n = 0;
+    for (var i = 0; i < 4000 && dia < hoje; i++) {
+      dia.setDate(dia.getDate() + 1);
+      var s = dia.getDay();
+      if (s !== 0 && s !== 6) n++;
+    }
+    return n;
+  }
+  // Data em que o prazo vence: o N-ésimo dia útil depois do briefing.
+  function vencimento(iso, prazo) {
+    var d = new Date(iso);
+    var dia = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    for (var n = 0; n < prazo;) {
+      dia.setDate(dia.getDate() + 1);
+      if (dia.getDay() !== 0 && dia.getDay() !== 6) n++;
+    }
+    return dia;
+  }
+  // { prazo, decorridos, atraso, vence } para pedido aprovado com briefing ainda não entregue; senão null.
+  function situacaoPrazo(p, agora) {
+    if (!estado || p.status !== 'aprovado') return null;
+    var st = estado.briefings[p.id];
+    var desde = estado.briefingDatas && estado.briefingDatas[p.id];
+    if (!st || st === 'entregue' || !desde) return null;
+    var prazo = prazoDiasDe(p.plano_id);
+    if (!prazo) return null;
+    var decorridos = diasUteisDesde(desde, agora);
+    if (decorridos == null) return null;
+    return { prazo: prazo, decorridos: decorridos, atraso: Math.max(0, decorridos - prazo), vence: vencimento(desde, prazo) };
+  }
+  function atrasado(p, agora) { var s = situacaoPrazo(p, agora); return !!(s && s.atraso > 0); }
+  function diasUteisTexto(n) { return n + (n === 1 ? ' dia útil' : ' dias úteis'); }
+
   // Briefing pendente (melhoria 34): aprovado há mais de 24 horas e o cliente ainda não mandou o briefing.
   // Mesma ideia: o dono abre o WhatsApp com a mensagem pronta; o link de acompanhamento vai SEM o token.
   var BRIEFING_MS = 24 * 60 * 60 * 1000;
@@ -187,6 +240,7 @@
 
   var fReal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   var fData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  var fDia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
   function data(iso) { return iso ? fData.format(new Date(iso)) : '—'; }
   function whatsappFormatado(d) {
     var m = /^(?:55)?(\d{2})(\d{4,5})(\d{4})$/.exec(d || '');
@@ -239,7 +293,11 @@
     prepararChecklist();
     // Um pedido vira "abandonado" com o passar do tempo, sem evento no banco: confere a cada minuto.
     estado.relogio = setInterval(function () {
-      if (estado && chaveAbandono() !== estado.chaveAbandono) { renderizarLista(); if (estado.selecionado) renderizarRecuperacao(); }
+      if (estado && chaveAbandono() !== estado.chaveAbandono) {
+        renderizarLista();
+        if (estado.selecionado) renderizarDetalhe(false);
+        document.dispatchEvent(new CustomEvent('pbr:admin-atrasados', { detail: { atrasados: contarAtrasados() } }));
+      }
     }, 60000);
 
     if (window.PBRAvisos) window.PBRAvisos.acompanharAba('pedidos', contarPagosNaoVistos);
@@ -262,7 +320,10 @@
 
   function chaveAbandono() {
     var agora = Date.now();
-    return estado.pedidos.map(function (p) { var m = modoAtencao(p, agora); return m ? m + ':' + p.id : ''; }).filter(Boolean).join(',');
+    return estado.pedidos.map(function (p) {
+      var m = modoAtencao(p, agora);
+      return (m ? m + ':' + p.id : '') + (atrasado(p, agora) ? ' atrasado:' + p.id : '');
+    }).filter(Boolean).join(',');
   }
 
   function prepararRecuperacao() {
@@ -384,11 +445,13 @@
 
   function carregar() {
     if (!estado) return Promise.resolve();
-    var briefings = estado.sb.from('briefings').select('id, pedido_id, status').then(function (r) {
+    var briefings = estado.sb.from('briefings').select('id, pedido_id, status, criado_em').then(function (r) {
       var mapa = {};
       var ids = {};
-      ((r && r.data) || []).forEach(function (b) { mapa[b.pedido_id] = b.status; ids[b.pedido_id] = b.id; });
+      var datas = {};
+      ((r && r.data) || []).forEach(function (b) { mapa[b.pedido_id] = b.status; ids[b.pedido_id] = b.id; datas[b.pedido_id] = b.criado_em; });
       estado.briefingIds = ids;
+      estado.briefingDatas = datas;
       return mapa;
     }, function () { return {}; });
     var limite = estado.paginacao ? estado.paginacao.limite() : 500;
@@ -414,7 +477,7 @@
         estado.pedidos = novos;
         if (estado.paginacao) estado.paginacao.atualizar(novos.length, r.count);
         var haMais = estado.paginacao ? estado.paginacao.haMais() : novos.length >= limite;
-        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: haMais } }));
+        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: haMais, atrasados: contarAtrasados() } }));
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
       })
@@ -482,6 +545,13 @@
       function (p) { return p.pago_em || p.atualizado_em; });
   }
 
+  // Quantos pedidos carregados estão atrasados agora (para o Resumo; sem recorte de período/origem).
+  function contarAtrasados() {
+    if (!estado) return 0;
+    var agora = Date.now();
+    return estado.pedidos.filter(function (p) { return atrasado(p, agora); }).length;
+  }
+
   function canalDe(p) { return window.PBRExportar ? window.PBRExportar.canal(p.origem) : 'direto'; }
 
   // Período e origem (sem o status): base dos contadores dos botões e do resumo.
@@ -498,6 +568,7 @@
       if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
       else if (estado.filtro === 'sem-briefing') { if (!semBriefing(p)) return false; }
       else if (estado.filtro === 'sem-contato') { if (!semContato(p)) return false; }
+      else if (estado.filtro === 'atrasado') { if (!atrasado(p)) return false; }
       else if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
       if (!estado.busca) return true;
       return [p.codigo, p.nome, p.email].some(function (c) { return normalizar(c).indexOf(estado.busca) !== -1; });
@@ -521,13 +592,14 @@
       if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
       if (semBriefing(p, agora)) contagem['sem-briefing'] = (contagem['sem-briefing'] || 0) + 1;
       if (semContato(p, agora)) contagem['sem-contato'] = (contagem['sem-contato'] || 0) + 1;
+      if (atrasado(p, agora)) contagem.atrasado = (contagem.atrasado || 0) + 1;
     });
     var chamados = lerChamados('abandono');
     var lembrados = lerChamados('briefing');
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
       var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing'
-        : f === 'sem-contato' ? 'Sem contato' : ROTULOS[f] + 's';
+        : f === 'sem-contato' ? 'Sem contato' : f === 'atrasado' ? 'Atrasados' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
     var aprovados = recorte.filter(function (p) { return p.status === 'aprovado'; });
@@ -572,6 +644,11 @@
         l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
           temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
         if (semContato(p, agora)) l2.appendChild(el('span', 'admin-item__tag admin-item__tag--contato', 'sem contato'));
+        var sp = situacaoPrazo(p, agora);
+        if (sp && sp.atraso > 0) {
+          l2.appendChild(el('span', 'admin-item__tag admin-item__tag--alerta', 'Atrasado · ' + diasUteisTexto(sp.atraso),
+            { title: 'Briefing recebido há ' + diasUteisTexto(sp.decorridos) + '; prazo do plano: ' + diasUteisTexto(sp.prazo) }));
+        }
         var feitos = contarChecklist(p.id);
         l2.appendChild(el('span', 'admin-item__tag ' + (feitos === CHECKLIST.length ? 'admin-item__tag--ok' : 'admin-item__tag--checklist'),
           'etapas ' + feitos + ' de ' + CHECKLIST.length, { title: 'Lista de verificação: ' + feitos + ' de ' + CHECKLIST.length + ' etapas marcadas' }));
@@ -603,7 +680,8 @@
       { titulo: 'Canal de origem', valor: function (p) { return X.rotuloCanal(canalDe(p)); } },
       { titulo: 'Origem (detalhe)', valor: function (p) { return p.origem || ''; } },
       { titulo: 'Pago em', valor: function (p) { return p.pago_em ? data(p.pago_em) : ''; } },
-      { titulo: 'Briefing', valor: function (p) { return estado.briefings[p.id] ? 'recebido' : (p.status === 'aprovado' ? 'não enviado' : ''); } }
+      { titulo: 'Briefing', valor: function (p) { return estado.briefings[p.id] ? 'recebido' : (p.status === 'aprovado' ? 'não enviado' : ''); } },
+      { titulo: 'Atraso (dias úteis)', valor: function (p) { var sp = situacaoPrazo(p); return sp && sp.atraso > 0 ? String(sp.atraso) : ''; } }
     ];
     X.baixar('pedidos-portfolio-br-' + X.hoje() + '.csv', X.csv(colunas, itens));
     var aviso = $('[data-exportado-pedidos]');
@@ -669,6 +747,11 @@
     linha('Status', (ROTULOS[p.status] || p.status) + (p.mp_status_detalhe ? ' — ' + p.mp_status_detalhe : ''));
     linha('Pago em', data(p.pago_em));
     linha('Aceite dos termos', data(p.aceite_termos_em));
+    var sp = situacaoPrazo(p);
+    if (sp) {
+      linha('Prazo de entrega', diasUteisTexto(sp.prazo) + ' após o briefing · vence em ' + fDia.format(sp.vence) + ' · ' +
+        (sp.atraso > 0 ? 'atrasado há ' + diasUteisTexto(sp.atraso) : sp.decorridos === sp.prazo ? 'vence hoje' : 'faltam ' + diasUteisTexto(sp.prazo - sp.decorridos)));
+    }
     linha('Briefing', estado.briefings[p.id] ? 'Recebido (' + ({ novo: 'novo', em_producao: 'em produção', em_revisao: 'em revisão', entregue: 'entregue' }[estado.briefings[p.id]] || estado.briefings[p.id]) + ')' : (p.status === 'aprovado' ? 'Ainda não enviado' : '—'));
     linha('Pagamento MP', p.mp_payment_id);
     linha('Preferência MP', p.mp_preference_id);
@@ -830,5 +913,9 @@
     carregar().then(function () { return buscarAvulso(id); }).then(function () { if (estado) abrir(id); });
   }
 
-  window.PBRAdminPedidos = { iniciar: iniciar, encerrar: encerrar, abrirPorId: abrirPorId };
+  window.PBRAdminPedidos = {
+    iniciar: iniciar, encerrar: encerrar, abrirPorId: abrirPorId,
+    // Exposto para testes (melhoria 83): cálculo do prazo em dias úteis.
+    prazo: { prazoDiasDe: prazoDiasDe, diasUteisDesde: diasUteisDesde, vencimento: vencimento }
+  };
 })();
