@@ -16,7 +16,7 @@
   <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/tokens.css?v=ab9d61fa">
   <link rel="stylesheet" href="../assets/css/main.css?v=6576ecdd">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=b297103e">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=d218e2ba">
 
   <script src="../config.js?v=0c1b57bf" defer></script>
   <script src="../assets/js/supabase-client.js?v=b6c0292b" defer></script>
@@ -27,7 +27,7 @@
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
   <script src="../assets/js/admin-pedidos.js?v=22af27d1" defer></script>
   <script src="../assets/js/admin-briefings.js?v=6f3e06ec" defer></script>
-  <script src="../assets/js/admin-resumo.js?v=330c4694" defer></script>
+  <script src="../assets/js/admin-resumo.js?v=6dec25a4" defer></script>
   <script src="../assets/js/admin-busca.js?v=2f5ed0f4" defer></script>
   <script src="../assets/js/admin-atalhos.js?v=db5980ec" defer></script>
 </head>
@@ -470,7 +470,11 @@
           <label for="resumo-mes">Mês</label>
           <select id="resumo-mes" data-resumo-mes></select>
         </div>
+        <!-- Melhoria 76: CSV só com contagens e valores do mês (sem dados pessoais), gerado no navegador -->
+        <button class="botao botao--contorno botao--pequeno admin-resumo-mes__baixar" type="button" data-resumo-baixar disabled aria-describedby="resumo-baixar-dica">Baixar CSV</button>
+        <p id="resumo-baixar-dica" class="visualmente-oculto">Cartões do mês escolhido e do mês anterior e a tabela De onde vieram os pedidos, sem dados de clientes.</p>
       </div>
+      <p class="admin-resumo-mes__baixado" data-resumo-baixado role="status"></p>
       <p class="admin-resumo-mes__estado" data-resumo-estado>Carregando os dados do painel…</p>
       <ul class="admin-kpis" role="list" data-resumo-cartoes></ul>
       <!-- Conteúdos que levam aos planos (melhoria 70): "cta: blog/..." e "cta: segmento/..." gravados pelo origem.js -->

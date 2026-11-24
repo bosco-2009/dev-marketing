@@ -598,8 +598,16 @@
   max-width: 72rem;
   margin: 0 auto var(--esp-4);
 }
-.admin-resumo-mes__titulo { margin: 0; padding-bottom: 0.4rem; font-size: var(--texto-lg); }
-.admin-resumo-mes__mes { flex: 1 1 12rem; max-width: 16rem; }
+.admin-resumo-mes__titulo { margin: 0 auto 0 0; padding-bottom: 0.4rem; font-size: var(--texto-lg); }
+.admin-resumo-mes__mes { flex: 1 1 15rem; max-width: 16rem; } /* 15rem: no celular o botão desce em vez de cortar o nome do mês */
+.admin-resumo-mes__baixar { flex: 0 0 auto; }
+.admin-resumo-mes__baixado {
+  max-width: 72rem;
+  margin: calc(-1 * var(--esp-2)) auto var(--esp-4);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+}
+.admin-resumo-mes__baixado:empty { margin: 0; }
 .admin-resumo-mes__estado,
 .admin-resumo-mes__nota {
   max-width: 72rem;

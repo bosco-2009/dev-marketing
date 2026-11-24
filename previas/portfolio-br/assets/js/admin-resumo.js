@@ -9,6 +9,10 @@
  * Melhoria 70: cartão "De onde vieram os pedidos" — conversas e pedidos do mês agrupados pelo conteúdo (artigo do blog
  * ou página de segmento) que levou o visitante aos planos. Lê o "cta: blog/..." / "cta: segmento/..." que o origem.js
  * (melhoria 65) põe no fim de conversas.pagina_origem e de pedidos.origem. Também só com os dados já carregados.
+ *
+ * Melhoria 76: botão "Baixar CSV" — os cartões do mês escolhido (com o mês anterior ao lado) e a tabela "De onde vieram
+ * os pedidos", montados no navegador com o PBRExportar.csv (mesmo escape contra fórmulas). Só contagens e valores:
+ * nenhum nome, e-mail, WhatsApp, código de pedido ou texto digitado por visitante entra no arquivo.
  */
 (function () {
   'use strict';
@@ -177,7 +181,10 @@
     mesEscolhido = lerSelect(select);
 
     lista.textContent = '';
-    if (dados.conversas == null && dados.pedidos == null) {
+    var botaoBaixar = $('[data-resumo-baixar]');
+    var carregado = dados.conversas != null || dados.pedidos != null;
+    if (botaoBaixar) botaoBaixar.disabled = !carregado || !window.PBRExportar;
+    if (!carregado) {
       var blocoConteudos = $('[data-resumo-conteudos]');
       if (blocoConteudos) blocoConteudos.hidden = true;
       estadoTexto.textContent = 'Carregando os dados do painel…';
@@ -214,6 +221,76 @@
     if (dados.limitePedidos) partes.push('os ' + fNum.format(dados.pedidos.length) + ' pedidos mais recentes');
     aviso.hidden = !partes.length;
     aviso.textContent = partes.length ? 'O painel carrega só ' + partes.join(' e ') + '; meses mais antigos podem aparecer incompletos.' : '';
+  }
+
+  // ------------------------------------------------------------------ CSV (melhoria 76)
+  // Números como a planilha em português entende: vírgula decimal, sem separador de milhar.
+  function reaisCsv(c) { return (c / 100).toFixed(2).replace('.', ','); }
+  function pctCsv(t) { return t == null ? '' : (Math.round(t * 10) / 10).toFixed(1).replace('.', ','); }
+  function maiuscula(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+
+  // Linhas do arquivo (função pura sobre os dados carregados). Devolve null enquanto nada foi carregado.
+  function linhasCsv(m) {
+    if (dados.conversas == null && dados.pedidos == null) return null;
+    var X = window.PBRExportar;
+    var a = mesAnterior(m);
+    var hoje = metricas(m);
+    var antes = metricas(a);
+    var nomeAtual = maiuscula(nomeMes(m, true));
+    var nomeAntes = maiuscula(nomeMes(a, true));
+    var cartoes = [];
+    function linha(rotulo, chave, formato) { cartoes.push([rotulo, formato(hoje[chave]), formato(antes[chave])]); }
+    var inteiro = function (n) { return String(n); };
+    if (dados.conversas != null) {
+      linha('Conversas novas', 'conversas', inteiro);
+      linha('Leads (conversas com nome ou WhatsApp)', 'leads', inteiro);
+    }
+    if (dados.pedidos != null) {
+      linha('Pedidos pagos (pela data do pagamento)', 'pagos', inteiro);
+      linha('Valor recebido (R$, aprovados sem reembolsados)', 'valor', reaisCsv);
+      linha('Pedidos iniciados', 'iniciados', inteiro);
+      linha('Pedidos iniciados que foram pagos', 'iniciadosPagos', inteiro);
+      linha('Conversão do checkout (%)', 'taxa', pctCsv);
+    }
+    var col = function (i) { return function (l) { return l[i]; }; };
+    var partes = [X.csv([
+      { titulo: 'Resumo do mês', valor: col(0) },
+      { titulo: nomeAtual, valor: col(1) },
+      { titulo: nomeAntes + ' (mês anterior)', valor: col(2) }
+    ], cartoes)];
+
+    var r = porConteudo(m);
+    var conteudos = r.linhas.map(function (l) {
+      var rot = rotuloCta(l.cta);
+      return [rot.nome, rot.tipo, String(l.conversas), String(l.pedidos), String(l.pagos)];
+    });
+    conteudos.push(['Total', '', String(r.totais.conversas), String(r.totais.pedidos), String(r.totais.pagos)]);
+    if (dados.conversas != null) conteudos.push(['Todas as conversas do mês', '', String(r.totais.conversasMes), '', '']);
+    if (dados.pedidos != null) conteudos.push(['Todos os pedidos do mês', '', '', String(r.totais.pedidosMes), '']);
+    partes.push(X.csv([
+      { titulo: 'De onde vieram os pedidos — ' + nomeMes(m, true), valor: col(0) },
+      { titulo: 'Tipo', valor: col(1) },
+      { titulo: 'Conversas', valor: col(2) },
+      { titulo: 'Pedidos', valor: col(3) },
+      { titulo: 'Pagos', valor: col(4) }
+    ], conteudos));
+
+    var avisos = [];
+    var limite = $('[data-resumo-limite]');
+    if (limite && !limite.hidden && limite.textContent) avisos.push([limite.textContent]);
+    avisos.push(['Calculado no painel em ' + X.hoje() + '. Datas no fuso deste navegador.']);
+    partes.push(X.csv([{ titulo: 'Observações', valor: col(0) }], avisos));
+    return partes.join('\r\n');
+  }
+
+  function baixarCsv() {
+    var X = window.PBRExportar;
+    var status = $('[data-resumo-baixado]');
+    if (!X || !mesEscolhido) return;
+    var texto = linhasCsv(mesEscolhido);
+    if (texto == null) return;
+    X.baixar('resumo-portfolio-br-' + chaveMes(mesEscolhido.ano, mesEscolhido.mes) + '.csv', texto);
+    if (status) status.textContent = 'Resumo de ' + nomeMes(mesEscolhido, true) + ' baixado em CSV.';
   }
 
   function celula(tr, tag, texto, attrs) { var c = el(tag, null, texto, attrs); tr.appendChild(c); return c; }
@@ -272,6 +349,8 @@
     var d = e.detail || {};
     if (d.tipo === 'limpar') {
       dados = { conversas: null, pedidos: null, limiteConversas: false, limitePedidos: false };
+      var status = $('[data-resumo-baixado]');
+      if (status) status.textContent = '';
     } else if (d.tipo === 'conversas') {
       dados.conversas = d.itens || [];
       dados.limiteConversas = !!d.limiteAtingido;
@@ -286,12 +365,18 @@
     var select = $('[data-resumo-mes]');
     if (!select) return;
     opcoesDeMes(select);
-    select.addEventListener('change', renderizar);
+    select.addEventListener('change', function () {
+      var status = $('[data-resumo-baixado]');
+      if (status) status.textContent = '';
+      renderizar();
+    });
+    var botaoBaixar = $('[data-resumo-baixar]');
+    if (botaoBaixar) botaoBaixar.addEventListener('click', baixarCsv);
     renderizar();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
   // Exposto para testes.
-  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta };
+  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta, linhasCsv: linhasCsv };
 })();
