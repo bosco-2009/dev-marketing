@@ -350,9 +350,20 @@
     if (formularioPronto && existeRascunho()) gravarRascunhoAgora();
     if (focar) {
       var legenda = $('[data-etapa="' + n + '"] .briefing__legenda', form);
-      legenda.focus();
+      // preventScroll: a rolagem fica só com o scrollIntoView, que respeita prefers-reduced-motion.
+      legenda.focus({ preventScroll: true });
       form.scrollIntoView({ block: 'start', behavior: rolagemSuave() });
+      anunciarEtapa(n);
     }
+  }
+  // Anúncio da mudança de etapa (melhoria 87): uma única região viva educada, com o texto da legenda
+  // ("Etapa X de Y: nome"). Só anuncia quando a etapa muda de fato (nada na carga inicial nem repetido).
+  var regiaoEtapa = $('[data-anuncio-etapa]', form);
+  var etapaAnunciada = 0;
+  function anunciarEtapa(n) {
+    if (!regiaoEtapa || n === etapaAnunciada) return;
+    etapaAnunciada = n;
+    regiaoEtapa.textContent = $('[data-etapa="' + n + '"] .briefing__legenda', form).textContent.trim();
   }
   bProxima.addEventListener('click', function () { if (validarEtapa(etapaAtual)) irPara(etapaAtual + 1, true); });
   bAnterior.addEventListener('click', function () { irPara(etapaAtual - 1, true); });
@@ -360,6 +371,7 @@
     if (!validarEtapa(etapaAtual)) return;
     var origem = etapaAtual;
     irPara(TOTAL_ETAPAS, false);
+    anunciarEtapa(TOTAL_ETAPAS);
     var editar = $('[data-editar-etapa="' + origem + '"]', form);
     if (editar) {
       editar.focus({ preventScroll: true });
