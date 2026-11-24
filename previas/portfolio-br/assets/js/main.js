@@ -105,11 +105,44 @@
     return a;
   }
 
+  // ---------------- "Tirar dúvida no chat" por plano (melhoria 120) ----------------
+  // Caixa com dois destinos na mesma linha (o chat.js alterna, sem mudar a altura):
+  // - botão [data-duvida-chat]: abre o chat ao vivo com "Tenho uma dúvida sobre o plano X" no campo, editável
+  //   e nunca enviado sozinho (o chat.js atende o clique, mesmo antes de o widget ser montado);
+  // - link do WhatsApp [data-duvida-whats] (só com número): fica no lugar do botão fora do horário de atendimento.
+  // Com o chat configurado, o botão já nasce visível (sem deslocar nada depois); sem chat e sem número, nada aparece.
+  // data-origem-cta (origem.js) grava de onde veio o clique para a origem da conversa e do pedido.
+  var chatConfigurado = !!(config.supabase && config.supabase.url && config.supabase.anonKey);
+  function criarDuvidaPlano(plano, classe, origemCta) {
+    var hrefZap = linkWhats('plano', { plano: plano.nome });
+    if (!chatConfigurado && !hrefZap) return null;
+    var caixa = criar('p', classe);
+    caixa.setAttribute('data-duvida', '');
+    if (chatConfigurado) {
+      var b = criar('button', 'link-duvida');
+      b.type = 'button';
+      b.setAttribute('data-duvida-chat', plano.nome);
+      if (origemCta) b.setAttribute('data-origem-cta', origemCta);
+      b.appendChild(icone('conversa'));
+      b.appendChild(criar('span', null, 'Tirar dúvida no chat'));
+      b.appendChild(criar('span', 'visualmente-oculto', ' sobre o plano ' + plano.nome));
+      caixa.appendChild(b);
+    }
+    if (hrefZap) {
+      var a = criarLinkWhats(hrefZap, 'Tirar dúvidas sobre o ' + plano.nome);
+      a.setAttribute('data-duvida-whats', '');
+      if (chatConfigurado) a.hidden = true; // o chat.js mostra fora do horário
+      caixa.appendChild(a);
+    }
+    return caixa;
+  }
+
   window.PBR_whatsapp = {
     disponivel: whatsDisponivel,
     link: linkWhats,
     linkDaPagina: linkWhatsDaPagina,
-    criarLink: criarLinkWhats
+    criarLink: criarLinkWhats,
+    criarDuvidaPlano: criarDuvidaPlano
   };
 
   // Elementos estáticos <a data-whats="modelo" hidden>: recebem o link e aparecem só com número válido.
@@ -267,12 +300,8 @@
       if (origemPlanos) botao.setAttribute('data-origem-cta', origemPlanos);
       li.appendChild(botao);
 
-      var hrefWhats = linkWhats('plano', { plano: plano.nome });
-      if (hrefWhats) {
-        var duvida = criar('p', 'plano__whats');
-        duvida.appendChild(criarLinkWhats(hrefWhats, 'Tirar dúvidas sobre o ' + plano.nome));
-        li.appendChild(duvida);
-      }
+      var duvida = criarDuvidaPlano(plano, 'plano__whats', origemPlanos ? 'home/duvida-plano' : '');
+      if (duvida) li.appendChild(duvida);
 
       listaPlanos.appendChild(li);
     });

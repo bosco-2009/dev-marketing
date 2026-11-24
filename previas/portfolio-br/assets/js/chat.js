@@ -119,7 +119,41 @@
   // =========================================================================
   var config = window.PBR_CONFIG;
   if (!config || !window.PBRSupabase || !window.PBRSupabase.configurado()) return; // chat oculto
-  if (!window.crypto || !window.crypto.getRandomValues) return;
+  var chatPossivel = !!(window.crypto && window.crypto.getRandomValues);
+
+  // "Tirar dúvida no chat" por plano (melhoria 120; caixas [data-duvida] criadas pelo main.js/planos.js).
+  // No horário (ou sem WhatsApp configurado) aparece o botão do chat; fora do horário, com número, o link do
+  // WhatsApp toma o lugar dele na mesma linha. Se o foco estava no que sumiu, vai para o que apareceu.
+  function atualizarDuvidas() {
+    var noHorario = estaNoHorario(config.atendimento, new Date());
+    document.querySelectorAll('[data-duvida]').forEach(function (caixa) {
+      var botaoChat = caixa.querySelector('[data-duvida-chat]');
+      var linkZap = caixa.querySelector('[data-duvida-whats]');
+      if (!botaoChat) return;
+      var usarZap = !!linkZap && (!noHorario || !chatPossivel);
+      var focado = caixa.contains(document.activeElement) ? document.activeElement : null;
+      botaoChat.hidden = usarZap || !chatPossivel;
+      if (linkZap) linkZap.hidden = !usarZap;
+      caixa.hidden = botaoChat.hidden && !usarZap;
+      if (focado && focado.hidden) (usarZap ? linkZap : botaoChat).focus();
+    });
+  }
+  window.PBRChat.atualizarDuvidas = atualizarDuvidas;
+  atualizarDuvidas();
+  setInterval(atualizarDuvidas, 60000);
+
+  // O clique funciona antes de o widget ser montado: guarda o pedido e monta na hora.
+  var duvidaPendente = null;
+  var abrirComMensagem = null; // definido em iniciar()
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-duvida-chat]') : null;
+    if (!b || !chatPossivel) return;
+    var mensagem = 'Tenho uma dúvida sobre o plano ' + b.getAttribute('data-duvida-chat');
+    if (abrirComMensagem) abrirComMensagem(mensagem);
+    else { duvidaPendente = mensagem; montar(); }
+  });
+
+  if (!chatPossivel) return;
 
   // Desempenho (melhoria 89): o widget não disputa a primeira pintura. O chat.css chega com media="not all"
   // (baixado sem bloquear a renderização) e o botão flutuante só é montado quando o navegador fica ocioso
@@ -702,6 +736,16 @@
 
     botao.addEventListener('click', function () { definirAberto(!aberto, false); });
 
+    // Melhoria 120: abre (ou mantém aberto) com a mensagem sugerida no campo, sem enviar. Se o visitante já
+    // escreveu algo, o texto dele fica. O foco vai para a mensagem, com o cursor no fim.
+    abrirComMensagem = function (mensagem) {
+      if (!aberto) definirAberto(true, false);
+      if (!areaTexto.value.trim()) { areaTexto.value = mensagem; ajustarAltura(); }
+      areaTexto.focus();
+      try { areaTexto.setSelectionRange(areaTexto.value.length, areaTexto.value.length); } catch (e) { /* sem seleção */ }
+      if (!erro.hidden) mostrarErro('');
+    };
+
     // Botões "Fale no chat" da página (ex.: 404, melhoria 86) abrem o chat (sem fechá-lo se já estiver aberto).
     // Elementos [data-com-chat] começam ocultos e só aparecem com o widget montado.
     document.querySelectorAll('[data-com-chat]').forEach(function (x) { x.hidden = false; });
@@ -775,6 +819,8 @@
       evitar.forEach(function (x) { obs.observe(x); });
       if (celular.addEventListener) celular.addEventListener('change', atualizarRecolhido);
     }
+
+    if (duvidaPendente) { var pendente = duvidaPendente; duvidaPendente = null; abrirComMensagem(pendente); }
 
     // ------------------------------------------------------------- retomada automática
     // Quem já conversou recebe respostas mesmo com o painel fechado (selo de não lidas).

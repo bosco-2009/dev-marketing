@@ -147,7 +147,7 @@
   // "… · cta: blog/site-ou-instagram" → "blog/site-ou-instagram". O origem.js sempre põe o cta por último;
   // exigir o fim do texto descarta um cta cortado no meio pelo limite de tamanho do campo.
   function ctaDe(texto) {
-    var m = /(?:^|· )cta: ((?:blog|segmento|exemplo|home|erro)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
+    var m = /(?:^|· )cta: ((?:blog|segmento|exemplo|home|erro|planos)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
     return m ? m[1] : '';
   }
 
@@ -156,7 +156,10 @@
   var CTAS_FIXOS = {
     'home/planos': { tipo: 'Página inicial', nome: 'Planos' },
     'home/simulador': { tipo: 'Página inicial', nome: 'Simulador' },
-    'erro/404': { tipo: 'Página de erro', nome: 'Página não encontrada' }
+    'erro/404': { tipo: 'Página de erro', nome: 'Página não encontrada' },
+    // Melhoria 120: "Tirar dúvida no chat" dos cartões de plano
+    'home/duvida-plano': { tipo: 'Página inicial', nome: 'Dúvida sobre um plano (chat)' },
+    'planos/duvida-plano': { tipo: 'Página de planos', nome: 'Dúvida sobre um plano (chat)' }
   };
   function rotuloCta(cta) {
     if (CTAS_FIXOS[cta]) return { tipo: CTAS_FIXOS[cta].tipo, nome: CTAS_FIXOS[cta].nome };

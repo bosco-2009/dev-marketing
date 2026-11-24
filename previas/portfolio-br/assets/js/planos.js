@@ -109,13 +109,13 @@
       ul.appendChild(li);
     });
     resumo.appendChild(ul);
-    // Dúvida sobre o plano escolhido: WhatsApp com a mensagem pronta (só com número configurado)
+    // Dúvida sobre o plano escolhido (melhoria 120): chat ao vivo com a mensagem sugerida; fora do horário,
+    // o WhatsApp com a mensagem pronta (só com número configurado). O chat.js decide qual dos dois aparece.
     var zap = window.PBR_whatsapp;
-    var hrefZap = zap && zap.link('plano', { plano: p.nome });
-    if (hrefZap) {
-      var duvida = el('p', 'checkout__resumo-whats');
-      duvida.appendChild(zap.criarLink(hrefZap, 'Dúvidas sobre o ' + p.nome + '? Pergunte no WhatsApp'));
+    var duvida = zap && zap.criarDuvidaPlano && zap.criarDuvidaPlano(p, 'checkout__resumo-whats', 'planos/duvida-plano');
+    if (duvida) {
       resumo.appendChild(duvida);
+      if (window.PBRChat && window.PBRChat.atualizarDuvidas) window.PBRChat.atualizarDuvidas();
     }
     var url = new URL(location.href);
     url.searchParams.set('plano', p.id);

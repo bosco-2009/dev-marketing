@@ -9,6 +9,8 @@
  * ganha "cta: blog/site-ou-instagram" (vale mesmo para quem chegou direto, sem utm nem referência).
  * Melhoria 110: também marcam a origem os planos da home ("home/planos"), o resultado do simulador ("home/simulador")
  * e os planos da 404 ("erro/404"). Todo link com ?plano= leva data-origem-cta (testes/funcoes/links-planos.test.mjs).
+ * Melhoria 120: os botões "Tirar dúvida no chat" dos planos (home e planos.html) também marcam: "home/duvida-plano"
+ * e "planos/duvida-plano" (qualquer elemento com data-origem-cta, não só links).
  * Sem cookies, sem ferramentas de terceiros. Descrito na política de privacidade.
  */
 (function () {
@@ -61,10 +63,10 @@
   }
 
   function marcarCta(evento) {
-    var alvo = evento.target && evento.target.closest ? evento.target.closest('a[data-origem-cta]') : null;
+    var alvo = evento.target && evento.target.closest ? evento.target.closest('[data-origem-cta]') : null;
     if (!alvo) return;
     var de = limpo(alvo.getAttribute('data-origem-cta') || '');
-    if (!/^(blog|segmento|exemplo|home|erro)\/[a-z0-9-]+$/.test(de)) return;
+    if (!/^(blog|segmento|exemplo|home|erro|planos)\/[a-z0-9-]+$/.test(de)) return;
     try { localStorage.setItem(CHAVE_CTA, JSON.stringify({ de: de, em: Date.now() })); } catch (e) { /* armazenamento bloqueado */ }
   }
 

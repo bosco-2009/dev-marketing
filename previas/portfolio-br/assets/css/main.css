@@ -434,7 +434,8 @@ main[tabindex="-1"]:focus, [data-foco-ancora]:focus { outline: none; }
 .plano .botao { width: 100%; }
 
 /* WhatsApp contextual (melhoria 24): link discreto com mensagem pronta, só com número configurado */
-.link-whats {
+.link-whats,
+.link-duvida {
   display: inline-flex;
   align-items: center;
   gap: var(--esp-2);
@@ -445,9 +446,20 @@ main[tabindex="-1"]:focus, [data-foco-ancora]:focus { outline: none; }
   text-underline-offset: 0.2em;
   text-decoration-thickness: 1px;
 }
-.link-whats:hover { text-decoration-thickness: 2px; }
-.link-whats .icone { flex: none; }
+.link-whats:hover,
+.link-duvida:hover { text-decoration-thickness: 2px; }
+.link-whats .icone,
+.link-duvida .icone { flex: none; }
 .plano__whats { margin-top: var(--esp-2); text-align: center; font-size: var(--texto-sm); }
+/* "Tirar dúvida no chat" (melhoria 120): botão com a cara do .link-whats (home e planos.html) */
+.link-duvida {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+}
 
 /* ===================== Portfólio e depoimentos (só com dados reais) ===================== */
 .grade-portfolio, .grade-depoimentos { display: grid; gap: var(--esp-5); }
