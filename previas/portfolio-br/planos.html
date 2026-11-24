@@ -197,6 +197,12 @@
 
           <fieldset class="checkout__grupo">
             <legend class="checkout__legenda"><span class="checkout__passo" aria-hidden="true">2</span> Seus dados</legend>
+            <div class="dados-salvos" data-dados-salvos hidden>
+              <svg class="icone dados-salvos__icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p class="dados-salvos__texto">Preenchemos seus dados da última tentativa, salvos só neste aparelho. Confira antes de continuar.</p>
+              <button class="botao botao--contorno botao--pequeno dados-salvos__limpar" type="button" data-limpar-dados>Limpar meus dados</button>
+            </div>
+            <p class="visualmente-oculto" aria-live="polite" data-dados-salvos-aviso></p>
             <div class="campos">
               <div class="campo">
                 <label class="campo__rotulo" for="checkout-nome">Nome completo</label>

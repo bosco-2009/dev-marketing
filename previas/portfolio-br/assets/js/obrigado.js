@@ -114,10 +114,17 @@
 
     var acoes = $('[data-resultado-acoes]');
     acoes.textContent = '';
-    if (estado === 'recusado' || estado === 'cancelado') {
+    // Sem pagar (recusado, cancelado ou "voltar" no Mercado Pago com o pedido ainda pendente): volta aos planos
+    // com o mesmo plano e os dados da última tentativa já preenchidos (melhoria 60; ?retomar=1 em planos.js).
+    var voltouSemPagar = estado === 'pendente' && (statusMp === 'null' || statusMp === 'rejected');
+    if (estado === 'recusado' || estado === 'cancelado' || voltouSemPagar) {
       var plano = (dados && dados.plano_id) || (pedido && pedido.plano_id) || '';
-      acoes.appendChild(el('a', 'botao botao--primario', 'Tentar de novo', { href: 'planos.html' + (plano ? '?plano=' + encodeURIComponent(plano) : '') }));
+      var nomePlano = (dados && dados.plano_nome) || (pedido && pedido.plano_nome) || '';
+      var qs = '?' + (plano ? 'plano=' + encodeURIComponent(plano) + '&' : '') + 'retomar=1';
+      acoes.appendChild(el('a', 'botao botao--primario', nomePlano ? 'Tentar de novo com o plano ' + nomePlano : 'Tentar de novo', { href: 'planos.html' + qs, 'data-tentar-de-novo': '' }));
     }
+    // Pagamento aprovado: os dados da última tentativa (planos.js) não servem mais neste aparelho
+    if (estado === 'aprovado' && dados) { try { localStorage.removeItem('pbr_checkout_rascunho_v1'); } catch (e) { /* */ } }
     var c = linkContato();
     acoes.appendChild(el('a', 'botao botao--contorno', c.rotulo, { href: c.href, target: '_blank', rel: 'noopener' }));
     if (estado === 'aprovado' && pedido) {

@@ -6,6 +6,7 @@
  * O preço exibido vem do config.js; o preço COBRADO vem do servidor (tabela planos).
  * O código e o token do pedido ficam no localStorage para a página obrigado.html consultar o status.
  * Com um pedido pendente salvo aqui, mostra o aviso "Você tem um pedido em aberto" (melhoria 39).
+ * Nome/e-mail/WhatsApp da última tentativa ficam neste aparelho para "Tentar de novo" (melhoria 60).
  */
 (function () {
   'use strict';
@@ -286,6 +287,76 @@
     } catch (e) { return false; }
   }
 
+  // ------------------------------------------------------------------ dados da última tentativa (melhoria 60)
+  // Ao ir para o Mercado Pago, nome/e-mail/WhatsApp ficam SÓ neste navegador por até 30 dias. Se a pessoa
+  // volta sem pagar ("Tentar de novo" em obrigado.html traz ?retomar=1, ou volta logo em seguida), o
+  // formulário vem preenchido com o aviso e o botão "Limpar meus dados". O aceite dos termos nunca é
+  // pré-marcado. obrigado.js apaga estes dados quando o pagamento é aprovado. Nada vai para o servidor.
+  var CHAVE_RASCUNHO = 'pbr_checkout_rascunho_v1';
+  var RASCUNHO_DIAS = 30;
+  var RASCUNHO_RECENTE_MS = 2 * 60 * 60 * 1000; // volta do MP pelo botão "voltar", sem ?retomar=1
+  var caixaSalvos = $('[data-dados-salvos]');
+  var avisoSalvos = $('[data-dados-salvos-aviso]');
+
+  function apagarRascunho() {
+    try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (e) { /* */ }
+  }
+  function lerRascunho() {
+    var r = null;
+    try { r = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO)); } catch (e) { r = null; }
+    if (!r || typeof r !== 'object') return null;
+    var salvo = Date.parse(r.salvo_em);
+    if (!salvo || Date.now() - salvo > RASCUNHO_DIAS * 864e5) { apagarRascunho(); return null; }
+    var limpo = {};
+    var ok = ['nome', 'email', 'whatsapp'].every(function (k) {
+      if (typeof r[k] !== 'string') return false;
+      limpo[k] = r[k].slice(0, 254);
+      return true;
+    });
+    if (!ok) return null;
+    limpo.salvo = salvo;
+    return limpo;
+  }
+  function salvarRascunho(plano) {
+    try {
+      localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({
+        nome: campos.nome.value.trim(),
+        email: campos.email.value.trim(),
+        whatsapp: campos.whatsapp.value.trim(),
+        plano_id: plano.id,
+        salvo_em: new Date().toISOString()
+      }));
+    } catch (e) { /* sem armazenamento: só não preenche da próxima vez */ }
+  }
+
+  (function preencherDaUltimaTentativa() {
+    if (!caixaSalvos) return;
+    var retomar = params.get('retomar') === '1';
+    if (retomar) {
+      // tira o ?retomar=1 da barra (o ?plano= continua)
+      var u = new URL(location.href);
+      u.searchParams.delete('retomar');
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    }
+    var r = lerRascunho();
+    if (!r) return;
+    if (!retomar && Date.now() - r.salvo > RASCUNHO_RECENTE_MS) return;
+    // Não sobrescreve o que o navegador já restaurou ou a pessoa já digitou
+    var preencheu = false;
+    ['nome', 'email', 'whatsapp'].forEach(function (k) {
+      if (!campos[k].value && r[k]) { campos[k].value = r[k]; preencheu = true; }
+    });
+    if (!preencheu) return;
+    caixaSalvos.hidden = false;
+    $('[data-limpar-dados]', caixaSalvos).addEventListener('click', function () {
+      apagarRascunho();
+      ['nome', 'email', 'whatsapp'].forEach(function (k) { campos[k].value = ''; marcarCampo(k, ''); });
+      caixaSalvos.hidden = true;
+      avisoSalvos.textContent = 'Seus dados foram apagados deste aparelho.';
+      campos.nome.focus();
+    });
+  })();
+
   var enviando = false;
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -327,6 +398,7 @@
         if (!urlCheckoutSegura(d.init_point)) throw new Error('url_invalida');
         d.plano_id = plano.id;
         salvarPedido(d);
+        salvarRascunho(plano);
         textoBotao.textContent = 'Abrindo o Mercado Pago…';
         location.assign(d.init_point);
       })
