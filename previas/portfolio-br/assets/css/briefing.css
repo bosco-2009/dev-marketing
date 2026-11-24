@@ -108,6 +108,10 @@ textarea.campo__entrada { resize: vertical; line-height: 1.5; }
 .arquivos__item--erro { border-color: var(--cor-erro); background: var(--cor-erro-suave); color: var(--cor-erro); }
 .arquivos__nome { flex: 1 1 10rem; min-width: 0; overflow-wrap: anywhere; font-weight: var(--peso-semi); }
 .arquivos__info { color: inherit; opacity: 0.85; }
+/* Falha passageira (melhoria 82): "Tentar de novo" e "Descartar" lado a lado, quebrando linha no celular */
+.arquivos__acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.arquivos__item--erro .arquivos__info { opacity: 1; }
+.arquivos__item:focus-visible { outline: 3px solid var(--cor-foco); outline-offset: 2px; }
 .arquivos__remover {
   min-height: 2.25rem;
   padding: 0 var(--esp-3);

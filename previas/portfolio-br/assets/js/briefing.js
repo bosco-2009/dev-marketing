@@ -121,14 +121,39 @@
   var CHAVE_RASCUNHO = 'pbr_briefing_rascunho_' + acesso.codigo;
   var rede = window.PBRRede || { offline: function () { return false; }, falhaDeRede: function () { return false; }, aoVoltar: function () { return function () {}; } };
 
+  // Falhas passageiras (melhoria 82): sem conexão, tempo esgotado ou erro 5xx do servidor. Nesses casos nada se perde:
+  // as respostas ficam no formulário (e no rascunho do aparelho) e "Tentar de novo" repete o mesmo envio.
+  var PRAZO_RPC_MS = 20000;
+  var PRAZO_ARQUIVO_MS = 90000;
+  function buscarComPrazo(url, opcoes, prazoMs) {
+    if (typeof AbortController === 'undefined') return fetch(url, opcoes);
+    var controle = new AbortController();
+    var esgotou = false;
+    var relogio = setTimeout(function () { esgotou = true; controle.abort(); }, prazoMs);
+    opcoes.signal = controle.signal;
+    return fetch(url, opcoes).then(function (r) { clearTimeout(relogio); return r; }, function (e) {
+      clearTimeout(relogio);
+      if (esgotou) { var t = new Error('tempo_esgotado'); t.tempoEsgotado = true; throw t; }
+      throw e;
+    });
+  }
+  function erroHttp(mensagem, status) { var e = new Error(mensagem); e.status = status; return e; }
+  // 'rede' | 'tempo' | 'servidor' | '' (recusa do servidor: não adianta repetir igual)
+  function tipoFalha(err) {
+    if (rede.falhaDeRede(err)) return 'rede';
+    if (err && err.tempoEsgotado) return 'tempo';
+    if (err && err.status >= 500) return 'servidor';
+    return '';
+  }
+
   function chamarRpc(nome, args) {
-    return fetch(base + '/rest/v1/rpc/' + nome, {
+    return buscarComPrazo(base + '/rest/v1/rpc/' + nome, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: chave },
       body: JSON.stringify(args)
-    }).then(function (r) {
+    }, PRAZO_RPC_MS).then(function (r) {
       return r.json().catch(function () { return null; }).then(function (d) {
-        if (!r.ok) throw new Error((d && d.message) || ('http ' + r.status));
+        if (!r.ok) throw erroHttp((d && d.message) || ('http ' + r.status), r.status);
         return d;
       });
     });
@@ -414,52 +439,123 @@
     });
   }
 
+  // Falha passageira no envio de um arquivo (melhoria 82): o item fica na lista com a mensagem num role="alert"
+  // e os botões "Tentar de novo" (reenvia o MESMO arquivo, sem escolher de novo) e "Descartar".
+  // Sem duplicar: a URL assinada já obtida é reaproveitada (mesmo caminho no bucket) e, se o arquivo já tinha
+  // chegado numa tentativa cuja resposta se perdeu, o Storage responde 409 e o arquivo entra na lista uma vez só.
+  var MSG_ARQUIVO = {
+    rede: 'Sem internet: confira a conexão e toque em “Tentar de novo”.',
+    tempo: 'O envio demorou demais e foi interrompido. Toque em “Tentar de novo”.',
+    servidor: 'O servidor não respondeu agora. Toque em “Tentar de novo”.'
+  };
+  var MSG_RECUSA_ARQUIVO = { limite_arquivos: 'Limite de arquivos atingido.', arquivo_grande: 'Maior que 5 MB.', tipo_nao_permitido: 'Tipo não aceito.',
+    briefing_bloqueado: 'O briefing já está em produção.' };
+  function jaExiste(r, d) { return r.status === 409 || /already exists|duplicate/i.test((d && (d.message || d.error)) || ''); }
+
   function enviarArquivo(arquivo) {
-    var item = el('li', 'arquivos__item arquivos__item--enviando');
+    var item = el('li', 'arquivos__item arquivos__item--enviando', null, { 'data-arquivo-estado': 'enviando', tabindex: '-1' });
     item.appendChild(el('span', 'arquivos__nome', arquivo.name));
     var info = el('span', 'arquivos__info', 'Enviando…');
     item.appendChild(info);
     listaArquivos.appendChild(item);
-    function falhar(msg) {
+    var assinatura = null; // { caminho, upload_url } da 1ª tentativa
+    var acoes = null;
+    function trocarInfo(texto, alerta) {
+      var novo = el('span', 'arquivos__info', texto, alerta ? { role: 'alert' } : null);
+      item.replaceChild(novo, info);
+      info = novo;
+    }
+    function falhar(msg) { // recusa definitiva (tipo, tamanho, limite...): some sozinho
+      if (acoes) { acoes.remove(); acoes = null; }
       item.className = 'arquivos__item arquivos__item--erro';
-      info.textContent = msg;
+      item.setAttribute('data-arquivo-estado', 'recusado');
+      trocarInfo(msg, false);
       setTimeout(function () { item.remove(); }, 8000);
     }
+    function falharPassageiro(tipo, manual) {
+      item.className = 'arquivos__item arquivos__item--erro';
+      item.setAttribute('data-arquivo-estado', 'falhou');
+      item.setAttribute('data-falha', tipo);
+      trocarInfo(MSG_ARQUIVO[tipo], true);
+      acoes = el('span', 'arquivos__acoes');
+      var bTentar = el('button', 'arquivos__remover', 'Tentar de novo',
+        { type: 'button', 'data-tentar-arquivo': '', 'aria-label': 'Tentar enviar de novo ' + arquivo.name });
+      var bDescartar = el('button', 'arquivos__remover', 'Descartar',
+        { type: 'button', 'data-descartar-arquivo': '', 'aria-label': 'Descartar ' + arquivo.name });
+      bTentar.addEventListener('click', function () { tentar(true); });
+      bDescartar.addEventListener('click', function () { item.remove(); entradaArquivos.focus(); });
+      acoes.appendChild(bTentar);
+      acoes.appendChild(bDescartar);
+      item.appendChild(acoes);
+      if (manual) bTentar.focus();
+    }
+    function concluir(d) {
+      item.remove();
+      // Nunca duas vezes o mesmo caminho (ex.: dois toques rápidos em "Tentar de novo")
+      if (!arquivos.some(function (a) { return a.caminho === d.caminho; })) {
+        arquivos.push({ caminho: d.caminho, nome: arquivo.name.slice(0, 200), tipo: arquivo.type, tamanho: arquivo.size });
+      }
+      renderizarArquivos();
+      salvarRascunho();
+    }
+    function assinar() {
+      if (assinatura) return Promise.resolve(assinatura);
+      return buscarComPrazo(base + '/functions/v1/briefing-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: chave },
+        body: JSON.stringify({ codigo: acesso.codigo, token: acesso.token, nome: arquivo.name, tipo: arquivo.type, tamanho: arquivo.size })
+      }, PRAZO_RPC_MS).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok || !d.upload_url) throw erroHttp(d.erro || 'falha', r.status);
+          assinatura = d;
+          return d;
+        });
+      });
+    }
+    function tentar(manual) {
+      if (acoes) { acoes.remove(); acoes = null; }
+      item.className = 'arquivos__item arquivos__item--enviando';
+      item.setAttribute('data-arquivo-estado', 'enviando');
+      item.removeAttribute('data-falha');
+      trocarInfo('Enviando…', false);
+      if (manual) item.focus(); // o botão some durante o envio: o foco fica no próprio item
+      if (rede.offline()) { falharPassageiro('rede', manual); return Promise.resolve(); }
+      var reaproveitada = !!assinatura;
+      return assinar().then(function (d) {
+        return buscarComPrazo(d.upload_url, { method: 'PUT', headers: { 'Content-Type': arquivo.type, 'x-upsert': 'false' }, body: arquivo }, PRAZO_ARQUIVO_MS)
+          .then(function (r) {
+            if (r.ok) return concluir(d);
+            return r.json().catch(function () { return null; }).then(function (corpo) {
+              if (reaproveitada && jaExiste(r, corpo)) return concluir(d); // já tinha chegado antes
+              if (reaproveitada && r.status < 500) assinatura = null; // URL vencida: a próxima tentativa pede outra
+              throw erroHttp('upload', r.status >= 500 || reaproveitada ? Math.max(r.status, 500) : r.status);
+            });
+          });
+      }).then(function () {
+        if (manual && !document.body.contains(item)) entradaArquivos.focus();
+      }).catch(function (e) {
+        var tipo = tipoFalha(e);
+        if (tipo) { falharPassageiro(tipo, manual); return; }
+        falhar(MSG_RECUSA_ARQUIVO[e && e.message] || 'Não foi possível enviar. Tente de novo.');
+        if (manual) entradaArquivos.focus();
+      });
+    }
+
     if (TIPOS.indexOf(arquivo.type) === -1) { falhar('Tipo não aceito: use imagem ou PDF.'); return Promise.resolve(); }
     if (arquivo.size > TAMANHO_MAXIMO) { falhar('Maior que 5 MB.'); return Promise.resolve(); }
     if (arquivos.length >= MAX_ARQUIVOS) { falhar('Limite de ' + MAX_ARQUIVOS + ' arquivos.'); return Promise.resolve(); }
-    if (rede.offline()) { falhar('Sem internet: escolha o arquivo de novo quando a conexão voltar.'); return Promise.resolve(); }
-
-    return fetch(base + '/functions/v1/briefing-upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: chave },
-      body: JSON.stringify({ codigo: acesso.codigo, token: acesso.token, nome: arquivo.name, tipo: arquivo.type, tamanho: arquivo.size })
-    }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) {
-        if (!r.ok || !d.upload_url) throw new Error(d.erro || 'falha');
-        return d;
-      });
-    }).then(function (d) {
-      return fetch(d.upload_url, { method: 'PUT', headers: { 'Content-Type': arquivo.type, 'x-upsert': 'false' }, body: arquivo })
-        .then(function (r) {
-          if (!r.ok) throw new Error('upload');
-          item.remove();
-          arquivos.push({ caminho: d.caminho, nome: arquivo.name.slice(0, 200), tipo: arquivo.type, tamanho: arquivo.size });
-          renderizarArquivos();
-          salvarRascunho();
-        });
-    }).catch(function (e) {
-      var m = e && e.message;
-      if (rede.falhaDeRede(e)) { falhar('Sem internet: escolha o arquivo de novo quando a conexão voltar.'); return; }
-      falhar({ limite_arquivos: 'Limite de arquivos atingido.', arquivo_grande: 'Maior que 5 MB.', tipo_nao_permitido: 'Tipo não aceito.',
-        briefing_bloqueado: 'O briefing já está em produção.' }[m] || 'Não foi possível enviar. Tente de novo.');
-    });
+    return tentar(false);
   }
 
   entradaArquivos.addEventListener('change', function () {
     var lista = Array.prototype.slice.call(entradaArquivos.files || []);
     entradaArquivos.value = '';
     lista.reduce(function (p, f) { return p.then(function () { return enviarArquivo(f); }); }, Promise.resolve());
+  });
+  rede.aoVoltar(function () {
+    $$('[data-falha="rede"] .arquivos__info', listaArquivos).forEach(function (i) {
+      i.textContent = 'A conexão voltou: toque em “Tentar de novo”.';
+    });
   });
 
   // ------------------------------------------------------------------ envio
@@ -474,6 +570,11 @@
   // Sem internet (melhoria 53): as respostas ficam no formulário (e no rascunho do aparelho);
   // "Tentar de novo" reenvia o mesmo briefing. Nada é enviado sozinho quando a conexão volta.
   var SEM_INTERNET = 'Sem internet: suas respostas continuam aqui. Confira a conexão e toque em “Tentar de novo”.';
+  var MSG_ENVIO = {
+    rede: SEM_INTERNET,
+    tempo: 'O envio demorou demais e foi interrompido. Suas respostas continuam aqui e salvas neste aparelho: toque em “Tentar de novo”.',
+    servidor: 'Nosso servidor teve um problema agora. Suas respostas continuam aqui e salvas neste aparelho: toque em “Tentar de novo”.'
+  };
   var CONEXAO_VOLTOU = 'A conexão voltou. Suas respostas continuam aqui: toque em “Tentar de novo” para enviar.';
   botaoTentar.addEventListener('click', function () {
     bEnviar.focus(); // o "Tentar de novo" some ao reenviar: o foco fica no botão de envio
@@ -487,6 +588,17 @@
     if (enviando) return;
     for (var n = 1; n <= TOTAL_ETAPAS; n++) {
       if (!validarEtapa(n)) { irPara(n, false); validarEtapa(n); return; }
+    }
+    // Arquivo ainda subindo ou que falhou: avisa antes, para nenhum arquivo ficar de fora sem a pessoa saber.
+    var pendente = $('[data-arquivo-estado="enviando"], [data-arquivo-estado="falhou"]', listaArquivos);
+    if (pendente) {
+      var falhou = pendente.getAttribute('data-arquivo-estado') === 'falhou';
+      irPara(4, false);
+      mostrarErro(falhou
+        ? 'Um arquivo não foi enviado. Toque em “Tentar de novo” ao lado dele ou descarte-o antes de enviar o briefing.'
+        : 'Espere os arquivos terminarem de enviar e toque em “Enviar briefing” de novo.');
+      if (falhou) $('[data-tentar-arquivo]', pendente).focus(); else pendente.focus();
+      return;
     }
     if (rede.offline()) { mostrarErro(SEM_INTERNET, true); return; }
     enviando = true;
@@ -507,7 +619,10 @@
       })
       .catch(function (err) {
         var m = (err && err.message) || '';
-        if (rede.falhaDeRede(err)) { mostrarErro(SEM_INTERNET, true); return; }
+        var tipo = tipoFalha(err);
+        // Falha passageira: as respostas continuam no formulário e no rascunho. Reenviar é seguro mesmo se o
+        // primeiro envio chegou (tempo esgotado): briefing_enviar grava por pedido (on conflict), sem duplicar.
+        if (tipo) { gravarRascunhoAgora(); mostrarErro(MSG_ENVIO[tipo], true); return; }
         var chaveMsg = Object.keys(MENSAGENS).filter(function (k) { return m.indexOf(k) !== -1; })[0];
         mostrarErro(MENSAGENS[chaveMsg] || 'Não foi possível enviar agora. Seu rascunho está salvo; tente de novo em instantes.');
       })
