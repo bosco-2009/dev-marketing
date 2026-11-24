@@ -322,6 +322,30 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 .resultado__proximo[hidden] { display: none; }
 .resultado__proximo-titulo { font-size: var(--texto-md); letter-spacing: 0; margin-bottom: var(--esp-1); }
 
+/* Como concluir o pagamento (pendente, melhoria 100) */
+.resultado__passos {
+  display: grid;
+  gap: var(--esp-2);
+  margin: var(--esp-2) 0 var(--esp-4);
+  padding-left: var(--esp-5);
+}
+.resultado__passos li { padding-left: var(--esp-1); overflow-wrap: anywhere; }
+.resultado__passos li::marker { color: var(--cor-acao); font-weight: var(--peso-negrito); }
+.resultado__proximo > [data-concluir-pagamento] { width: 100%; }
+@media (min-width: 30rem) {
+  .resultado__proximo > [data-concluir-pagamento] { width: auto; }
+}
+.resultado__aviso-erro {
+  margin-top: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-sm);
+  background: var(--cor-erro-suave);
+  color: var(--cor-erro);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+.resultado__aviso-erro[hidden] { display: none; }
+
 .resultado__acoes { display: flex; flex-direction: column; gap: var(--esp-3); width: 100%; max-width: 24rem; }
 @media (min-width: 30rem) {
   .resultado__acoes { flex-direction: row; flex-wrap: wrap; justify-content: center; max-width: none; }
@@ -685,7 +709,7 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 @media print {
   .secao--compacta { padding-block: var(--esp-4) 0; }
   .resultado, .acompanhar { padding: var(--esp-5) var(--esp-4); border-color: var(--cor-borda-campo); break-inside: avoid; }
-  .resultado__link-briefing, .acompanhar__outro, .barra-plano { display: none !important; }
+  .resultado__link-briefing, .acompanhar__outro, .barra-plano, [data-concluir-pagamento], .resultado__aviso-erro { display: none !important; }
   .resultado__pedido { border: 1px solid var(--cor-borda); }  /* o fundo suave some no papel */
   .resultado__icone, .etapas__marca, .etapas__item::before { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .etapas__item { break-inside: avoid; }
