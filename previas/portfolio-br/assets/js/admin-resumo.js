@@ -19,6 +19,10 @@
  * Melhoria 76: botão "Baixar CSV" — os cartões do mês escolhido (com o mês anterior ao lado) e a tabela "De onde vieram
  * os pedidos", montados no navegador com o PBRExportar.csv (mesmo escape contra fórmulas). Só contagens e valores:
  * nenhum nome, e-mail, WhatsApp, código de pedido ou texto digitado por visitante entra no arquivo.
+ *
+ * Melhoria 113: botão "Copiar resumo" — os mesmos números do mês escolhido em texto curto, pronto para colar no
+ * WhatsApp do dono (negrito com *asteriscos*, uma linha por número, mês anterior entre parênteses). Mesma regra do CSV:
+ * só contagens, valores e tempos; nada de nome, contato, código de pedido ou texto de visitante.
  */
 (function () {
   'use strict';
@@ -267,6 +271,8 @@
     var botaoBaixar = $('[data-resumo-baixar]');
     var carregado = dados.conversas != null || dados.pedidos != null;
     if (botaoBaixar) botaoBaixar.disabled = !carregado || !window.PBRExportar;
+    var botaoCopiar = $('[data-resumo-copiar]');
+    if (botaoCopiar) botaoCopiar.disabled = !carregado;
     if (!carregado) {
       var blocoConteudos = $('[data-resumo-conteudos]');
       if (blocoConteudos) blocoConteudos.hidden = true;
@@ -413,6 +419,91 @@
     if (status) status.textContent = 'Resumo de ' + nomeMes(mesEscolhido, true) + ' baixado em CSV.';
   }
 
+  // ------------------------------------------------------------------ texto para o WhatsApp (melhoria 113)
+  // Função pura sobre os dados carregados. Devolve null enquanto nada foi carregado. Só inclui o que foi carregado:
+  // nunca escreve "undefined"/"null"; o que não dá para calcular vira "—" ou "sem dados suficientes".
+  function textoWhatsapp(m) {
+    if (dados.conversas == null && dados.pedidos == null) return null;
+    var a = mesAnterior(m);
+    var hoje = metricas(m);
+    var antes = metricas(a);
+    var ant = nomeMes(a);
+    var inteiro = function (n) { return fNum.format(n); };
+    var real = function (c) { return fReal.format(c / 100); };
+    var pct = function (t) { return t == null ? '—' : fPct.format(t) + '%'; };
+    var linhas = ['*Resumo de ' + nomeMes(m, true) + ' · Portfólio BR*', ''];
+    function item(rotulo, valor, valorAntes) {
+      linhas.push('• ' + rotulo + ': ' + valor + (valorAntes != null ? ' (' + ant + ': ' + valorAntes + ')' : ''));
+    }
+    if (dados.conversas != null) {
+      item('Conversas novas', inteiro(hoje.conversas), inteiro(antes.conversas));
+      item('Leads (com nome ou WhatsApp)', inteiro(hoje.leads), inteiro(antes.leads));
+    }
+    if (dados.pedidos != null) {
+      item('Pedidos pagos', inteiro(hoje.pagos), inteiro(antes.pagos));
+      item('Valor recebido', real(hoje.valor), real(antes.valor));
+      item('Conversão do checkout', pct(hoje.taxa) + (hoje.iniciados ? ' · ' + inteiro(hoje.iniciadosPagos) + ' de ' + inteiro(hoje.iniciados) : ''),
+        pct(antes.taxa));
+      if (dados.atrasados != null) item('Pedidos atrasados agora', inteiro(dados.atrasados), null);
+    }
+    if (dados.conversas != null && temHorarios()) {
+      var t = temposResposta(m);
+      var t0 = temposResposta(a);
+      if (t.suficiente) {
+        item('1ª resposta (mediana)', duracao(t.mediana), t0.suficiente ? duracao(t0.mediana) : null);
+        item('1ª resposta (90% em até)', duracao(t.p90), t0.suficiente ? duracao(t0.p90) : null);
+      } else {
+        item('1ª resposta', 'sem dados suficientes (' + inteiro(t.respondidas) + ' de ' + MINIMO_RESPOSTAS + ' conversas respondidas)', null);
+      }
+    }
+    var limite = $('[data-resumo-limite]');
+    linhas.push('');
+    if (limite && !limite.hidden && limite.textContent) linhas.push('_' + limite.textContent + '_');
+    var X = window.PBRExportar;
+    var data = X && X.hoje ? X.hoje() : new Date().toLocaleDateString('pt-BR');
+    linhas.push('_Calculado no painel em ' + data + '._');
+    return linhas.join('\n');
+  }
+
+  // Área de transferência: API moderna; sem ela (ou negada), cópia por uma caixa de texto temporária fora da tela.
+  function copiarTexto(texto) {
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      return navigator.clipboard.writeText(texto).catch(function () { return copiarAntigo(texto); });
+    }
+    return copiarAntigo(texto);
+  }
+  function copiarAntigo(texto) {
+    return new Promise(function (resolver, rejeitar) {
+      var ativo = document.activeElement;
+      var caixa = document.createElement('textarea');
+      caixa.value = texto;
+      caixa.setAttribute('readonly', '');
+      caixa.setAttribute('aria-hidden', 'true');
+      caixa.className = 'visualmente-oculto';
+      document.body.appendChild(caixa);
+      caixa.select();
+      var deu = false;
+      try { deu = document.execCommand('copy'); } catch (e) { deu = false; }
+      caixa.remove();
+      if (ativo && ativo.focus) ativo.focus();
+      if (deu) resolver(); else rejeitar(new Error('cópia não permitida'));
+    });
+  }
+
+  function copiarResumo() {
+    var status = $('[data-resumo-baixado]');
+    if (!mesEscolhido) return;
+    var texto = textoWhatsapp(mesEscolhido);
+    if (texto == null) return;
+    var mes = nomeMes(mesEscolhido, true);
+    if (status) status.textContent = '';
+    copiarTexto(texto).then(function () {
+      if (status) status.textContent = 'Resumo de ' + mes + ' copiado. Cole no WhatsApp.';
+    }, function () {
+      if (status) status.textContent = 'Não foi possível copiar o resumo de ' + mes + '. Use "Baixar CSV" ou permita a área de transferência no navegador.';
+    });
+  }
+
   function celula(tr, tag, texto, attrs) { var c = el(tag, null, texto, attrs); tr.appendChild(c); return c; }
 
   function renderizarConteudos(m) {
@@ -500,12 +591,14 @@
     });
     var botaoBaixar = $('[data-resumo-baixar]');
     if (botaoBaixar) botaoBaixar.addEventListener('click', baixarCsv);
+    var botaoCopiar = $('[data-resumo-copiar]');
+    if (botaoCopiar) botaoCopiar.addEventListener('click', copiarResumo);
     renderizar();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
   // Exposto para testes.
-  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta, linhasCsv: linhasCsv,
+  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta, linhasCsv: linhasCsv, textoWhatsapp: textoWhatsapp,
     duracao: duracao, mediana: mediana, percentil: percentil, compararTempo: compararTempo };
 })();
