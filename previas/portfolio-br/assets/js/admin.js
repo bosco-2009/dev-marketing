@@ -266,6 +266,11 @@
     function iniciarChat() {
       if (estado.chatIniciado) return;
       estado.chatIniciado = true;
+      // Aviso de tempo real pausado (melhoria 79): "Atualizar" recarrega a lista e a conversa aberta.
+      if (window.PBRTempoReal) window.PBRTempoReal.registrar('conversas', function () {
+        return Promise.all([carregarConversas(), estado.selecionada ? carregarMensagens(estado.selecionada) : true])
+          .then(function (r) { return r[0]; });
+      });
       carregarConversas();
       ligarRealtime();
       // "há N min" muda a cada minuto: só o texto das etiquetas, sem redesenhar a lista (foco e rolagem ficam).
@@ -274,6 +279,7 @@
     }
 
     function encerrarChat() {
+      if (window.PBRTempoReal) window.PBRTempoReal.esquecer('conversas');
       if (estado.canal) sb.removeChannel(estado.canal);
       estado.canal = null;
       pararReserva();
@@ -299,6 +305,8 @@
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens' }, function (p) { aoNovaMensagem(p.new); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'conversas' }, function () { agendarRecarga(); })
         .subscribe(function (status) {
+          if (!estado.chatIniciado) return; // CLOSED atrasado de um canal já removido (logout)
+          if (window.PBRTempoReal) window.PBRTempoReal.informar('conversas', status);
           var ok = status === 'SUBSCRIBED';
           indicador.textContent = ok ? 'Tempo real ativo' : 'Reconectando… (atualizando a cada 15 s)';
           indicador.setAttribute('data-estado', ok ? 'ok' : 'erro');

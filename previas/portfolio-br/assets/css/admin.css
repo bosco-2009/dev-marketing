@@ -113,6 +113,36 @@
 .admin-painel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .admin-painel[hidden] { display: none; }
 
+/* Tempo real pausado (melhoria 79): a região viva fica no DOM sem ocupar espaço até haver aviso. */
+.admin-tempo-real__texto { margin: 0; }
+.admin-tempo-real[data-ativo] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-3);
+  padding: var(--esp-2) var(--margem-lateral);
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-destaque-suave);
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+}
+.admin-tempo-real[data-estado='ok'] { background: var(--cor-acao-fundo-suave); }
+.admin-tempo-real[data-ativo] .admin-tempo-real__texto { flex: 1 1 14rem; }
+.admin-tempo-real__texto::before {
+  content: '';
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: var(--esp-2);
+  border-radius: 50%;
+  background: var(--cor-erro);
+  vertical-align: 0.05em;
+}
+.admin-tempo-real:not([data-ativo]) .admin-tempo-real__texto::before { content: none; }
+.admin-tempo-real[data-estado='ok'] .admin-tempo-real__texto::before { background: var(--cor-acao); }
+.admin-tempo-real__botao[hidden] { display: none; }
+
 .admin-abas {
   display: flex;
   gap: var(--esp-1);

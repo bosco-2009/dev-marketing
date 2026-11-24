@@ -243,6 +243,7 @@
     }, 60000);
 
     if (window.PBRAvisos) window.PBRAvisos.acompanharAba('pedidos', contarPagosNaoVistos);
+    if (window.PBRTempoReal) window.PBRTempoReal.registrar('pedidos', carregar);
     carregar();
     // Tempo real (RLS do admin); sem conexão, atualiza a cada 30 s.
     estado.canal = sb.channel('painel-pedidos')
@@ -251,6 +252,8 @@
       // Resposta do dono no chat tira o pedido de "sem contato".
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'autor=eq.admin' }, function () { agendar(); })
       .subscribe(function (status) {
+        if (!estado) return; // CLOSED atrasado depois do logout
+        if (window.PBRTempoReal) window.PBRTempoReal.informar('pedidos', status);
         clearInterval(estado && estado.timer);
         if (status !== 'SUBSCRIBED' && estado) estado.timer = setInterval(carregar, 30000);
         else if (estado) carregar();
@@ -795,6 +798,7 @@
 
   function encerrar() {
     if (!estado) return;
+    if (window.PBRTempoReal) window.PBRTempoReal.esquecer('pedidos');
     if (estado.canal) estado.sb.removeChannel(estado.canal);
     clearInterval(estado.timer);
     clearInterval(estado.relogio);

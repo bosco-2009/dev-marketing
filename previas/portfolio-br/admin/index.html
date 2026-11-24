@@ -16,17 +16,18 @@
   <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/tokens.css?v=7adca5c8">
   <link rel="stylesheet" href="../assets/css/main.css?v=2a424f5c">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=d218e2ba">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=63a5770f">
 
   <script src="../config.js?v=0c1b57bf" defer></script>
   <script src="../assets/js/supabase-client.js?v=b6c0292b" defer></script>
   <script src="../assets/js/admin-avisos.js?v=2c4a2a0f" defer></script>
   <script src="../assets/js/admin-exportar.js?v=a238a6f4" defer></script>
   <script src="../assets/js/admin-paginacao.js?v=0252303b" defer></script>
-  <script src="../assets/js/admin.js?v=96efa595" defer></script>
+  <script src="../assets/js/admin-tempo-real.js?v=4ec6be5b" defer></script>
+  <script src="../assets/js/admin.js?v=77020e1e" defer></script>
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
-  <script src="../assets/js/admin-pedidos.js?v=22af27d1" defer></script>
-  <script src="../assets/js/admin-briefings.js?v=6f3e06ec" defer></script>
+  <script src="../assets/js/admin-pedidos.js?v=a8dc7416" defer></script>
+  <script src="../assets/js/admin-briefings.js?v=8573ff69" defer></script>
   <script src="../assets/js/admin-resumo.js?v=6dec25a4" defer></script>
   <script src="../assets/js/admin-busca.js?v=2f5ed0f4" defer></script>
   <script src="../assets/js/admin-atalhos.js?v=db5980ec" defer></script>
@@ -40,6 +41,7 @@
     <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
     <symbol id="i-sino-mudo" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="m4 4 16 16"/></symbol>
     <symbol id="i-teclado" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/></symbol>
+    <symbol id="i-atualizar" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4.5V11h-6.5"/></symbol>
     <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
   </svg>
 
@@ -115,6 +117,14 @@
       <p id="busca-global-dica" class="visualmente-oculto">Digite ao menos 2 letras. Use a seta para baixo para ir aos resultados e Esc para fechar.</p>
       <p class="visualmente-oculto" role="status" data-busca-global-status></p>
       <div id="busca-global-resultados" class="admin-busca-global__painel" data-busca-global-resultados hidden></div>
+    </div>
+    <!-- Tempo real pausado (melhoria 79): a região viva fica sempre no DOM; o aviso aparece quando um canal cai -->
+    <div class="admin-tempo-real" data-tempo-real>
+      <p class="admin-tempo-real__texto" role="status" data-tempo-real-texto></p>
+      <button class="botao botao--contorno botao--pequeno admin-tempo-real__botao" type="button" data-tempo-real-atualizar hidden>
+        <svg class="icone" aria-hidden="true"><use href="#i-atualizar"/></svg>
+        Atualizar
+      </button>
     </div>
     <nav class="admin-abas" aria-label="Seções do painel">
       <a class="admin-aba" href="#conversas" data-aba-link="conversas" aria-current="page">Conversas <span class="admin-aba__selo" data-selo-aba="conversas" hidden></span></a>

@@ -63,11 +63,13 @@
     };
 
     if (window.PBRAvisos) window.PBRAvisos.acompanharAba('briefings', contarNovosNaoVistos);
+    if (window.PBRTempoReal) window.PBRTempoReal.registrar('briefings', carregar);
     carregar();
     estado.canal = sb.channel('painel-briefings')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'briefings' }, function () { clearTimeout(timer); timer = setTimeout(carregar, 300); })
       .subscribe(function (status) {
         if (!estado) return;
+        if (window.PBRTempoReal) window.PBRTempoReal.informar('briefings', status);
         clearInterval(estado.intervalo);
         if (status !== 'SUBSCRIBED') estado.intervalo = setInterval(carregar, 30000);
         else carregar();
@@ -271,6 +273,7 @@
 
   function encerrar() {
     if (!estado) return;
+    if (window.PBRTempoReal) window.PBRTempoReal.esquecer('briefings');
     if (estado.canal) estado.sb.removeChannel(estado.canal);
     clearInterval(estado.intervalo);
     if (estado.paginacao) estado.paginacao.reiniciar();
