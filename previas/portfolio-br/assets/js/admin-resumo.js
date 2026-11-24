@@ -12,6 +12,10 @@
  *
  * Melhoria 83: cartão "Pedidos atrasados" — contagem de agora enviada pela aba Pedidos (evento pbr:admin-dados).
  *
+ * Melhoria 88: cartões "Primeira resposta" — mediana e percentil 90 do tempo entre a 1ª mensagem do visitante e a 1ª
+ * resposta do dono, nas conversas cuja 1ª mensagem do visitante caiu no mês. Usa só os horários que a lista de conversas
+ * já traz (primeira_visitante / primeira_resposta, admin.js); com menos de 5 conversas respondidas, "sem dados suficientes".
+ *
  * Melhoria 76: botão "Baixar CSV" — os cartões do mês escolhido (com o mês anterior ao lado) e a tabela "De onde vieram
  * os pedidos", montados no navegador com o PBRExportar.csv (mesmo escape contra fórmulas). Só contagens e valores:
  * nenhum nome, e-mail, WhatsApp, código de pedido ou texto digitado por visitante entra no arquivo.
@@ -65,6 +69,74 @@
       iniciados: iniciados.length,
       iniciadosPagos: iniciadosPagos.length,
       taxa: iniciados.length ? (iniciadosPagos.length / iniciados.length) * 100 : null
+    };
+  }
+
+  // ------------------------------------------------------------------ tempo de primeira resposta (melhoria 88)
+  var MINIMO_RESPOSTAS = 5;
+  function horario(lista) {
+    var iso = lista && lista[0] && lista[0].criado_em;
+    if (!iso) return null;
+    var t = new Date(iso).getTime();
+    return isFinite(t) ? t : null;
+  }
+  // Os horários extras existem? (servidor que recusou a consulta estendida → a lista vem sem eles)
+  function temHorarios() {
+    var c = dados.conversas || [];
+    return !c.length || c.some(function (x) { return Object.prototype.hasOwnProperty.call(x, 'primeira_visitante'); });
+  }
+  // Percentil pelo posto mais próximo (sempre um tempo que aconteceu de verdade); mediana par = média dos dois do meio.
+  function percentil(ordenados, p) {
+    if (!ordenados.length) return null;
+    return ordenados[Math.max(0, Math.ceil(p * ordenados.length) - 1)];
+  }
+  function mediana(ordenados) {
+    var n = ordenados.length;
+    if (!n) return null;
+    return n % 2 ? ordenados[(n - 1) / 2] : (ordenados[n / 2 - 1] + ordenados[n / 2]) / 2;
+  }
+  function temposResposta(m) {
+    var duracoes = [];
+    var semResposta = 0;
+    (dados.conversas || []).forEach(function (c) {
+      var inicio = horario(c.primeira_visitante);
+      if (inicio == null || !noMes(new Date(inicio).toISOString(), m)) return;
+      var resposta = horario(c.primeira_resposta);
+      if (resposta == null || resposta < inicio) { semResposta++; return; }
+      duracoes.push(resposta - inicio);
+    });
+    duracoes.sort(function (a, b) { return a - b; });
+    var suficiente = duracoes.length >= MINIMO_RESPOSTAS;
+    return {
+      respondidas: duracoes.length,
+      semResposta: semResposta,
+      suficiente: suficiente,
+      mediana: suficiente ? mediana(duracoes) : null,
+      p90: suficiente ? percentil(duracoes, 0.9) : null
+    };
+  }
+  // 45 s → "menos de 1 min"; 12 min; 2 h 5 min; 3 d 4 h (arredonda para o minuto mais próximo).
+  function duracao(ms) {
+    if (ms == null) return '—';
+    if (ms < 60000) return 'menos de 1 min';
+    var min = Math.round(ms / 60000);
+    if (min < 60) return min + ' min';
+    var h = Math.floor(min / 60);
+    if (h < 24) return h + ' h' + (min % 60 ? ' ' + (min % 60) + ' min' : '');
+    var d = Math.floor(h / 24);
+    return d + ' d' + (h % 24 ? ' ' + (h % 24) + ' h' : '');
+  }
+  // Para o tempo, menor é melhor: a seta aponta a direção do número; a cor diz se melhorou.
+  function compararTempo(atual, antes, mesAntes) {
+    var nome = nomeMes(mesAntes);
+    if (atual == null) return { seta: '', texto: antes == null ? 'Sem dados suficientes em ' + nome + ' para comparar' : 'Em ' + nome + ': ' + duracao(antes) };
+    if (antes == null) return { seta: '', texto: 'Sem dados suficientes em ' + nome + ' para comparar' };
+    var d = Math.round(atual / 60000) - Math.round(antes / 60000);
+    if (d === 0) return { seta: '=', texto: 'Igual a ' + nome + ' (' + duracao(antes) + ')' };
+    return {
+      seta: d > 0 ? '▲' : '▼',
+      direcao: d > 0 ? 'pior' : 'melhor',
+      texto: duracao(Math.abs(d) * 60000) + (d > 0 ? ' mais lento que em ' : ' mais rápido que em ') + nome + ' (' + duracao(antes) + ')'
     };
   }
 
@@ -162,7 +234,8 @@
     var p = el('p', 'admin-kpi__comparacao');
     if (comp.seta) {
       var s = el('span', 'admin-kpi__seta', comp.seta, { 'aria-hidden': 'true' });
-      if (comp.seta === '▲') s.setAttribute('data-direcao', 'sobe');
+      if (comp.direcao) s.setAttribute('data-direcao', comp.direcao);
+      else if (comp.seta === '▲') s.setAttribute('data-direcao', 'sobe');
       else if (comp.seta === '▼') s.setAttribute('data-direcao', 'desce');
       p.appendChild(s);
       p.appendChild(document.createTextNode(' '));
@@ -220,6 +293,8 @@
           { seta: '', texto: dados.atrasados ? 'Veja na aba Pedidos, filtro Atrasados' : 'Nenhum site passou do prazo' });
       }
     }
+    // Melhoria 88: depois dos cartões de pedidos (a ordem dos anteriores não muda).
+    if (dados.conversas != null) cartoesResposta(lista, m, a);
 
     renderizarConteudos(m);
 
@@ -228,6 +303,26 @@
     if (dados.limitePedidos) partes.push('os ' + fNum.format(dados.pedidos.length) + ' pedidos mais recentes');
     aviso.hidden = !partes.length;
     aviso.textContent = partes.length ? 'O painel carrega só ' + partes.join(' e ') + '; meses mais antigos podem aparecer incompletos.' : '';
+  }
+
+  function cartoesResposta(lista, m, a) {
+    if (!temHorarios()) {
+      cartao(lista, 'Primeira resposta', 'Indisponível', 'O servidor não enviou os horários das mensagens',
+        { seta: '', texto: 'Atualize a página para tentar de novo' });
+      return;
+    }
+    var t = temposResposta(m);
+    var t0 = temposResposta(a);
+    var conta = function (n, um, varios) { return fNum.format(n) + ' ' + (n === 1 ? um : varios); };
+    var base = conta(t.respondidas, 'conversa respondida', 'conversas respondidas') +
+      (t.semResposta ? ' · ' + conta(t.semResposta, 'sem resposta', 'sem resposta') : '');
+    var falta = 'Sem dados suficientes: ' + conta(t.respondidas, 'conversa respondida', 'conversas respondidas') +
+      ' (mínimo ' + MINIMO_RESPOSTAS + ')' + (t.semResposta ? ' · ' + conta(t.semResposta, 'sem resposta', 'sem resposta') : '');
+    cartao(lista, 'Primeira resposta (mediana)', t.suficiente ? duracao(t.mediana) : '—',
+      t.suficiente ? 'Metade respondida nesse tempo · ' + base : falta, compararTempo(t.mediana, t0.mediana, a));
+    cartao(lista, 'Primeira resposta (90%)', t.suficiente ? duracao(t.p90) : '—',
+      t.suficiente ? '9 em cada 10 respondidas em até esse tempo' : 'Aparece com 5 ou mais conversas respondidas no mês',
+      compararTempo(t.p90, t0.p90, a));
   }
 
   // ------------------------------------------------------------------ CSV (melhoria 76)
@@ -258,6 +353,16 @@
       linha('Pedidos iniciados', 'iniciados', inteiro);
       linha('Pedidos iniciados que foram pagos', 'iniciadosPagos', inteiro);
       linha('Conversão do checkout (%)', 'taxa', pctCsv);
+    }
+    if (dados.conversas != null && temHorarios()) {
+      // Melhoria 88: minutos com uma casa (vazio quando há menos de 5 conversas respondidas).
+      var t = temposResposta(m);
+      var t0 = temposResposta(a);
+      var minutos = function (ms) { return ms == null ? '' : (Math.round(ms / 6000) / 10).toFixed(1).replace('.', ','); };
+      cartoes.push(['Primeira resposta, mediana (min)', minutos(t.mediana), minutos(t0.mediana)]);
+      cartoes.push(['Primeira resposta, 90% em até (min)', minutos(t.p90), minutos(t0.p90)]);
+      cartoes.push(['Conversas respondidas', String(t.respondidas), String(t0.respondidas)]);
+      cartoes.push(['Conversas sem resposta', String(t.semResposta), String(t0.semResposta)]);
     }
     var col = function (i) { return function (l) { return l[i]; }; };
     var partes = [X.csv([
@@ -393,5 +498,6 @@
   else iniciar();
 
   // Exposto para testes.
-  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta, linhasCsv: linhasCsv };
+  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta, linhasCsv: linhasCsv,
+    duracao: duracao, mediana: mediana, percentil: percentil, compararTempo: compararTempo };
 })();

@@ -697,6 +697,9 @@
 .admin-kpi__seta { display: inline-block; min-width: 1em; color: var(--cor-texto-suave); }
 .admin-kpi__seta[data-direcao='sobe'] { color: var(--cor-sucesso); }
 .admin-kpi__seta[data-direcao='desce'] { color: var(--cor-erro); }
+/* Tempo de resposta (melhoria 88): menor é melhor, então a cor segue a avaliação, não a direção da seta */
+.admin-kpi__seta[data-direcao='melhor'] { color: var(--cor-sucesso); }
+.admin-kpi__seta[data-direcao='pior'] { color: var(--cor-erro); }
 
 /* De onde vieram os pedidos (melhoria 70) */
 .admin-conteudos {

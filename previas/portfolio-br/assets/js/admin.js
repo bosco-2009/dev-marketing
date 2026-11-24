@@ -352,16 +352,33 @@
       carregar: function () { return carregarConversas(); }
     }) : null;
     var juncaoMensagens = 'mensagens!inner';
+    // Tempo de primeira resposta (melhoria 88): na MESMA leitura, só o horário da 1ª mensagem do visitante e da 1ª do
+    // dono de cada conversa (sem texto, sem escrita). A aba Resumo calcula mediana e p90 no navegador.
+    var comPrimeiras = true;
 
     function carregarConversas() {
       var limite = paginacao ? paginacao.limite() : 300;
-      return sb.from('conversas')
-        .select('id, nome, whatsapp, pagina_origem, status, nao_lidas_admin, criado_em, atualizado_em, ' + juncaoMensagens + '(texto, autor, criado_em)', { count: 'exact' })
+      var campos = 'id, nome, whatsapp, pagina_origem, status, nao_lidas_admin, criado_em, atualizado_em, ' + juncaoMensagens + '(texto, autor, criado_em)';
+      if (comPrimeiras) campos += ', primeira_visitante:mensagens(criado_em), primeira_resposta:mensagens(criado_em)';
+      var consulta = sb.from('conversas')
+        .select(campos, { count: 'exact' })
         .order('atualizado_em', { ascending: false })
         .order('criado_em', { referencedTable: 'mensagens', ascending: false })
-        .limit(1, { referencedTable: 'mensagens' })
+        .limit(1, { referencedTable: 'mensagens' });
+      if (comPrimeiras) {
+        consulta = consulta
+          .eq('primeira_visitante.autor', 'visitante')
+          .order('criado_em', { referencedTable: 'primeira_visitante', ascending: true })
+          .limit(1, { referencedTable: 'primeira_visitante' })
+          .eq('primeira_resposta.autor', 'admin')
+          .order('criado_em', { referencedTable: 'primeira_resposta', ascending: true })
+          .limit(1, { referencedTable: 'primeira_resposta' });
+      }
+      return consulta
         .range(0, limite - 1)
         .then(function (r) {
+          // Servidor que recusa os horários extras: a lista continua funcionando sem eles (o Resumo avisa).
+          if (r.error && comPrimeiras) { comPrimeiras = false; return carregarConversas(); }
           // Servidor sem suporte ao !inner: volta à junção comum (as vazias são filtradas abaixo).
           if (r.error && juncaoMensagens !== 'mensagens') { juncaoMensagens = 'mensagens'; return carregarConversas(); }
           if (r.error) throw r.error;
