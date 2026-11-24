@@ -146,3 +146,18 @@
   color: var(--cor-texto-suave);
   font-size: var(--texto-sm);
 }
+
+/* Melhoria 106: miniaturas decorativas (alt="") nos cartões do blog e do "Leia também", feitas das imagens OG.
+   Vão até a borda do cartão; aspect-ratio + width/height reservam o espaço (CLS 0). */
+.miniatura { display: block; order: -2; overflow: hidden; background: var(--cor-noite-900); }
+.miniatura img { display: block; width: 100%; height: auto; aspect-ratio: 40 / 21; }
+.blog-cartao__imagem {
+  margin: calc(-1 * var(--esp-5)) calc(-1 * var(--esp-5)) var(--esp-4);
+  border-radius: calc(var(--raio-lg) - 1px) calc(var(--raio-lg) - 1px) 0 0;
+}
+.artigo__corpo .relacionado__imagem {
+  margin: calc(-1 * var(--esp-4)) calc(-1 * var(--esp-4)) var(--esp-3);
+  border-radius: calc(var(--raio-md) - 1px) calc(var(--raio-md) - 1px) 0 0;
+}
+.artigo__corpo .relacionado--segmento .relacionado__imagem { border-radius: 0; }
+@media print { .miniatura { display: none; } }
