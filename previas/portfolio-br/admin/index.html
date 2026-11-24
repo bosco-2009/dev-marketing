@@ -28,6 +28,7 @@
   <script src="../assets/js/admin-briefings.js" defer></script>
   <script src="../assets/js/admin-resumo.js" defer></script>
   <script src="../assets/js/admin-busca.js" defer></script>
+  <script src="../assets/js/admin-atalhos.js" defer></script>
 </head>
 <body class="admin">
   <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -37,6 +38,7 @@
     <symbol id="i-som" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
     <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
     <symbol id="i-sino-mudo" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="m4 4 16 16"/></symbol>
+    <symbol id="i-teclado" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 14h8"/></symbol>
     <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
   </svg>
 
@@ -56,6 +58,10 @@
         <span class="visualmente-oculto">Notificações do navegador</span>
       </button>
       <span class="visualmente-oculto" role="status" data-notificacoes-dica></span>
+      <button class="admin-botao-icone admin-botao-icone--atalhos" type="button" aria-haspopup="dialog" data-atalhos-abrir>
+        <svg class="icone" aria-hidden="true"><use href="#i-teclado"/></svg>
+        <span class="visualmente-oculto">Atalhos de teclado</span>
+      </button>
       <button class="botao botao--contorno botao--pequeno" type="button" data-sair>Sair</button>
     </div>
   </header>
@@ -207,6 +213,32 @@
           <button type="submit" class="botao botao--primario botao--pequeno">Salvar</button>
         </div>
       </form>
+    </dialog>
+
+    <!-- Atalhos de teclado (melhoria 41). Atalhos de uma tecla podem ser desligados aqui (WCAG 2.1.4). -->
+    <dialog class="admin-dialogo admin-atalhos" aria-labelledby="atalhos-titulo" aria-describedby="atalhos-dica" data-atalhos-dialogo>
+      <div class="admin-dialogo__form">
+        <h2 id="atalhos-titulo" class="admin-dialogo__titulo">Atalhos de teclado</h2>
+        <p id="atalhos-dica" class="admin-dialogo__dica">Não funcionam enquanto você digita num campo. Para <kbd>g</kbd> + letra, aperte uma tecla depois da outra.</p>
+        <dl class="admin-atalhos__lista">
+          <div class="admin-atalhos__item"><dt><kbd>g</kbd> <kbd>c</kbd></dt><dd>Ir para Conversas</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>g</kbd> <kbd>p</kbd></dt><dd>Ir para Pedidos</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>g</kbd> <kbd>b</kbd></dt><dd>Ir para Briefings</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>g</kbd> <kbd>r</kbd></dt><dd>Ir para Resumo</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>/</kbd></dt><dd>Buscar (busca da aba Pedidos ou a busca geral)</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>j</kbd> / <kbd>k</kbd></dt><dd>Próximo / anterior da lista; <kbd>Enter</kbd> abre</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>?</kbd></dt><dd>Mostrar esta lista</dd></div>
+          <div class="admin-atalhos__item"><dt><kbd>Esc</kbd></dt><dd>Fechar esta lista</dd></div>
+        </dl>
+        <label class="admin-atalhos__ligar">
+          <input type="checkbox" data-atalhos-ligados checked>
+          Atalhos de uma tecla ligados neste navegador
+        </label>
+        <p class="visualmente-oculto" role="status" data-atalhos-status></p>
+        <div class="admin-dialogo__acoes">
+          <button type="button" class="botao botao--primario botao--pequeno" autofocus data-atalhos-fechar>Fechar</button>
+        </div>
+      </div>
     </dialog>
 
     <!-- Pedidos -->
