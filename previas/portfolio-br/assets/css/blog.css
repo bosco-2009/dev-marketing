@@ -76,3 +76,32 @@
 .autor__nota + .autor__nota { margin-top: var(--esp-3); }
 .autor__nota a { font-weight: var(--peso-semi); overflow-wrap: anywhere; }
 .autor > * { max-width: 46rem; }
+
+/* Melhoria 57: leitura estimada na lista e "Leia também" com artigos e o segmento mais próximo */
+.blog-cartao__leitura { margin-top: auto; padding-top: var(--esp-3); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.artigo__corpo .relacionados { display: grid; gap: var(--esp-3); margin-top: var(--esp-4); padding: 0; }
+@media (min-width: 40rem) { .artigo__corpo .relacionados { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.artigo__corpo .relacionado {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  line-height: 1.5;
+  transition: box-shadow var(--duracao-media) var(--curva-padrao), border-color var(--duracao-media) var(--curva-padrao);
+}
+.relacionado:hover { border-color: var(--cor-acao); box-shadow: var(--sombra-md); }
+.relacionado:focus-within { box-shadow: var(--sombra-md); }
+.artigo__corpo .relacionado--segmento { border-top: 3px solid var(--cor-acao); }
+.relacionado__tipo { order: -1; margin-bottom: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.artigo__corpo .relacionado__titulo { margin: 0; font-size: var(--texto-md); line-height: 1.3; }
+.relacionado__titulo a { color: var(--cor-texto); text-decoration: none; }
+/* o cartão inteiro é clicável pelo link do título (o foco fica no próprio link) */
+.relacionado__titulo a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.relacionado__titulo a:hover { color: var(--cor-acao); }
+.artigo__corpo .relacionado__resumo { margin-top: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
+.artigo__corpo .artigo__mais-todos { margin-top: var(--esp-4); }
+@media (prefers-reduced-motion: reduce) { .relacionado { transition: none; } }
