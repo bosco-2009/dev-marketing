@@ -121,8 +121,53 @@
   if (!config || !window.PBRSupabase || !window.PBRSupabase.configurado()) return; // chat oculto
   if (!window.crypto || !window.crypto.getRandomValues) return;
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
-  else iniciar();
+  // Desempenho (melhoria 89): o widget não disputa a primeira pintura. O chat.css chega com media="not all"
+  // (baixado sem bloquear a renderização) e o botão flutuante só é montado quando o navegador fica ocioso
+  // depois do load, ou antes disso na primeira interação (toque, tecla, rolagem). Quem já tem conversa salva
+  // recebe o widget na hora, como antes. O botão é position: fixed: montá-lo não desloca nada (CLS 0).
+  var montado = false;
+  var EVENTOS_INTERACAO = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'];
+  function montar() {
+    if (montado) return;
+    montado = true;
+    EVENTOS_INTERACAO.forEach(function (ev) { window.removeEventListener(ev, montar, true); });
+    carregarCss(function () {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+      else iniciar();
+    });
+  }
+  // Ativa o chat.css e espera ele estar pronto, para o botão nunca aparecer sem estilo.
+  function carregarCss(pronto) {
+    var link = document.querySelector('link[data-chat-css]');
+    if (!link) { pronto(); return; }
+    var feito = false;
+    function uma() { if (!feito) { feito = true; pronto(); } }
+    link.addEventListener('load', uma, { once: true });
+    link.media = 'all';
+    try { if (link.sheet && link.sheet.cssRules) uma(); } catch (e) { /* ainda carregando */ }
+  }
+  function conversaSalva() {
+    try {
+      var e = JSON.parse(window.localStorage.getItem(CHAVE_ARMAZENAMENTO) || 'null');
+      return !!(e && e.iniciada);
+    } catch (err) { return false; }
+  }
+  if (conversaSalva()) montar();
+  else {
+    EVENTOS_INTERACAO.forEach(function (ev) { window.addEventListener(ev, montar, { capture: true, passive: true }); });
+    var agendarOcio = function () {
+      if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(montar, { timeout: 2000 });
+      else setTimeout(montar, 1200);
+    };
+    // Depois do load E de um quadro pintado (rAF + setTimeout), para nunca entrar antes da primeira pintura.
+    var quandoOcioso = function () {
+      if (typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(function () { setTimeout(agendarOcio, 0); });
+      } else agendarOcio();
+    };
+    if (document.readyState === 'complete') quandoOcioso();
+    else window.addEventListener('load', quandoOcioso, { once: true });
+  }
 
   function iniciar() {
     // ------------------------------------------------------------- estado
