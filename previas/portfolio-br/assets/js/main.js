@@ -220,7 +220,19 @@
   var LARGURAS_PORTFOLIO = [480, 800, 1200];
   // Grade: 1 coluna no celular, 2 a partir de 40rem, 3 a partir de 64rem (container de 72rem).
   var TAMANHOS_PORTFOLIO = '(min-width: 64rem) min(23rem, 31vw), (min-width: 40rem) 46vw, 92vw';
-  function fotoResponsiva(p) {
+  // Desempenho (melhoria 64): em portfolio.html a 1ª foto fica acima da dobra e é o elemento LCP da página,
+  // então ela é pedida já (eager) e com fetchpriority="high"; todas as outras (e as da home) ficam lazy.
+  var ehPaginaPortfolio = /(^|\/)portfolio\.html$/.test(location.pathname);
+  function prioridadeFoto(img, indice) {
+    if (ehPaginaPortfolio && indice === 0) {
+      img.loading = 'eager';
+      img.setAttribute('fetchpriority', 'high');
+    } else {
+      img.loading = 'lazy';
+    }
+    img.decoding = 'async';
+  }
+  function fotoResponsiva(p, indice) {
     var base = 'assets/img/portfolio/' + p.foto + '-';
     function lista(ext) {
       return LARGURAS_PORTFOLIO.map(function (l) { return base + l + '.' + ext + ' ' + l + 'w'; }).join(', ');
@@ -238,8 +250,7 @@
     img.alt = p.alt || ('Site criado para ' + p.nome);
     img.width = 1200;
     img.height = 900;
-    img.loading = 'lazy';
-    img.decoding = 'async';
+    prioridadeFoto(img, indice);
     picture.appendChild(img);
     return picture;
   }
@@ -247,15 +258,15 @@
   var secaoPortfolio = $('[data-secao-portfolio]');
   var listaPortfolio = $('[data-lista-portfolio]');
   if (secaoPortfolio && listaPortfolio && projetos.length > 0) {
-    projetos.forEach(function (p) {
+    projetos.forEach(function (p, indice) {
       var li = criar('li', 'projeto');
       if (p.foto && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.foto)) {
-        li.appendChild(fotoResponsiva(p));
+        li.appendChild(fotoResponsiva(p, indice));
       } else if (p.imagem) {
         var img = criar('img');
         img.src = p.imagem;
         img.alt = p.alt || ('Site criado para ' + p.nome);
-        img.loading = 'lazy';
+        prioridadeFoto(img, indice);
         img.width = 800;
         img.height = 600;
         li.appendChild(img);
