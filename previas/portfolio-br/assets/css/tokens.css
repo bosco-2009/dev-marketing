@@ -23,6 +23,52 @@
                  U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026, U+20AC, U+2212;
 }
 
+/* Reserva com métricas ajustadas (melhoria 119): enquanto a fonte não chega (font-display: swap), o texto usa
+ * uma fonte local com a mesma largura média e altura de linha da Plus Jakarta Sans, para a troca não empurrar
+ * o layout. Valores calculados por testes/fontes/reserva.py (gravados em testes/fontes/reserva.json e conferidos
+ * por testes/funcoes/fontes.test.mjs). Arial e compatíveis no desktop/iOS; Roboto no Android.
+ * Peso 700 atende 600–800 (sem negrito sintético na reserva). */
+@font-face {
+  font-family: 'Plus Jakarta Sans Reserva';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'), local('Arimo'), local('Helvetica');
+  size-adjust: 104.79%;
+  ascent-override: 99.05%;
+  descent-override: 21.18%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Reserva';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'), local('Arimo Bold'), local('Arimo-Bold'), local('Helvetica Bold'), local('Helvetica-Bold');
+  size-adjust: 100.48%;
+  ascent-override: 103.3%;
+  descent-override: 22.09%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Reserva Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular');
+  size-adjust: 105.45%;
+  ascent-override: 98.43%;
+  descent-override: 21.05%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Reserva Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Bold'), local('Roboto-Bold');
+  size-adjust: 107.04%;
+  ascent-override: 96.97%;
+  descent-override: 20.74%;
+  line-gap-override: 0%;
+}
+
 :root {
   /* ---------- Cores de marca ---------- */
   --cor-noite-950: #070F22;
@@ -113,7 +159,7 @@
   --exemplo-pet-fundo: #FFFBEB;
 
   /* ---------- Tipografia ---------- */
-  --fonte-base: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --fonte-base: 'Plus Jakarta Sans', 'Plus Jakarta Sans Reserva', 'Plus Jakarta Sans Reserva Roboto', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 
   /* Escala fluida (320px → 1280px) */
   --texto-xs: 0.8125rem;                                   /* 13px */
