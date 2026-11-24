@@ -517,6 +517,17 @@
   }
   var listaFaq = $('[data-lista-faq]');
   var itensFaq = [];
+  // FAQPage do JSON-LD (melhoria 121): montado a partir das perguntas que ESTÃO na tela (texto lido dos próprios
+  // elementos), para nunca divergir do FAQ visível nem trazer pergunta que o visitante não vê.
+  var questoesFaqVisiveis = function () {
+    return itensFaq.filter(function (it) { return !it.el.hidden; }).map(function (it) {
+      return {
+        '@type': 'Question',
+        name: it.el.querySelector('.faq__pergunta').textContent,
+        acceptedAnswer: { '@type': 'Answer', text: it.el.querySelector('.faq__resposta').textContent }
+      };
+    });
+  };
   if (listaFaq) {
     var usados = {};
     // data-faq-filtro="checkout" (planos.html): só as perguntas marcadas com checkout: true no config.js
@@ -625,9 +636,7 @@
         '@id': urlPagina + '#' + secaoFaq.id,
         url: urlPagina,
         inLanguage: 'pt-BR',
-        mainEntity: perguntasFaq.map(function (f) {
-          return { '@type': 'Question', name: f.pergunta, acceptedAnswer: { '@type': 'Answer', text: f.resposta } };
-        })
+        mainEntity: questoesFaqVisiveis()
       });
       document.head.appendChild(ldFaq);
     }
@@ -733,13 +742,16 @@
     ld.type = 'application/ld+json';
     ld.setAttribute('data-ld-servico', '');
     var grafo = [org, servico];
-    if (config.faq && config.faq.length) {
+    // FAQPage só se a seção de dúvidas existe e está visível, com as mesmas perguntas da tela (melhoria 121)
+    var secaoDuvidas = listaFaq && listaFaq.closest('section');
+    var questoesHome = secaoDuvidas && !secaoDuvidas.hidden ? questoesFaqVisiveis() : [];
+    if (questoesHome.length) {
       grafo.push({
         '@type': 'FAQPage',
         '@id': urlSite + '#duvidas',
-        mainEntity: config.faq.map(function (f) {
-          return { '@type': 'Question', name: f.pergunta, acceptedAnswer: { '@type': 'Answer', text: f.resposta } };
-        })
+        url: urlSite,
+        inLanguage: 'pt-BR',
+        mainEntity: questoesHome
       });
     }
     ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': grafo });
