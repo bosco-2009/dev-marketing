@@ -41,6 +41,16 @@
     var d = new Date(iso);
     return (d.toDateString() === new Date().toDateString() ? fHora : fDia).format(d);
   }
+  // Tempo de espera relativo (melhoria 62): "há menos de 1 min", "há N min", "há N h" ou "há N dias".
+  function haQuanto(iso, agora) {
+    var min = Math.max(0, Math.floor(((agora || Date.now()) - new Date(iso).getTime()) / 60000));
+    if (min < 1) return 'há menos de 1 min';
+    if (min < 60) return 'há ' + min + ' min';
+    var h = Math.floor(min / 60);
+    if (h < 24) return 'há ' + h + ' h' + (h < 6 && min % 60 ? ' ' + (min % 60) + ' min' : '');
+    var dias = Math.floor(h / 24);
+    return 'há ' + dias + (dias === 1 ? ' dia' : ' dias');
+  }
 
   function formatarWhatsapp(d) {
     var m = /^(?:55)?(\d{2})(\d{4,5})(\d{4})$/.exec(d || '');
@@ -252,17 +262,22 @@
     var botaoStatus = $('[data-alternar-status]');
     var indicador = $('[data-conexao]');
 
+    var timerEspera = null;
     function iniciarChat() {
       if (estado.chatIniciado) return;
       estado.chatIniciado = true;
       carregarConversas();
       ligarRealtime();
+      // "há N min" muda a cada minuto: só o texto das etiquetas, sem redesenhar a lista (foco e rolagem ficam).
+      clearInterval(timerEspera);
+      timerEspera = setInterval(atualizarEsperas, 60000);
     }
 
     function encerrarChat() {
       if (estado.canal) sb.removeChannel(estado.canal);
       estado.canal = null;
       pararReserva();
+      clearInterval(timerEspera); timerEspera = null;
       estado.chatIniciado = false;
       estado.conversas = [];
       if (paginacao) paginacao.reiniciar();
@@ -362,15 +377,39 @@
 
     // Período, origem e "só leads" (melhoria 20); o período conta pelo início da conversa.
     function canalConversa(c) { return window.PBRExportar ? window.PBRExportar.canal(c.pagina_origem) : 'direto'; }
+    // Fila "Aguardando resposta" (melhoria 62): aberta e com a última mensagem do visitante.
+    function aguardando(c) {
+      return c.status === 'aberta' && !!c.mensagens && !!c.mensagens[0] && c.mensagens[0].autor === 'visitante';
+    }
     function conversasVisiveis() {
       var X = window.PBRExportar;
-      return estado.conversas.filter(function (c) {
-        if (estado.filtro !== 'todas' && c.status !== estado.filtro) return false;
+      var itens = estado.conversas.filter(function (c) {
+        if (estado.filtro === 'aguardando') { if (!aguardando(c)) return false; }
+        else if (estado.filtro !== 'todas' && c.status !== estado.filtro) return false;
         if (X && !X.noPeriodo(c.criado_em, estado.periodo)) return false;
         if (estado.origem && canalConversa(c) !== estado.origem) return false;
         if (estado.soLeads && !c.nome && !c.whatsapp) return false;
         return true;
       });
+      // Na fila, quem espera há mais tempo vem primeiro.
+      if (estado.filtro === 'aguardando') itens.sort(function (a, b) { return new Date(a.mensagens[0].criado_em) - new Date(b.mensagens[0].criado_em); });
+      return itens;
+    }
+
+    var totalEspera = $('[data-espera-total]');
+    function atualizarEsperas() {
+      var agora = Date.now();
+      $$('[data-espera]', lista).forEach(function (t) {
+        var texto = 'aguardando ' + haQuanto(t.getAttribute('data-espera'), agora);
+        if (t.textContent !== texto) t.textContent = texto;
+      });
+    }
+    function atualizarContadorEspera() {
+      var n = estado.conversas.filter(aguardando).length;
+      $$('[data-filtro="aguardando"]').forEach(function (f) { f.textContent = 'Aguardando resposta' + (n ? ' (' + n + ')' : ''); });
+      // Única região viva da fila: muda só quando o total muda (o "há N min" não é anunciado).
+      var texto = n === 0 ? 'Nenhuma conversa aguardando resposta.' : n === 1 ? '1 conversa aguardando resposta.' : n + ' conversas aguardando resposta.';
+      if (totalEspera && totalEspera.textContent !== texto) totalEspera.textContent = texto;
     }
 
     function renderizarLista() {
@@ -383,6 +422,7 @@
       }
       lista.textContent = '';
       listaVazia.hidden = visiveis.length > 0;
+      listaVazia.textContent = estado.filtro === 'aguardando' ? 'Nenhuma conversa aguardando resposta.' : 'Nenhuma conversa aqui ainda.';
       AVISOS.definir('conversas', totalNaoLidas());
 
       visiveis.forEach(function (c) {
@@ -406,12 +446,18 @@
         }
         if (c.status === 'fechada' && estado.filtro === 'todas') linha2.appendChild(el('span', 'admin-item__tag', 'fechada'));
         b.appendChild(linha2);
+        if (aguardando(c)) {
+          var linha3 = el('span', 'admin-item__linha');
+          linha3.appendChild(el('span', 'admin-item__tag admin-item__tag--espera', 'aguardando ' + haQuanto(ultima.criado_em), { 'data-espera': ultima.criado_em }));
+          b.appendChild(linha3);
+        }
 
         b.addEventListener('click', function () { abrirConversa(c.id); });
         li.appendChild(b);
         lista.appendChild(li);
       });
 
+      atualizarContadorEspera();
       var n = totalNaoLidas();
       $$('[data-filtro="aberta"]').forEach(function (f) {
         f.textContent = 'Abertas' + (n ? ' (' + n + ')' : '');

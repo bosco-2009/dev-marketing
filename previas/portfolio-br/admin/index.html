@@ -130,6 +130,7 @@
       <div class="admin-lista" data-painel-lista>
         <div class="admin-lista__filtros" role="group" aria-label="Filtrar conversas">
           <button type="button" class="admin-filtro" aria-pressed="true" data-filtro="aberta">Abertas</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="aguardando" title="Abertas cuja última mensagem é do visitante, quem espera há mais tempo primeiro">Aguardando resposta</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="fechada">Fechadas</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro="todas">Todas</button>
         </div>
@@ -157,6 +158,7 @@
           <button class="botao botao--contorno botao--pequeno admin-refino__exportar" type="button" data-exportar-conversas>Exportar CSV</button>
           <p class="visualmente-oculto" role="status" data-exportado-conversas></p>
         </div>
+        <p class="visualmente-oculto" role="status" data-espera-total></p>
         <ul class="admin-lista__itens" role="list" data-lista-conversas></ul>
         <p class="admin-vazio" data-lista-vazia hidden>Nenhuma conversa aqui ainda.</p>
         <div class="admin-mais" data-mais="conversas" hidden>

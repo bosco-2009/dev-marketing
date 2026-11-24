@@ -186,6 +186,7 @@
   position: sticky;
   top: 0;
   display: flex;
+  flex-wrap: wrap; /* 4 filtros de conversa cabem a 320 px */
   gap: var(--esp-2);
   padding: var(--esp-3);
   border-bottom: 1px solid var(--cor-borda);
@@ -798,3 +799,6 @@
 }
 .admin-atalhos__ligar { display: flex; align-items: flex-start; gap: var(--esp-2); font-size: var(--texto-sm); line-height: 1.4; }
 .admin-atalhos__ligar input { flex-shrink: 0; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--cor-acao); }
+
+/* Fila "Aguardando resposta" (melhoria 62): tempo de espera relativo no item */
+.admin-item__tag--espera { background: var(--cor-destaque-suave); color: var(--cor-texto); font-weight: var(--peso-semi); }
