@@ -141,6 +141,31 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
   font-weight: var(--peso-semi);
 }
 .checkout__erro[hidden] { display: none; }
+/* Resumo de erros no topo do formulário (melhoria 59, padrão GOV.UK): planos.html e briefing.html.
+   Criado pelo JS só quando há erro (sem JS não existe). Recebe o foco ao aparecer; cada item leva ao campo. */
+.resumo-erros {
+  display: grid;
+  gap: var(--esp-2);
+  padding: var(--esp-4);
+  border: 2px solid var(--cor-erro);
+  border-left-width: var(--esp-2);
+  border-radius: var(--raio-sm);
+  background: var(--cor-erro-suave);
+  color: var(--cor-texto);
+  scroll-margin-top: 5.5rem;
+}
+.resumo-erros[hidden] { display: none; }
+.resumo-erros:focus { outline: 3px solid var(--cor-foco); outline-offset: 3px; }
+.resumo-erros__titulo { margin: 0; color: var(--cor-erro); font-size: var(--texto-base); font-weight: var(--peso-negrito); line-height: 1.3; }
+.resumo-erros__lista { display: grid; gap: var(--esp-1); margin: 0; padding-left: var(--esp-5); }
+.resumo-erros__lista a {
+  color: var(--cor-erro);
+  font-weight: var(--peso-semi);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.resumo-erros__lista a:hover { text-decoration-thickness: 2px; }
 /* Sem internet (melhoria 53): "Tentar de novo" logo abaixo da mensagem, sem perder o que foi digitado */
 .checkout__tentar { justify-self: start; margin-top: calc(-1 * var(--esp-3)); }
 

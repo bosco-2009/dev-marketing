@@ -241,6 +241,7 @@
     preencher(briefingServidor || dadosVazios());
     $$('[aria-invalid]', form).forEach(function (i) { i.removeAttribute('aria-invalid'); });
     $$('.campo__erro', form).forEach(function (p) { p.hidden = true; });
+    if (resumoErros) resumoErros.esconder();
     caixaConfirmar.hidden = true;
     bLimpar.hidden = true;
     irPara(1, false);
@@ -252,25 +253,45 @@
 
   // ------------------------------------------------------------------ validação
   var URL_OK = /^https?:\/\/[^\s/$.?#][^\s]*$/i;
+  // Resumo "Corrija N campos" no topo da etapa, com links para cada campo (melhoria 59)
+  var resumoErros = window.PBRResumoErros
+    ? window.PBRResumoErros.criar({ id: 'b-resumo-erros', antesDe: $('[data-etapa="1"]', form) })
+    : null;
   function erroCampo(entrada, alvo, msg) {
     if (msg) { entrada.setAttribute('aria-invalid', 'true'); alvo.textContent = msg; alvo.hidden = false; }
-    else { entrada.removeAttribute('aria-invalid'); alvo.hidden = true; }
+    else {
+      entrada.removeAttribute('aria-invalid'); alvo.hidden = true;
+      if (resumoErros) resumoErros.remover(entrada);
+    }
     return !msg;
   }
+  // Rótulo curto do campo para o resumo ("Referência 2: ..."), já que a mensagem dos links se repete.
+  function rotuloCampo(i) { return i.labels && i.labels[0] ? i.labels[0].textContent.replace(/\s*\(obrigatório\)\s*$/, '').trim() : ''; }
   function validarEtapa(n) {
     var etapa = $('[data-etapa="' + n + '"]', form);
-    var invalidos = [];
+    var erros = [];
     if (n === 1) {
       var nome = form.elements.nome_negocio;
-      if (!erroCampo(nome, $('#b-nome_negocio-erro'), nome.value.trim().length < 2 ? 'Informe o nome do negócio.' : '')) invalidos.push(nome);
+      var msgNome = nome.value.trim().length < 2 ? 'Informe o nome do negócio.' : '';
+      if (!erroCampo(nome, $('#b-nome_negocio-erro'), msgNome)) erros.push({ campo: nome, mensagem: msgNome });
     }
     $$('[data-link]', etapa).forEach(function (i) {
       var v = i.value.trim();
-      if (!erroCampo(i, $('#' + i.id + '-erro'), v && !URL_OK.test(v) ? 'Cole um link completo, começando com https://' : '')) invalidos.push(i);
+      var msg = v && !URL_OK.test(v) ? 'Cole um link completo, começando com https://' : '';
+      if (!erroCampo(i, $('#' + i.id + '-erro'), msg)) erros.push({ campo: i, mensagem: msg, rotulo: rotuloCampo(i) });
     });
-    if (invalidos.length) invalidos[0].focus();
-    return !invalidos.length;
+    if (!erros.length) { if (resumoErros) resumoErros.esconder(); return true; }
+    if (resumoErros) resumoErros.mostrar(erros); else erros[0].campo.focus();
+    return false;
   }
+  // Enquanto digita: nenhum erro novo; um erro já mostrado some (no campo e no resumo) assim que o valor fica certo.
+  form.addEventListener('input', function (e) {
+    var i = e.target;
+    if (!i.hasAttribute || !i.hasAttribute('aria-invalid')) return;
+    var v = i.value.trim();
+    if (i.name === 'nome_negocio' && v.length >= 2) erroCampo(i, $('#b-nome_negocio-erro'), '');
+    else if (i.hasAttribute('data-link') && (!v || URL_OK.test(v))) erroCampo(i, $('#' + i.id + '-erro'), '');
+  });
 
   // ------------------------------------------------------------------ etapas
   var etapaAtual = 1;
@@ -299,6 +320,7 @@
     bProxima.classList.toggle('botao--contorno', revisando);
     if (n === TOTAL_ETAPAS) renderizarResumo();
     mostrarErro('');
+    if (resumoErros) resumoErros.esconder();
     // Guarda a etapa para retomar dali (só se já há rascunho: trocar de etapa sem responder nada não cria um).
     if (formularioPronto && existeRascunho()) gravarRascunhoAgora();
     if (focar) {

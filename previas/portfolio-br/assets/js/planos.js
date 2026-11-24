@@ -189,18 +189,25 @@
       campos[k].removeAttribute('aria-invalid');
       alvo.textContent = '';
       alvo.hidden = true;
+      if (resumoErros) resumoErros.remover(campos[k]);
     }
   }
 
+  // Resumo "Corrija N campos" no topo do formulário, com links para cada campo (melhoria 59)
+  var resumoErros = window.PBRResumoErros
+    ? window.PBRResumoErros.criar({ id: 'checkout-resumo-erros', antesDe: form.firstElementChild })
+    : null;
+
   function validar() {
-    var primeiro = null;
+    var erros = [];
     Object.keys(campos).forEach(function (k) {
       var erro = REGRAS[k]();
       marcarCampo(k, erro);
-      if (erro && !primeiro) primeiro = k;
+      if (erro) erros.push({ campo: campos[k], mensagem: erro });
     });
-    if (primeiro) campos[primeiro].focus();
-    return !primeiro;
+    if (!erros.length) { if (resumoErros) resumoErros.esconder(); return true; }
+    if (resumoErros) resumoErros.mostrar(erros); else erros[0].campo.focus();
+    return false;
   }
 
   // Ao sair do campo: mostra o erro só se a pessoa escreveu algo (passar com Tab por um campo vazio não acusa nada).
