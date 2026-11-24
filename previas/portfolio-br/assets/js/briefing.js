@@ -21,6 +21,8 @@
   var form = document.querySelector('[data-form-briefing]');
   var aviso = document.querySelector('[data-briefing-aviso]');
   if (!config || !form || !aviso) return;
+  // Melhoria 94: pré-conexão ao Supabase.
+  if (window.PBRSupabase && window.PBRSupabase.preconectar) window.PBRSupabase.preconectar();
 
   var TOTAL_ETAPAS = 5;
   var TAMANHO_MAXIMO = 5 * 1024 * 1024;

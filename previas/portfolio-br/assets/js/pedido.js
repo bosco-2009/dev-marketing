@@ -17,6 +17,8 @@
   var config = window.PBR_CONFIG;
   var caixa = document.querySelector('[data-acompanhar]');
   if (!config || !caixa) return;
+  // Melhoria 94: pré-conexão ao Supabase.
+  if (window.PBRSupabase && window.PBRSupabase.preconectar) window.PBRSupabase.preconectar();
 
   function $(s) { return caixa.querySelector(s); }
   function el(tag, classe, texto, attrs) {

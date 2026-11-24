@@ -15,6 +15,8 @@
   var CHAVE_PEDIDOS = 'pbr_pedidos_v1';
   var config = window.PBR_CONFIG;
   if (!config) return;
+  // Melhoria 94: pré-conexão ao Supabase.
+  if (window.PBRSupabase && window.PBRSupabase.preconectar) window.PBRSupabase.preconectar();
 
   function $(s, r) { return (r || document).querySelector(s); }
   function el(tag, classe, texto, attrs) {

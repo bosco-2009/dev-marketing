@@ -6,6 +6,7 @@
  *   PBRSupabase.cliente(opcoes) : Promise<SupabaseClient>
  *   PBRSupabase.aquecer()               -> começa a baixar a biblioteca (sem criar cliente nem abrir conexão);
  *                                          usado quando o visitante demonstra intenção (ex.: passa o dedo/mouse no chat)
+ *   PBRSupabase.preconectar()           -> preconnect ao Supabase, 1 vez (melhoria 94): planos/briefing/obrigado/pedido e aquecer()
  *
  * Só a URL do projeto e a chave pública (anon/publishable) ficam no front.
  */
@@ -65,11 +66,25 @@
     });
   }
 
+  // DNS+TLS adiantados; origem já no connect-src. anonymous = mesmo tipo do fetch CORS sem credenciais.
+  var preconectado = false;
+  function preconectar() {
+    if (preconectado || !configurado()) return;
+    preconectado = true;
+    var l = document.createElement('link');
+    l.rel = 'preconnect';
+    l.href = new URL(dados().url).origin;
+    l.crossOrigin = 'anonymous';
+    l.setAttribute('data-preconexao-supabase', '');
+    document.head.appendChild(l);
+  }
+
   // Só baixa o arquivo (fica no cache da página); erros são ignorados e o próximo cliente() tenta de novo.
   function aquecer() {
     if (!configurado()) return;
+    preconectar();
     carregarBiblioteca().catch(function () { /* tenta de novo ao abrir */ });
   }
 
-  window.PBRSupabase = { configurado: configurado, cliente: cliente, aquecer: aquecer };
+  window.PBRSupabase = { configurado: configurado, cliente: cliente, aquecer: aquecer, preconectar: preconectar };
 })();
