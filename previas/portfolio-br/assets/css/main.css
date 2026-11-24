@@ -601,8 +601,10 @@ main[tabindex="-1"]:focus, [data-foco-ancora]:focus { outline: none; }
 }
 
 .rodape__grade { display: grid; gap: var(--esp-6); }
-/* Com o chat na página, o fim do rodapé nunca fica sob o botão flutuante */
-.tem-chat .rodape { padding-bottom: calc(var(--esp-7) + var(--area-botao-flutuante)); }
+/* Área do botão flutuante do chat reservada desde a 1ª pintura (melhoria 115): o chat é montado depois (no ócio),
+   e reservar só então empurrava o fim da página e deixava o botão sobre o texto de .rodape__base.
+   Sem JS não há chat nem reserva. :where() mantém a especificidade de .rodape (a impressão sobrescreve). */
+:where(html:not(.sem-js)) .rodape { padding-bottom: calc(var(--esp-7) + var(--area-botao-flutuante)); }
 @media (min-width: 48rem) { .rodape__grade { grid-template-columns: 2fr 1fr 1fr; } }
 
 .rodape__descricao { margin-top: var(--esp-3); max-width: 22rem; }

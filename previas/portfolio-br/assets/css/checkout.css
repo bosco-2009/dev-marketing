@@ -683,10 +683,8 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 
 /* Só no celular (a barra não existe a partir de 48rem): reserva no rodapé e chat acima da barra */
 @media not all and (min-width: 48rem) {
+  /* barra do plano + botão do chat, reservados desde a 1ª pintura (melhoria 115) */
   html:not(.sem-js) body:has([data-barra-plano]) .rodape {
-    padding-bottom: calc(var(--esp-7) + var(--esp-8) + var(--esp-2) + env(safe-area-inset-bottom, 0px));
-  }
-  html.tem-chat body:has([data-barra-plano]) .rodape {
     padding-bottom: calc(var(--esp-7) + var(--area-botao-flutuante) + var(--esp-8) + var(--esp-2));
   }
   body:has(.barra-plano:not([hidden])) .chat__lancador {
