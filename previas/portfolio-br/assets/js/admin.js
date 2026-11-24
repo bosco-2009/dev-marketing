@@ -265,6 +265,7 @@
       pararReserva();
       estado.chatIniciado = false;
       estado.conversas = [];
+      if (paginacao) paginacao.reiniciar();
       avisarDados('limpar');
       estado.selecionada = null;
       lista.textContent = '';
@@ -321,23 +322,38 @@
       timerRecarga = setTimeout(carregarConversas, 300);
     }
 
+    // Listas longas (melhoria 49): só as conversas mais recentes, 50 por vez, com "Carregar mais".
+    // mensagens!inner deixa de fora, já no banco, as conversas abertas sem nenhuma mensagem (o total bate).
+    var paginacao = window.PBRPaginacao ? window.PBRPaginacao.criar({
+      raiz: $('[data-mais="conversas"]'), nomes: ['conversa', 'conversas'], feminino: true, lista: lista,
+      carregar: function () { return carregarConversas(); }
+    }) : null;
+    var juncaoMensagens = 'mensagens!inner';
+
     function carregarConversas() {
+      var limite = paginacao ? paginacao.limite() : 300;
       return sb.from('conversas')
-        .select('id, nome, whatsapp, pagina_origem, status, nao_lidas_admin, criado_em, atualizado_em, mensagens(texto, autor, criado_em)')
+        .select('id, nome, whatsapp, pagina_origem, status, nao_lidas_admin, criado_em, atualizado_em, ' + juncaoMensagens + '(texto, autor, criado_em)', { count: 'exact' })
         .order('atualizado_em', { ascending: false })
         .order('criado_em', { referencedTable: 'mensagens', ascending: false })
         .limit(1, { referencedTable: 'mensagens' })
-        .limit(300)
+        .range(0, limite - 1)
         .then(function (r) {
+          // Servidor sem suporte ao !inner: volta à junção comum (as vazias são filtradas abaixo).
+          if (r.error && juncaoMensagens !== 'mensagens') { juncaoMensagens = 'mensagens'; return carregarConversas(); }
           if (r.error) throw r.error;
-          estado.conversas = (r.data || []).filter(function (c) { return c.mensagens && c.mensagens.length; });
-          avisarDados('conversas', estado.conversas, (r.data || []).length >= 300);
+          var dados = r.data || [];
+          estado.conversas = dados.filter(function (c) { return c.mensagens && c.mensagens.length; });
+          var total = typeof r.count === 'number' ? r.count - (dados.length - estado.conversas.length) : null;
+          if (paginacao) paginacao.atualizar(estado.conversas.length, total);
+          avisarDados('conversas', estado.conversas, paginacao ? paginacao.haMais() : dados.length >= limite);
           renderizarLista();
           atualizarCabecalho();
         })
         .catch(function () {
           indicador.textContent = 'Erro ao carregar conversas';
           indicador.setAttribute('data-estado', 'erro');
+          return false;
         });
     }
 

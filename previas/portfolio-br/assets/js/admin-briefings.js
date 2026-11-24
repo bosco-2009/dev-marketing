@@ -36,6 +36,11 @@
     if (estado) return;
     estado = { sb: sb, avisos: avisos || {}, lista: [], filtro: 'todos', selecionado: null, canal: null, conhecidos: null, intervalo: null };
     var secao = $('.admin-briefings');
+    // Listas longas (melhoria 49): 50 briefings por vez, os atualizados mais recentemente primeiro.
+    estado.paginacao = window.PBRPaginacao ? window.PBRPaginacao.criar({
+      raiz: $('[data-mais="briefings"]'), nomes: ['briefing', 'briefings'], lista: $('[data-lista-briefings]'),
+      carregar: function () { return carregar(); }
+    }) : null;
 
     $$('[data-filtro-briefing]').forEach(function (b) {
       b.onclick = function () {
@@ -71,10 +76,11 @@
 
   function carregar() {
     if (!estado) return Promise.resolve();
+    var limite = estado.paginacao ? estado.paginacao.limite() : 500;
     return estado.sb.from('briefings')
-      .select('*, pedidos(codigo, nome, email, whatsapp, plano_nome)')
+      .select('*, pedidos(codigo, nome, email, whatsapp, plano_nome)', { count: 'exact' })
       .order('atualizado_em', { ascending: false })
-      .limit(500)
+      .range(0, limite - 1)
       .then(function (r) {
         if (r.error) throw r.error;
         if (!estado) return;
@@ -100,8 +106,10 @@
         }
         estado.conhecidos = ids;
         estado.lista = lista;
+        if (estado.paginacao) estado.paginacao.atualizar(lista.length, r.count);
         // Busca global (admin-busca.js) usa os briefings já carregados.
-        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'briefings', itens: lista, limiteAtingido: lista.length >= 500 } }));
+        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'briefings', itens: lista,
+          limiteAtingido: estado.paginacao ? estado.paginacao.haMais() : lista.length >= limite } }));
         contarNovosNaoVistos();
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
@@ -110,6 +118,7 @@
         var vazio = $('[data-briefings-vazio]');
         vazio.textContent = 'Não foi possível carregar os briefings.';
         vazio.hidden = false;
+        return false;
       });
   }
 
@@ -264,6 +273,7 @@
     if (!estado) return;
     if (estado.canal) estado.sb.removeChannel(estado.canal);
     clearInterval(estado.intervalo);
+    if (estado.paginacao) estado.paginacao.reiniciar();
     estado = null;
     var ul = $('[data-lista-briefings]');
     if (ul) ul.textContent = '';

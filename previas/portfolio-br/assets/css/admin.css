@@ -205,6 +205,20 @@
 .admin-lista__filtros--quebra { flex-wrap: wrap; position: static; }
 .admin-lista__itens { margin: 0; }
 
+/* Listas longas (melhoria 49): contador "Mostrando X de Y" + "Carregar mais" no fim da lista */
+.admin-mais {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-4) var(--esp-3) var(--esp-6);
+  border-top: 1px solid var(--cor-borda);
+  text-align: center;
+}
+.admin-mais[hidden] { display: none; }
+.admin-mais__conta { margin: 0; color: var(--cor-texto-suave); font-size: var(--texto-sm); max-width: 32ch; }
+.admin-mais__botao[hidden] { display: none; }
+
 .admin-busca { padding: var(--esp-3); border-bottom: 1px solid var(--cor-borda); }
 .admin-busca input {
   width: 100%;

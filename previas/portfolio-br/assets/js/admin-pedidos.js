@@ -117,6 +117,11 @@
 
     var secao = $('.admin-pedidos');
     var lista = $('[data-lista-pedidos]');
+    // Listas longas (melhoria 49): 50 pedidos por vez, os mais recentes primeiro.
+    estado.paginacao = window.PBRPaginacao ? window.PBRPaginacao.criar({
+      raiz: $('[data-mais="pedidos"]'), nomes: ['pedido', 'pedidos'], lista: lista,
+      carregar: function () { return carregar(); }
+    }) : null;
 
     $$('[data-filtro-pedido]').forEach(function (b) {
       b.onclick = function () {
@@ -187,7 +192,7 @@
   }
 
   function pedidoSelecionado() {
-    return estado && estado.pedidos.filter(function (x) { return x.id === estado.selecionado; })[0];
+    return estado ? pedidoPorId(estado.selecionado) : undefined;
   }
 
   function atualizarLinkWhats() {
@@ -240,8 +245,9 @@
       estado.briefingIds = ids;
       return mapa;
     }, function () { return {}; });
+    var limite = estado.paginacao ? estado.paginacao.limite() : 500;
     function lerPedidos() {
-      return estado.sb.from('pedidos').select(colunas).order('criado_em', { ascending: false }).limit(500).then(function (r) {
+      return estado.sb.from('pedidos').select(colunas, { count: 'exact' }).order('criado_em', { ascending: false }).range(0, limite - 1).then(function (r) {
         if (r.error && colunas !== COLUNAS && /origem/.test(r.error.message || '')) { colunas = COLUNAS; return lerPedidos(); }
         return r;
       });
@@ -255,12 +261,15 @@
         var novos = r.data || [];
         avisarAprovados(novos);
         estado.pedidos = novos;
-        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: novos.length >= 500 } }));
+        if (estado.paginacao) estado.paginacao.atualizar(novos.length, r.count);
+        var haMais = estado.paginacao ? estado.paginacao.haMais() : novos.length >= limite;
+        document.dispatchEvent(new CustomEvent('pbr:admin-dados', { detail: { tipo: 'pedidos', itens: novos, limiteAtingido: haMais } }));
         renderizarLista();
         if (estado.selecionado) renderizarDetalhe(false);
       })
       .catch(function () {
         $('[data-resumo-pedidos]').textContent = 'Não foi possível carregar os pedidos.';
+        return false;
       });
   }
 
@@ -417,6 +426,19 @@
     if (aviso) aviso.textContent = itens.length + (itens.length === 1 ? ' pedido exportado.' : ' pedidos exportados.');
   }
 
+  // Pedido aberto de fora (briefing, busca) que ficou além dos carregados: guardado à parte, sem entrar na lista.
+  function pedidoPorId(id) {
+    return estado.pedidos.filter(function (x) { return x.id === id; })[0] ||
+      (estado.avulso && estado.avulso.id === id ? estado.avulso : undefined);
+  }
+
+  function buscarAvulso(id) {
+    if (!estado || pedidoPorId(id)) return Promise.resolve();
+    return estado.sb.from('pedidos').select(colunas).eq('id', id).limit(1).then(function (r) {
+      if (estado && !r.error && r.data && r.data[0] && r.data[0].id === id) estado.avulso = r.data[0];
+    }, function () {});
+  }
+
   function abrir(id) {
     estado.selecionado = id;
     $('.admin-pedidos').classList.add('mostrando-conversa');
@@ -425,7 +447,7 @@
   }
 
   function renderizarDetalhe(focar) {
-    var p = estado.pedidos.filter(function (x) { return x.id === estado.selecionado; })[0];
+    var p = pedidoPorId(estado.selecionado);
     $('[data-pedido-vazio]').hidden = !!p;
     $('[data-pedido-detalhe]').hidden = !p;
     if (!p) return;
@@ -542,6 +564,7 @@
     if (estado.canal) estado.sb.removeChannel(estado.canal);
     clearInterval(estado.timer);
     clearInterval(estado.relogio);
+    if (estado.paginacao) estado.paginacao.reiniciar();
     estado = null;
     var lista = $('[data-lista-pedidos]');
     if (lista) lista.textContent = '';
@@ -566,7 +589,7 @@
     $$('[data-filtro-pedido]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro-pedido') === 'todos')); });
     if (semRecarregar) { renderizarLista(); abrir(id); return; }
     // Recarrega antes de abrir: o status do briefing pode ter acabado de mudar.
-    carregar().then(function () { if (estado) abrir(id); });
+    carregar().then(function () { return buscarAvulso(id); }).then(function () { if (estado) abrir(id); });
   }
 
   window.PBRAdminPedidos = { iniciar: iniciar, encerrar: encerrar, abrirPorId: abrirPorId };

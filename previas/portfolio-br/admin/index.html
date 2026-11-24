@@ -22,6 +22,7 @@
   <script src="../assets/js/supabase-client.js" defer></script>
   <script src="../assets/js/admin-avisos.js" defer></script>
   <script src="../assets/js/admin-exportar.js" defer></script>
+  <script src="../assets/js/admin-paginacao.js" defer></script>
   <script src="../assets/js/admin.js" defer></script>
   <script src="../assets/js/admin-respostas.js" defer></script>
   <script src="../assets/js/admin-pedidos.js" defer></script>
@@ -158,6 +159,11 @@
         </div>
         <ul class="admin-lista__itens" role="list" data-lista-conversas></ul>
         <p class="admin-vazio" data-lista-vazia hidden>Nenhuma conversa aqui ainda.</p>
+        <div class="admin-mais" data-mais="conversas" hidden>
+          <p class="admin-mais__conta" data-mais-conta></p>
+          <button class="botao botao--contorno botao--pequeno admin-mais__botao" type="button" data-mais-botao>Carregar mais</button>
+          <p class="visualmente-oculto" role="status" data-mais-aviso></p>
+        </div>
       </div>
 
       <div class="admin-conversa" data-painel-conversa>
@@ -283,6 +289,11 @@
         <p class="admin-resumo" data-resumo-pedidos aria-live="polite"></p>
         <ul class="admin-lista__itens" role="list" data-lista-pedidos></ul>
         <p class="admin-vazio" data-pedidos-vazio hidden>Nenhum pedido com este filtro.</p>
+        <div class="admin-mais" data-mais="pedidos" hidden>
+          <p class="admin-mais__conta" data-mais-conta></p>
+          <button class="botao botao--contorno botao--pequeno admin-mais__botao" type="button" data-mais-botao>Carregar mais</button>
+          <p class="visualmente-oculto" role="status" data-mais-aviso></p>
+        </div>
       </div>
 
       <div class="admin-conversa" data-pedido-painel>
@@ -357,6 +368,11 @@
         </div>
         <ul class="admin-lista__itens" role="list" data-lista-briefings></ul>
         <p class="admin-vazio" data-briefings-vazio hidden>Nenhum briefing com este filtro.</p>
+        <div class="admin-mais" data-mais="briefings" hidden>
+          <p class="admin-mais__conta" data-mais-conta></p>
+          <button class="botao botao--contorno botao--pequeno admin-mais__botao" type="button" data-mais-botao>Carregar mais</button>
+          <p class="visualmente-oculto" role="status" data-mais-aviso></p>
+        </div>
       </div>
 
       <div class="admin-conversa" data-briefing-painel>
