@@ -31,13 +31,12 @@
     return Math.floor(h / 24) + ' dias';
   }
   // Quando o dono abriu o WhatsApp para cada pedido (só neste navegador; conveniência, não é dado do cliente).
-  function lerChamados(modo) {
-    try { var v = JSON.parse(localStorage.getItem(chaveChamados(modo)) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
-  }
-  function marcarChamado(id, modo) {
-    var mapa = lerChamados(modo);
+  function lerChamados(modo) { return lerMapa(chaveChamados(modo)); }
+  function marcarChamado(id, modo) { return marcarEm(chaveChamados(modo), id); }
+  function marcarEm(chave, id) {
+    var mapa = lerMapa(chave);
     mapa[id] = new Date().toISOString();
-    try { localStorage.setItem(chaveChamados(modo), JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
+    try { localStorage.setItem(chave, JSON.stringify(mapa)); } catch (e) { /* sem storage: só não lembra */ }
     return mapa[id];
   }
   // Briefing pendente (melhoria 34): aprovado há mais de 24 horas e o cliente ainda não mandou o briefing.
@@ -49,13 +48,45 @@
     return p.status === 'aprovado' && !!desde && !(estado && estado.briefings[p.id]) &&
       (agora || Date.now()) - new Date(desde).getTime() > BRIEFING_MS;
   }
-  // Qual aviso o pedido precisa agora: 'abandono', 'briefing' ou nenhum.
+  // Pago sem contato (melhoria 51): aprovado nos últimos 30 dias, site ainda não entregue, e o dono ainda não
+  // mandou nenhuma mensagem: nenhuma resposta sua no chat de uma conversa com o mesmo WhatsApp e nenhum WhatsApp
+  // aberto por este painel (boas-vindas, lembrete ou recuperação). Sem mudança no banco: só leitura.
+  var CONTATO_JANELA_MS = 30 * 24 * 60 * 60 * 1000;
+  var CHAVE_BOAS_VINDAS = 'pbr-admin-boas-vindas';
+  var CHAVE_DISPENSADOS = 'pbr-admin-contato-dispensado';
+  // Mesmo número com ou sem o 55: compara pelos dígitos nacionais (DDD + número).
+  function numeroNacional(d) {
+    var n = String(d || '').replace(/\D/g, '');
+    return n.length >= 12 && n.indexOf('55') === 0 ? n.slice(2) : n;
+  }
+  function contatadoAqui(p) {
+    return ['abandono', 'briefing', 'boas-vindas'].some(function (m) { return !!lerChamados(m)[p.id]; }) ||
+      !!lerMapa(CHAVE_DISPENSADOS)[p.id];
+  }
+  function semContato(p, agora) {
+    var desde = p.pago_em || p.atualizado_em;
+    // Sem a consulta das conversas (erro ou ainda carregando) não há como saber: nada de alarme falso.
+    if (!estado || !estado.comMensagem || p.status !== 'aprovado' || !desde) return false;
+    if ((agora || Date.now()) - new Date(desde).getTime() > CONTATO_JANELA_MS) return false;
+    if (estado.briefings[p.id] === 'entregue') return false;
+    if (estado.comMensagem[numeroNacional(p.whatsapp)]) return false;
+    return !contatadoAqui(p);
+  }
+
+  // Qual aviso o pedido precisa agora: 'abandono', 'briefing', 'boas-vindas' ou nenhum.
   function modoAtencao(p, agora) {
     if (abandonado(p, agora)) return 'abandono';
     if (semBriefing(p, agora)) return 'briefing';
+    // Depois de chamar (ou marcar), o bloco continua aberto para mostrar o registro até trocar de pedido.
+    if (semContato(p, agora) || (estado && estado.manterBoasVindas === p.id && p.status === 'aprovado')) return 'boas-vindas';
     return '';
   }
-  function chaveChamados(modo) { return modo === 'briefing' ? CHAVE_LEMBRETES : CHAVE_CHAMADOS; }
+  function chaveChamados(modo) {
+    return modo === 'briefing' ? CHAVE_LEMBRETES : modo === 'boas-vindas' ? CHAVE_BOAS_VINDAS : CHAVE_CHAMADOS;
+  }
+  function lerMapa(chave) {
+    try { var v = JSON.parse(localStorage.getItem(chave) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+  }
   function linkAcompanhar() {
     var site = (window.PBR_CONFIG || {}).site || {};
     return site.url ? site.url.replace(/\/?$/, '/') + 'pedido.html' : '';
@@ -71,7 +102,24 @@
         ' (abra no aparelho em que fez a compra ou pelo link pessoal que enviamos). ' : '') +
       'Se preferir, posso tirar as dúvidas por aqui.';
   }
-  function mensagemPara(p, modo) { return modo === 'briefing' ? mensagemBriefing(p) : mensagemRecuperacao(p); }
+  function mensagemBoasVindas(p) {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
+    var link = linkAcompanhar();
+    var temBriefing = !!(estado && estado.briefings[p.id]);
+    return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! Aqui é da ' + (site.nome || 'Portfólio BR') + '. ' +
+      'Obrigado por contratar o plano ' + p.plano_nome + ' (pedido ' + p.codigo + '): o pagamento foi confirmado ' +
+      'e vou acompanhar o seu site de perto a partir de agora. ' +
+      (temBriefing
+        ? 'Já recebemos o seu briefing e vamos analisá-lo para começar a produção. '
+        : 'O próximo passo é o briefing: algumas perguntas sobre o seu negócio, textos e fotos.' +
+          (link ? ' Você pode preencher e acompanhar as etapas em ' + link + '?pedido=' + encodeURIComponent(p.codigo) +
+            ' (abra no aparelho em que fez a compra ou pelo link pessoal que enviamos).' : '') + ' ') +
+      'Qualquer dúvida, é só me chamar por aqui.';
+  }
+  function mensagemPara(p, modo) {
+    return modo === 'briefing' ? mensagemBriefing(p) : modo === 'boas-vindas' ? mensagemBoasVindas(p) : mensagemRecuperacao(p);
+  }
 
   function mensagemRecuperacao(p) {
     var cfg = window.PBR_CONFIG || {};
@@ -113,7 +161,7 @@
 
   function iniciar(sb, avisos) {
     if (estado) return;
-    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, filtro: 'todos', busca: '', periodo: 'tudo', origem: '', selecionado: null, canal: null, conhecidos: null, timer: null, relogio: null, chaveAbandono: '' };
+    estado = { sb: sb, avisos: avisos || {}, pedidos: [], briefings: {}, comMensagem: null, manterBoasVindas: null, filtro: 'todos', busca: '', periodo: 'tudo', origem: '', selecionado: null, canal: null, conhecidos: null, timer: null, relogio: null, chaveAbandono: '' };
 
     var secao = $('.admin-pedidos');
     var lista = $('[data-lista-pedidos]');
@@ -156,6 +204,8 @@
     estado.canal = sb.channel('painel-pedidos')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, function () { agendar(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'briefings' }, function () { agendar(); })
+      // Resposta do dono no chat tira o pedido de "sem contato".
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'autor=eq.admin' }, function () { agendar(); })
       .subscribe(function (status) {
         clearInterval(estado && estado.timer);
         if (status !== 'SUBSCRIBED' && estado) estado.timer = setInterval(carregar, 30000);
@@ -185,9 +235,22 @@
       var p = pedidoSelecionado();
       if (!p) return;
       var modo = modoAtencao(p);
+      if (modo === 'boas-vindas') estado.manterBoasVindas = p.id;
       marcarChamado(p.id, modo);
       mostrarChamado(p.id, modo);
       renderizarLista();
+    };
+    // Falou com o cliente por outro caminho (ligação, WhatsApp do celular): tira o aviso, só neste navegador.
+    var jaFalei = $('[data-recuperar-contatado]');
+    if (jaFalei) jaFalei.onclick = function () {
+      var p = pedidoSelecionado();
+      if (!p) return;
+      estado.manterBoasVindas = p.id;
+      marcarEm(CHAVE_DISPENSADOS, p.id);
+      jaFalei.hidden = true;
+      mostrarChamado(p.id, 'boas-vindas');
+      renderizarLista();
+      campo.focus();
     };
   }
 
@@ -204,7 +267,9 @@
 
   function mostrarChamado(id, modo) {
     var quando = lerChamados(modo)[id];
-    $('[data-recuperar-chamado]').textContent = quando ? 'Você abriu o WhatsApp para este cliente em ' + data(quando) + '.' : '';
+    var marcado = modo === 'boas-vindas' && !quando ? lerMapa(CHAVE_DISPENSADOS)[id] : '';
+    $('[data-recuperar-chamado]').textContent = quando ? 'Você abriu o WhatsApp para este cliente em ' + data(quando) + '.'
+      : marcado ? 'Marcado como já contatado em ' + data(marcado) + '. O aviso saiu da lista.' : '';
   }
 
   function renderizarRecuperacao() {
@@ -218,12 +283,18 @@
     caixa.hidden = false;
     caixa.setAttribute('data-pedido', chave);
     caixa.setAttribute('data-modo', modo);
-    $('[data-recuperar-titulo]').textContent = modo === 'briefing' ? 'Briefing pendente' : 'Checkout abandonado';
+    $('[data-recuperar-titulo]').textContent = modo === 'briefing' ? 'Briefing pendente'
+      : modo === 'boas-vindas' ? 'Cliente ainda sem mensagem sua' : 'Checkout abandonado';
     $('[data-recuperar-texto]').textContent = modo === 'briefing'
       ? 'Pago há ' + tempoParado(p.pago_em || p.atualizado_em) + ' e o briefing ainda não chegou. ' +
         'Sem ele a produção não começa; um lembrete com o link de acompanhamento costuma resolver.'
-      : 'Pagamento pendente há ' + tempoParado(p.criado_em) +
-        '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
+      : modo === 'boas-vindas'
+        ? 'Pago há ' + tempoParado(p.pago_em || p.atualizado_em) + '. Nenhuma resposta sua no chat de uma conversa com este ' +
+          'WhatsApp e nenhum WhatsApp aberto por este painel. Uma mensagem de boas-vindas mostra ao cliente que tem alguém cuidando do pedido.'
+        : 'Pagamento pendente há ' + tempoParado(p.criado_em) +
+          '. O cliente pode ter desistido ou tido algum problema no checkout; uma mensagem educada costuma ajudar.';
+    var jaFalei = $('[data-recuperar-contatado]');
+    if (jaFalei) jaFalei.hidden = !(modo === 'boas-vindas' && semContato(p));
     var temWhats = String(p.whatsapp || '').replace(/\D/g, '').length >= 10;
     $('[data-recuperar-whats]').hidden = !temWhats;
     $('[data-recuperar-sem]').hidden = temWhats;
@@ -254,10 +325,15 @@
     }
     return Promise.all([lerPedidos(), briefings])
       .then(function (res) {
+        if (res[0].error) return res;
+        return lerContatos(res[0].data || []).then(function (mapa) { res.push(mapa); return res; });
+      })
+      .then(function (res) {
         var r = res[0];
         if (r.error) throw r.error;
         if (!estado) return;
         estado.briefings = res[1];
+        estado.comMensagem = res[2];
         var novos = r.data || [];
         avisarAprovados(novos);
         estado.pedidos = novos;
@@ -271,6 +347,32 @@
         $('[data-resumo-pedidos]').textContent = 'Não foi possível carregar os pedidos.';
         return false;
       });
+  }
+
+  // Números (DDD + número) dos aprovados recentes que já têm resposta do dono no chat.
+  // Uma consulta só: conversas com o mesmo WhatsApp e pelo menos uma mensagem de autor "admin" (RLS do admin).
+  // Devolve null se falhar, e aí o aviso "sem contato" não aparece (melhor nada do que um alarme falso).
+  function lerContatos(pedidos) {
+    var agora = Date.now();
+    var numeros = {};
+    pedidos.forEach(function (p) {
+      var desde = p.pago_em || p.atualizado_em;
+      if (p.status !== 'aprovado' || !desde || agora - new Date(desde).getTime() > CONTATO_JANELA_MS) return;
+      var n = numeroNacional(p.whatsapp);
+      if (n.length < 10) return;
+      numeros[n] = true;
+      numeros['55' + n] = true;
+    });
+    var lista = Object.keys(numeros);
+    if (!lista.length) return Promise.resolve({});
+    return estado.sb.from('conversas').select('whatsapp, mensagens!inner(autor)')
+      .eq('mensagens.autor', 'admin').in('whatsapp', lista).limit(1000)
+      .then(function (r) {
+        if (!r || r.error) return null;
+        var mapa = {};
+        (r.data || []).forEach(function (c) { if (c.whatsapp) mapa[numeroNacional(c.whatsapp)] = true; });
+        return mapa;
+      }, function () { return null; });
   }
 
   // Som e título piscando quando um pedido passa a "aprovado" (não na primeira carga).
@@ -320,6 +422,7 @@
       if (!noRecorte(p)) return false;
       if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
       else if (estado.filtro === 'sem-briefing') { if (!semBriefing(p)) return false; }
+      else if (estado.filtro === 'sem-contato') { if (!semContato(p)) return false; }
       else if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
       if (!estado.busca) return true;
       return [p.codigo, p.nome, p.email].some(function (c) { return normalizar(c).indexOf(estado.busca) !== -1; });
@@ -342,12 +445,14 @@
       contagem[p.status] = (contagem[p.status] || 0) + 1;
       if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
       if (semBriefing(p, agora)) contagem['sem-briefing'] = (contagem['sem-briefing'] || 0) + 1;
+      if (semContato(p, agora)) contagem['sem-contato'] = (contagem['sem-contato'] || 0) + 1;
     });
     var chamados = lerChamados('abandono');
     var lembrados = lerChamados('briefing');
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
-      var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing' : ROTULOS[f] + 's';
+      var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing'
+        : f === 'sem-contato' ? 'Sem contato' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
     var aprovados = recorte.filter(function (p) { return p.status === 'aprovado'; });
@@ -391,6 +496,7 @@
         var atrasado = semBriefing(p, agora);
         l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
           temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
+        if (semContato(p, agora)) l2.appendChild(el('span', 'admin-item__tag admin-item__tag--contato', 'sem contato'));
       }
       b.appendChild(l1);
       b.appendChild(l2);
@@ -440,6 +546,7 @@
   }
 
   function abrir(id) {
+    if (estado.manterBoasVindas !== id) estado.manterBoasVindas = null;
     estado.selecionado = id;
     $('.admin-pedidos').classList.add('mostrando-conversa');
     renderizarLista();

@@ -315,12 +315,12 @@
 .admin-item:hover { background: var(--cor-fundo-suave); }
 .admin-item[aria-current='true'] { background: var(--cor-acao-fundo-suave); box-shadow: inset 3px 0 0 var(--cor-acao); }
 .admin-item:focus-visible { outline-offset: -3px; }
-.admin-item__linha { display: flex; align-items: center; gap: var(--esp-2); min-width: 0; }
-.admin-item__nome { flex: 1; min-width: 0; font-weight: var(--peso-semi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-item__linha { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-2); min-width: 0; }
+.admin-item__nome { flex: 1 1 0; min-width: 0; font-weight: var(--peso-semi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-item--nova .admin-item__nome { font-weight: var(--peso-extra); }
 .admin-item__hora { color: var(--cor-texto-suave); font-size: var(--texto-xs); }
 .admin-item__previa {
-  flex: 1;
+  flex: 1 1 8rem; /* com várias etiquetas, elas descem de linha em vez de esmagar o plano/valor */
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -340,6 +340,7 @@
 }
 .admin-item__tag {
   padding: 0 var(--esp-2);
+  white-space: nowrap;
   border-radius: var(--raio-pilula);
   background: var(--cor-cinza-100);
   color: var(--cor-texto-suave);
@@ -657,6 +658,10 @@
 /* Briefing pendente há mais de 24 h (melhoria 34): reaproveita o bloco .admin-recuperar */
 .admin-item__tag--aviso { background: var(--cor-destaque-suave); color: var(--cor-texto); font-weight: var(--peso-semi); }
 .admin-recuperar[data-modo="briefing"] { border-left-color: var(--cor-acao); }
+
+/* Pago sem contato do dono (melhoria 51): mesmo bloco, faixa azul-noite */
+.admin-item__tag--contato { background: var(--cor-fundo); color: var(--cor-texto); box-shadow: inset 0 0 0 1px var(--cor-borda-campo); font-weight: var(--peso-semi); }
+.admin-recuperar[data-modo="boas-vindas"] { border-left-color: var(--cor-texto); }
 
 /* ---------------- Busca global (melhoria 37) ---------------- */
 /* Campo no topo do painel; os resultados abrem por cima das abas, agrupados por aba. */

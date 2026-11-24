@@ -258,6 +258,7 @@
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="abandonado" title="Pendentes há mais de 1 hora">Abandonados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-briefing" title="Aprovados há mais de 24 horas sem briefing">Sem briefing</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-contato" title="Aprovados nos últimos 30 dias que ainda não receberam mensagem sua">Sem contato</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="recusado">Recusados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="cancelado">Cancelados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="reembolsado">Reembolsados</button>
@@ -323,6 +324,7 @@
                     Chamar no WhatsApp<span class="visualmente-oculto"> (abre em nova aba)</span>
                   </a>
                   <button class="botao botao--contorno botao--pequeno" type="button" data-recuperar-padrao>Restaurar mensagem</button>
+                  <button class="botao botao--contorno botao--pequeno" type="button" data-recuperar-contatado hidden>Já falei com este cliente</button>
                 </p>
                 <p class="admin-recuperar__nota">Nada é enviado automaticamente: o WhatsApp abre com o texto pronto e você decide se envia.</p>
               </div>
