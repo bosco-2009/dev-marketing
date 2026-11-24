@@ -16,7 +16,7 @@
   <link rel="preload" href="../assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/css/tokens.css?v=7adca5c8">
   <link rel="stylesheet" href="../assets/css/main.css?v=2a424f5c">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=1e4fa6ea">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=fd3d0fed">
 
   <script src="../config.js?v=0c1b57bf" defer></script>
   <script src="../assets/js/supabase-client.js?v=b6c0292b" defer></script>
@@ -24,7 +24,7 @@
   <script src="../assets/js/admin-exportar.js?v=a238a6f4" defer></script>
   <script src="../assets/js/admin-paginacao.js?v=0252303b" defer></script>
   <script src="../assets/js/admin-tempo-real.js?v=4ec6be5b" defer></script>
-  <script src="../assets/js/admin.js?v=0651d1ec" defer></script>
+  <script src="../assets/js/admin.js?v=3330b7fb" defer></script>
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
   <script src="../assets/js/admin-pedidos.js?v=aa9c2b0e" defer></script>
   <script src="../assets/js/admin-briefings.js?v=8573ff69" defer></script>
@@ -161,6 +161,18 @@
               <option value="">Todas as origens</option>
             </select>
           </div>
+          <div class="admin-refino__campo">
+            <label for="conversas-ordem">Ordenar</label>
+            <select id="conversas-ordem" data-ordem-conversas aria-describedby="conversas-ordem-dica">
+              <option value="recentes">Mais recentes</option>
+              <option value="espera">Maior espera</option>
+            </select>
+          </div>
+          <label class="admin-refino__marcar admin-refino__marcar--meia">
+            <input type="checkbox" data-so-nao-lidas>
+            Só não lidas
+          </label>
+          <p class="admin-refino__dica" id="conversas-ordem-dica" data-ordem-dica hidden>Em “Aguardando resposta” a ordem é sempre pela maior espera.</p>
           <label class="admin-refino__marcar">
             <input type="checkbox" data-so-leads>
             Só leads (com nome ou WhatsApp)

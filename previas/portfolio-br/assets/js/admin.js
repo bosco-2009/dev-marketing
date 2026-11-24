@@ -90,6 +90,8 @@
       periodo: 'tudo',
       origem: '',
       soLeads: false,
+      soNaoLidas: false,
+      ordem: 'recentes',
       selecionada: null,
       idsMensagens: {},
       canal: null,
@@ -406,6 +408,11 @@
     function aguardando(c) {
       return c.status === 'aberta' && !!c.mensagens && !!c.mensagens[0] && c.mensagens[0].autor === 'visitante';
     }
+    // "Maior espera" (melhoria 93): as que aguardam resposta primeiro, quem espera há mais tempo no topo;
+    // depois as demais na ordem da última atividade (a do servidor, preservada pelo sort estável).
+    function porEspera() {
+      return estado.ordem === 'espera' || estado.filtro === 'aguardando';
+    }
     function conversasVisiveis() {
       var X = window.PBRExportar;
       var itens = estado.conversas.filter(function (c) {
@@ -414,11 +421,39 @@
         if (X && !X.noPeriodo(c.criado_em, estado.periodo)) return false;
         if (estado.origem && canalConversa(c) !== estado.origem) return false;
         if (estado.soLeads && !c.nome && !c.whatsapp) return false;
+        // A conversa aberta continua na lista depois de lida (não some debaixo do dono).
+        if (estado.soNaoLidas && !(c.nao_lidas_admin > 0) && c.id !== estado.selecionada) return false;
         return true;
       });
-      // Na fila, quem espera há mais tempo vem primeiro.
-      if (estado.filtro === 'aguardando') itens.sort(function (a, b) { return new Date(a.mensagens[0].criado_em) - new Date(b.mensagens[0].criado_em); });
+      if (porEspera()) {
+        itens = itens.map(function (c, i) { return { c: c, i: i, espera: aguardando(c) ? new Date(c.mensagens[0].criado_em).getTime() : null }; })
+          .sort(function (a, b) {
+            if (a.espera !== null && b.espera !== null) return a.espera - b.espera || a.i - b.i;
+            if (a.espera !== null) return -1;
+            if (b.espera !== null) return 1;
+            return a.i - b.i;
+          })
+          .map(function (x) { return x.c; });
+      }
       return itens;
+    }
+
+    // Filtro, ordem e "só não lidas" lembrados neste navegador (localStorage do admin; nada vai ao banco).
+    var CHAVE_VISTA = 'pbr-admin-conversas-vista';
+    var FILTROS_VALIDOS = ['aberta', 'aguardando', 'fechada', 'todas'];
+    function lerVista() {
+      try {
+        var v = JSON.parse(localStorage.getItem(CHAVE_VISTA) || 'null');
+        if (!v || typeof v !== 'object') return;
+        if (FILTROS_VALIDOS.indexOf(v.filtro) !== -1) estado.filtro = v.filtro;
+        if (v.ordem === 'espera' || v.ordem === 'recentes') estado.ordem = v.ordem;
+        estado.soNaoLidas = v.soNaoLidas === true;
+      } catch (e) { /* sem storage ou valor estragado: fica o padrão */ }
+    }
+    function gravarVista() {
+      try {
+        localStorage.setItem(CHAVE_VISTA, JSON.stringify({ filtro: estado.filtro, ordem: estado.ordem, soNaoLidas: estado.soNaoLidas }));
+      } catch (e) { /* sem storage: só não lembra */ }
     }
 
     var totalEspera = $('[data-espera-total]');
@@ -447,7 +482,8 @@
       }
       lista.textContent = '';
       listaVazia.hidden = visiveis.length > 0;
-      listaVazia.textContent = estado.filtro === 'aguardando' ? 'Nenhuma conversa aguardando resposta.' : 'Nenhuma conversa aqui ainda.';
+      listaVazia.textContent = estado.soNaoLidas ? 'Nenhuma conversa com mensagens não lidas neste filtro.'
+        : estado.filtro === 'aguardando' ? 'Nenhuma conversa aguardando resposta.' : 'Nenhuma conversa aqui ainda.';
       AVISOS.definir('conversas', totalNaoLidas());
 
       visiveis.forEach(function (c) {
@@ -489,12 +525,38 @@
       });
     }
 
+    var selOrdem = $('[data-ordem-conversas]');
+    var dicaOrdem = $('[data-ordem-dica]');
+    var marcarNaoLidas = $('[data-so-nao-lidas]');
+    // Reflete o estado nos controles: botão pressionado, ordem (travada em "espera" na fila) e caixa marcada.
+    function sincronizarControles() {
+      $$('[data-filtro]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro') === estado.filtro)); });
+      var travada = estado.filtro === 'aguardando';
+      if (selOrdem) { selOrdem.value = travada ? 'espera' : estado.ordem; selOrdem.disabled = travada; }
+      if (dicaOrdem) dicaOrdem.hidden = !travada;
+      if (marcarNaoLidas) marcarNaoLidas.checked = estado.soNaoLidas;
+    }
+    lerVista();
+    sincronizarControles();
+
     $$('[data-filtro]').forEach(function (b) {
       b.addEventListener('click', function () {
         estado.filtro = b.getAttribute('data-filtro');
-        $$('[data-filtro]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        sincronizarControles();
+        gravarVista();
         renderizarLista();
       });
+    });
+    if (selOrdem) selOrdem.addEventListener('change', function () {
+      if (selOrdem.disabled) return;
+      estado.ordem = selOrdem.value === 'espera' ? 'espera' : 'recentes';
+      gravarVista();
+      renderizarLista();
+    });
+    if (marcarNaoLidas) marcarNaoLidas.addEventListener('change', function () {
+      estado.soNaoLidas = marcarNaoLidas.checked;
+      gravarVista();
+      renderizarLista();
     });
 
     var selPeriodo = $('[data-periodo-conversas]');
@@ -667,7 +729,7 @@
     });
 
     // Busca global (admin-busca.js): abre uma conversa já carregada. Se os filtros a escondem,
-    // volta para "Todas" sem período, origem ou "só leads", para ela aparecer marcada na lista.
+    // volta para "Todas" sem período, origem, "só leads" ou "só não lidas" (sem gravar: é só para achar a conversa), para ela aparecer marcada na lista.
     window.PBRAdminChat = {
       abrirPorId: function (id) {
         if (!conversaPorId(id)) return;
@@ -676,7 +738,8 @@
           estado.periodo = 'tudo';
           estado.origem = '';
           estado.soLeads = false;
-          $$('[data-filtro]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-filtro') === 'todas')); });
+          estado.soNaoLidas = false;
+          sincronizarControles();
           if (selPeriodo) selPeriodo.value = 'tudo';
           if (selOrigem) selOrigem.value = '';
           if (marcarLeads) marcarLeads.checked = false;
