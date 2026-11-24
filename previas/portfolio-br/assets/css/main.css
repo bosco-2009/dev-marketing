@@ -538,6 +538,19 @@ main[tabindex="-1"]:focus, [data-foco-ancora]:focus { outline: none; }
   cursor: pointer;
 }
 
+/* Avisos temporários (melhoria 112): "Link copiado" ao lado do botão, sem mudar o rótulo; some sozinho (≥ 6 s,
+   nunca com o foco/ponteiro dentro) e Esc dispensa (PBRAviso em main.js). Vazio não ocupa espaço. */
+.aviso-temporario {
+  display: inline-block;
+  margin-left: var(--esp-3);
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+.aviso-temporario:empty { display: none; }
+.aviso-copiar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); }
+.aviso-copiar .aviso-temporario { margin-left: 0; }
+
 .faq { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
 
 .faq__item {

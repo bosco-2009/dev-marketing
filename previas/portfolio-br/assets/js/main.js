@@ -508,6 +508,11 @@
       copiar.setAttribute('data-faq-copiar', id);
       copiar.setAttribute('aria-label', 'Copiar link desta pergunta: ' + item.pergunta);
       corpo.appendChild(copiar);
+      // Confirmação visível e anunciada uma vez (melhoria 112); o rótulo do botão não muda
+      var copiado = criar('span', 'aviso-temporario', '');
+      copiado.setAttribute('role', 'status');
+      copiado.setAttribute('data-faq-copiado', '');
+      corpo.appendChild(copiado);
       det.appendChild(corpo);
       listaFaq.appendChild(det);
       itensFaq.push({ el: det, texto: normalizar(item.pergunta + ' ' + item.resposta + ' ' + (item.palavras || '')) });
@@ -535,9 +540,10 @@
       var b = e.target.closest('[data-faq-copiar]');
       if (!b) return;
       var url = location.href.split('#')[0] + '#' + b.getAttribute('data-faq-copiar');
+      var corpoFaq = b.parentNode;
       var feito = function (ok) {
-        b.textContent = ok ? 'Link copiado' : 'Copie o endereço da barra';
-        setTimeout(function () { b.textContent = 'Copiar link'; }, 2500);
+        var regiao = corpoFaq.querySelector('[data-faq-copiado]');
+        if (regiao && window.PBRAviso) window.PBRAviso.mostrar(regiao, ok ? 'Link copiado.' : 'Não deu para copiar: copie o endereço da barra.', corpoFaq);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { feito(true); }, function () { feito(false); });
       else feito(false);
@@ -828,4 +834,61 @@
   }
   window.addEventListener('beforeprint', prepararImpressao);
   window.PBRImpressao = { preparar: prepararImpressao };
+})();
+
+/*
+ * Avisos temporários (melhoria 112, WCAG 2.2.1 e 4.1.3) — "Link copiado" e afins.
+ * PBRAviso.mostrar(regiao, texto, area): escreve o texto numa região role="status" já existente no DOM (anunciada
+ * uma vez; limpa e escreve no quadro seguinte para repetir o anúncio num novo clique) e o apaga depois de pelo menos
+ * MIN_MS. Nunca some com o foco ou o ponteiro dentro de `area` (espera sair e confere de novo) e Esc com o foco em
+ * `area` dispensa na hora. Devolve uma função que dispensa.
+ */
+(function () {
+  'use strict';
+  var MIN_MS = 6000;
+  var RECHECAR_MS = 1000;
+  var ativos = typeof WeakMap === 'function' ? new WeakMap() : null;
+
+  function mostrar(regiao, texto, area, ms) {
+    area = area || regiao;
+    var anterior = ativos && ativos.get(regiao);
+    if (anterior) anterior.cancelar();
+    var timer = null;
+    var encerrado = false;
+    function soltar() {
+      clearTimeout(timer);
+      area.removeEventListener('keydown', aoTeclar);
+      if (ativos && ativos.get(regiao) === controle) ativos.delete(regiao);
+    }
+    function dispensar() {
+      if (encerrado) return;
+      encerrado = true;
+      soltar();
+      regiao.textContent = '';
+    }
+    function conferir() {
+      timer = null;
+      if (encerrado) return;
+      if (area.isConnected && (area.contains(document.activeElement) || area.matches(':hover'))) {
+        timer = setTimeout(conferir, RECHECAR_MS);
+        return;
+      }
+      dispensar();
+    }
+    function aoTeclar(e) {
+      if (e.key === 'Escape' && regiao.textContent) { e.preventDefault(); dispensar(); }
+    }
+    var controle = { cancelar: function () { encerrado = true; soltar(); } };
+    if (ativos) ativos.set(regiao, controle);
+    area.addEventListener('keydown', aoTeclar);
+    regiao.textContent = '';
+    timer = setTimeout(function () {
+      if (encerrado) return;
+      regiao.textContent = texto;
+      timer = setTimeout(conferir, Math.max(MIN_MS, ms || 0));
+    }, 60);
+    return dispensar;
+  }
+
+  window.PBRAviso = { mostrar: mostrar, MIN_MS: MIN_MS };
 })();

@@ -485,7 +485,31 @@
       item.className = 'arquivos__item arquivos__item--erro';
       item.setAttribute('data-arquivo-estado', 'recusado');
       trocarInfo(msg, false);
-      setTimeout(function () { item.remove(); }, 8000);
+      removerDepois(8000);
+    }
+    // Recusa some sozinha (melhoria 112, WCAG 2.2.1): nunca com o foco ou o ponteiro no item (espera sair);
+    // "Fechar" ou Esc dispensam pelo teclado; se o foco estava no item, ele vai para o campo de arquivos.
+    function removerDepois(ms) {
+      var timer = setTimeout(conferir, ms);
+      acoes = el('span', 'arquivos__acoes');
+      var bFechar = el('button', 'arquivos__remover', 'Fechar', { type: 'button', 'aria-label': 'Fechar aviso de ' + arquivo.name, 'data-arquivo-fechar': '' });
+      bFechar.addEventListener('click', sair);
+      acoes.appendChild(bFechar);
+      item.appendChild(acoes);
+      function sair() {
+        clearTimeout(timer);
+        item.removeEventListener('keydown', aoTeclar);
+        var focoDentro = item.contains(document.activeElement);
+        item.remove();
+        if (focoDentro && entradaArquivos) entradaArquivos.focus();
+      }
+      function conferir() {
+        if (!item.isConnected) return;
+        if (item.contains(document.activeElement) || item.matches(':hover')) { timer = setTimeout(conferir, 1000); return; }
+        sair();
+      }
+      function aoTeclar(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); sair(); } }
+      item.addEventListener('keydown', aoTeclar);
     }
     function falharPassageiro(tipo, manual) {
       item.className = 'arquivos__item arquivos__item--erro';

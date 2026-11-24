@@ -181,12 +181,17 @@
     campo.addEventListener('focus', function () { campo.select(); });
     bloco.appendChild(campo);
     var copiar = el('button', 'botao botao--contorno botao--pequeno', 'Copiar link', { type: 'button' });
+    // Confirmação temporária e anunciada uma vez (melhoria 112); o rótulo do botão não muda
+    var linhaCopiar = el('div', 'aviso-copiar');
+    var copiado = el('span', 'aviso-temporario', null, { role: 'status' });
     copiar.addEventListener('click', function () {
-      var feito = function () { copiar.textContent = 'Link copiado!'; };
+      var feito = function () { if (window.PBRAviso) window.PBRAviso.mostrar(copiado, 'Link copiado.', linhaCopiar); };
       if (navigator.clipboard) navigator.clipboard.writeText(campo.value).then(feito, function () { campo.select(); });
       else { campo.select(); }
     });
-    bloco.appendChild(copiar);
+    linhaCopiar.appendChild(copiar);
+    linhaCopiar.appendChild(copiado);
+    bloco.appendChild(linhaCopiar);
     alvo.appendChild(bloco);
   }
 

@@ -19,7 +19,8 @@
   'use strict';
 
   var ESPERA_MS = 2500;   // queda curta (reconexão rápida) não chega a mostrar o aviso
-  var SUMIR_MS = 6000;    // "Tempo real de volta" fica na tela alguns segundos
+  var SUMIR_MS = 6000;    // "Tempo real de volta" fica na tela alguns segundos (≥ 5 s, melhoria 112)
+  var RECHECAR_MS = 1000; // com o foco ou o ponteiro sobre o aviso, ele espera sair antes de sumir (WCAG 2.2.1)
 
   var canais = {};        // nome -> { recarregar: fn, ok: bool }
   var timerMostrar = null;
@@ -31,6 +32,7 @@
   function caixa() { return $('[data-tempo-real]'); }
   function texto() { return $('[data-tempo-real-texto]'); }
   function botao() { return $('[data-tempo-real-atualizar]'); }
+  function fechar() { return $('[data-tempo-real-fechar]'); }
 
   function nomes() { return Object.keys(canais); }
   function algumCaido() { return nomes().some(function (n) { return !canais[n].ok; }); }
@@ -38,22 +40,49 @@
   var fHora = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   function escrever(mensagem, comBotao, estadoVisual) {
-    var c = caixa(), t = texto(), b = botao();
+    var c = caixa(), t = texto(), b = botao(), f = fechar();
     if (!c || !t) return;
-    clearTimeout(timerSumir);
+    clearTimeout(timerSumir); timerSumir = null;
     if (!mensagem) {
+      // O foco nunca fica num botão que vai sumir: volta para o conteúdo principal
+      var focoDentro = c.contains(document.activeElement);
       c.removeAttribute('data-ativo');
       c.removeAttribute('data-estado');
       t.textContent = '';
       if (b) b.hidden = true;
+      if (f) f.hidden = true;
       visivel = false;
+      if (focoDentro) focarConteudo();
       return;
     }
     c.setAttribute('data-ativo', '');
     c.setAttribute('data-estado', estadoVisual);
     t.textContent = mensagem;
     if (b) b.hidden = !comBotao;
+    if (f) f.hidden = estadoVisual !== 'ok';
     visivel = true;
+  }
+
+  function focarConteudo() {
+    var m = document.getElementById('conteudo');
+    if (!m) return;
+    if (!m.hasAttribute('tabindex')) {
+      m.setAttribute('tabindex', '-1');
+      m.addEventListener('blur', function () { m.removeAttribute('tabindex'); }, { once: true });
+    }
+    m.focus({ preventScroll: true });
+  }
+
+  // Some depois de SUMIR_MS, mas nunca com o foco ou o ponteiro sobre o aviso (espera sair e confere de novo)
+  function sumirDepois(ms) {
+    clearTimeout(timerSumir);
+    timerSumir = setTimeout(function () {
+      timerSumir = null;
+      var c = caixa();
+      if (!c || c.getAttribute('data-estado') !== 'ok') return;
+      if (c.contains(document.activeElement) || c.matches(':hover')) { sumirDepois(RECHECAR_MS); return; }
+      escrever('');
+    }, ms);
   }
 
   function mostrarPausado(extra) {
@@ -73,7 +102,7 @@
     if (visivel && caixa() && caixa().getAttribute('data-estado') === 'pausado') {
       // As abas recarregam sozinhas ao receber SUBSCRIBED; aqui só avisamos e saímos de cena.
       escrever('Tempo real de volta. Listas atualizadas.', false, 'ok');
-      timerSumir = setTimeout(function () { escrever(''); }, SUMIR_MS);
+      sumirDepois(SUMIR_MS);
     }
   }
 
@@ -124,6 +153,13 @@
     if (b) b.addEventListener('click', function () {
       if (b.getAttribute('aria-disabled') === 'true') return;
       recarregarTudo();
+    });
+    // Dispensar pelo teclado (melhoria 112): botão "Fechar aviso" no estado "de volta" e Esc com o foco no aviso
+    var f = fechar();
+    if (f) f.addEventListener('click', function () { escrever(''); });
+    var c = caixa();
+    if (c) c.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && c.getAttribute('data-estado') === 'ok') { e.preventDefault(); escrever(''); }
     });
   });
   document.addEventListener('visibilitychange', aoVoltar);
