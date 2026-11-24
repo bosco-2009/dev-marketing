@@ -213,7 +213,8 @@
     statusLinha.appendChild(statusPonto);
     statusLinha.appendChild(statusTexto);
     identificacao.appendChild(statusLinha);
-    var fechar = el('button', 'chat__fechar', null, { type: 'button' });
+    // Mesmo alvo do lançador (que vira "Fechar chat" com o painel aberto): mesmo nome, mesmo destino (WCAG 2.4.4, melhoria 72)
+    var fechar = el('button', 'chat__fechar', null, { type: 'button', 'aria-controls': 'chat-painel' });
     fechar.appendChild(icone('fechar'));
     fechar.appendChild(oculto('Fechar chat'));
     cabecalho.appendChild(avatar);
