@@ -261,7 +261,17 @@
             <button class="botao botao--primario" type="button" data-etapa-proxima>Continuar</button>
             <button class="botao botao--primario" type="submit" data-enviar-briefing hidden>Enviar briefing</button>
           </div>
-          <p class="briefing__salvo" data-rascunho-status aria-live="polite"></p>
+          <div class="briefing__rascunho">
+            <p class="briefing__salvo" data-rascunho-status aria-live="polite"></p>
+            <button class="botao botao--contorno botao--pequeno" type="button" data-limpar-rascunho hidden>Limpar rascunho</button>
+            <div class="briefing__confirmar" role="group" aria-labelledby="b-confirmar-texto" data-confirmar-limpeza hidden>
+              <p class="briefing__confirmar-texto" id="b-confirmar-texto">Apagar o rascunho salvo neste aparelho? As respostas que você ainda não enviou serão perdidas.</p>
+              <div class="briefing__confirmar-acoes">
+                <button class="botao botao--primario botao--pequeno" type="button" data-confirmar-limpar>Apagar rascunho</button>
+                <button class="botao botao--contorno botao--pequeno" type="button" data-cancelar-limpar>Cancelar</button>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </section>

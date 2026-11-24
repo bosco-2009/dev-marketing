@@ -140,3 +140,11 @@ textarea.campo__entrada { resize: vertical; line-height: 1.5; }
   .briefing__navegacao .botao { flex: 0 0 auto; }
 }
 .briefing__salvo { color: var(--cor-texto-suave); font-size: var(--texto-xs); min-height: 1.2em; }
+/* Rascunho local (melhoria 43): status + "Limpar rascunho" com confirmação na própria página */
+.briefing__rascunho { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); }
+.briefing__rascunho .briefing__salvo { flex: 1 1 12rem; margin: 0; }
+.briefing__rascunho [hidden] { display: none; }
+.briefing__confirmar { flex: 1 1 100%; padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md); background: var(--cor-fundo-suave); }
+.briefing__confirmar-texto { margin: 0 0 var(--esp-3); font-size: var(--texto-sm); }
+.briefing__confirmar-acoes { display: flex; flex-wrap: wrap; gap: var(--esp-2); }

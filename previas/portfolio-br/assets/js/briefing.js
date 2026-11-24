@@ -7,7 +7,10 @@
  *   2. ?pedido=PBR-XXXXXX com o token guardado por planos.js (pbr_pedidos_v1);
  *   3. o último acesso usado neste navegador (pbr_briefing_acesso).
  * Servidor: RPCs briefing_obter / briefing_enviar e a Edge Function briefing-upload (URL assinada do Storage).
- * Rascunho salvo no localStorage a cada alteração. Todo texto é inserido com textContent.
+ * Rascunho salvo no localStorage a cada alteração, com a etapa atual (melhoria 43): guarda só as respostas, a etapa e
+ * a lista dos arquivos JÁ enviados ao Storage (nome/caminho), nunca o conteúdo dos arquivos nem o token.
+ * Ao voltar, retoma na etapa onde parou; "Limpar rascunho" apaga o rascunho deste aparelho (com confirmação).
+ * Todo texto é inserido com textContent.
  */
 (function () {
   'use strict';
@@ -170,13 +173,18 @@
 
   // ------------------------------------------------------------------ rascunho local
   var statusRascunho = $('[data-rascunho-status]');
+  var bLimpar = $('[data-limpar-rascunho]');
+  var caixaConfirmar = $('[data-confirmar-limpeza]');
   var timerRascunho = null;
+  var briefingServidor = null; // último briefing enviado (volta a ele ao limpar o rascunho)
+  var formularioPronto = false; // só grava a etapa depois de abrir o formulário
   var fHora = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
   function gravarRascunhoAgora() {
     clearTimeout(timerRascunho);
     timerRascunho = null;
-    var ok = gravarJSON(CHAVE_RASCUNHO, { salvo_em: new Date().toISOString(), dados: coletar() });
+    var ok = gravarJSON(CHAVE_RASCUNHO, { salvo_em: new Date().toISOString(), etapa: etapaAtual, dados: coletar() });
     statusRascunho.textContent = ok ? 'Rascunho salvo neste aparelho às ' + fHora.format(new Date()) + '.' : '';
+    bLimpar.hidden = !ok || !caixaConfirmar.hidden;
   }
   function salvarRascunho() {
     clearTimeout(timerRascunho);
@@ -188,6 +196,42 @@
   function gravarPendente() { if (timerRascunho) gravarRascunhoAgora(); }
   window.addEventListener('pagehide', gravarPendente);
   document.addEventListener('visibilitychange', function () { if (document.hidden) gravarPendente(); });
+
+  function existeRascunho() { var r = lerJSON(CHAVE_RASCUNHO); return !!(r && r.dados); }
+  function dadosVazios() {
+    var d = { tem_dominio: '', referencias: [], links_arquivos: [], arquivos: [] };
+    CAMPOS_TEXTO.forEach(function (n) { d[n] = ''; });
+    return d;
+  }
+  function fecharConfirmacao(focarLimpar) {
+    caixaConfirmar.hidden = true;
+    bLimpar.hidden = !existeRascunho();
+    if (focarLimpar && !bLimpar.hidden) bLimpar.focus();
+  }
+  bLimpar.addEventListener('click', function () {
+    bLimpar.hidden = true;
+    caixaConfirmar.hidden = false;
+    $('[data-confirmar-limpar]', caixaConfirmar).focus();
+  });
+  $('[data-cancelar-limpar]', caixaConfirmar).addEventListener('click', function () { fecharConfirmacao(true); });
+  caixaConfirmar.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.stopPropagation(); fecharConfirmacao(true); }
+  });
+  $('[data-confirmar-limpar]', caixaConfirmar).addEventListener('click', function () {
+    clearTimeout(timerRascunho);
+    timerRascunho = null;
+    try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (e) { /* sem armazenamento: nada a apagar */ }
+    preencher(briefingServidor || dadosVazios());
+    $$('[aria-invalid]', form).forEach(function (i) { i.removeAttribute('aria-invalid'); });
+    $$('.campo__erro', form).forEach(function (p) { p.hidden = true; });
+    caixaConfirmar.hidden = true;
+    bLimpar.hidden = true;
+    irPara(1, false);
+    statusRascunho.textContent = briefingServidor
+      ? 'Rascunho apagado. O formulário voltou ao briefing que você já enviou.'
+      : 'Rascunho apagado deste aparelho.';
+    form.elements.nome_negocio.focus();
+  });
 
   // ------------------------------------------------------------------ validação
   var URL_OK = /^https?:\/\/[^\s/$.?#][^\s]*$/i;
@@ -231,6 +275,8 @@
     bEnviar.hidden = n !== TOTAL_ETAPAS;
     if (n === TOTAL_ETAPAS) renderizarResumo();
     mostrarErro('');
+    // Guarda a etapa para retomar dali (só se já há rascunho: trocar de etapa sem responder nada não cria um).
+    if (formularioPronto && existeRascunho()) gravarRascunhoAgora();
     if (focar) {
       var legenda = $('[data-etapa="' + n + '"] .briefing__legenda', form);
       legenda.focus();
@@ -386,15 +432,22 @@
           [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
         return;
       }
+      briefingServidor = b || null;
       var rascunho = lerJSON(CHAVE_RASCUNHO);
       var usarRascunho = rascunho && rascunho.dados && (!b || rascunho.salvo_em > b.atualizado_em);
+      var etapaSalva = usarRascunho ? Math.min(TOTAL_ETAPAS, Math.max(1, Math.floor(Number(rascunho.etapa)) || 1)) : 1;
       preencher(usarRascunho ? rascunho.dados : b);
-      if (usarRascunho) statusRascunho.textContent = 'Continuando o rascunho salvo neste aparelho.';
-      else if (b) statusRascunho.textContent = 'Você já enviou este briefing. Pode editar e enviar de novo.';
       $('[data-briefing-pedido]').textContent = 'Pedido ' + acesso.codigo + ' · Plano ' + info.plano_nome;
       aviso.hidden = true;
       form.hidden = false;
-      irPara(1, false);
+      irPara(etapaSalva, false);
+      formularioPronto = true;
+      bLimpar.hidden = !usarRascunho;
+      if (usarRascunho) {
+        statusRascunho.textContent = etapaSalva > 1
+          ? 'Continuando o rascunho salvo neste aparelho, na etapa ' + etapaSalva + ' de ' + TOTAL_ETAPAS + '.'
+          : 'Continuando o rascunho salvo neste aparelho.';
+      } else if (b) statusRascunho.textContent = 'Você já enviou este briefing. Pode editar e enviar de novo.';
     })
     .catch(function (e) {
       var negado = e && /acesso_negado/.test(e.message);
