@@ -10,6 +10,8 @@
  * Rascunho salvo no localStorage a cada alteração, com a etapa atual (melhoria 43): guarda só as respostas, a etapa e
  * a lista dos arquivos JÁ enviados ao Storage (nome/caminho), nunca o conteúdo dos arquivos nem o token.
  * Ao voltar, retoma na etapa onde parou; "Limpar rascunho" apaga o rascunho deste aparelho (com confirmação).
+ * Revisão (melhoria 50): a etapa 5 mostra o resumo agrupado por etapa, cada grupo com "Editar"; editar leva à etapa
+ * certa (foco na legenda) e "Voltar à revisão" devolve o foco ao "Editar" de onde a pessoa saiu.
  * Todo texto é inserido com textContent.
  */
 (function () {
@@ -32,6 +34,13 @@
     textos_servicos: 'Serviços e textos', contatos_redes: 'Contatos e redes', tem_dominio: 'Tem domínio?',
     dominio: 'Domínio', arquivos: 'Arquivos enviados', links_arquivos: 'Links de arquivos', observacoes: 'Observações'
   };
+  // Grupos do resumo da etapa 5 (observações ficam na própria etapa 5, logo abaixo do resumo).
+  var GRUPOS_RESUMO = [
+    { etapa: 1, titulo: 'Seu negócio', campos: ['nome_negocio', 'segmento', 'cidade', 'publico'] },
+    { etapa: 2, titulo: 'O site', campos: ['objetivo', 'paginas', 'cores_estilo', 'referencias'] },
+    { etapa: 3, titulo: 'Conteúdo', campos: ['textos_servicos', 'contatos_redes'] },
+    { etapa: 4, titulo: 'Domínio e arquivos', campos: ['tem_dominio', 'dominio', 'arquivos', 'links_arquivos'] }
+  ];
   var STATUS_BRIEFING = { novo: 'Recebido', em_producao: 'Em produção', em_revisao: 'Em revisão', entregue: 'Entregue' };
 
   function $(s, r) { return (r || document).querySelector(s); }
@@ -260,6 +269,8 @@
   var bAnterior = $('[data-etapa-anterior]');
   var bProxima = $('[data-etapa-proxima]');
   var bEnviar = $('[data-enviar-briefing]');
+  var bVoltarRevisao = $('[data-voltar-revisao]');
+  var revisando = false; // true quando a pessoa saiu da revisão por um "Editar"
   var erroGeral = $('[data-erro-briefing]');
 
   function irPara(n, focar) {
@@ -271,8 +282,13 @@
       if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
     });
     bAnterior.hidden = n === 1;
+    if (n === TOTAL_ETAPAS) revisando = false;
     bProxima.hidden = n === TOTAL_ETAPAS;
     bEnviar.hidden = n !== TOTAL_ETAPAS;
+    bVoltarRevisao.hidden = !revisando;
+    // Vindo de "Editar", a ação principal é voltar à revisão; "Continuar" fica como secundária.
+    bProxima.classList.toggle('botao--primario', !revisando);
+    bProxima.classList.toggle('botao--contorno', revisando);
     if (n === TOTAL_ETAPAS) renderizarResumo();
     mostrarErro('');
     // Guarda a etapa para retomar dali (só se já há rascunho: trocar de etapa sem responder nada não cria um).
@@ -280,28 +296,63 @@
     if (focar) {
       var legenda = $('[data-etapa="' + n + '"] .briefing__legenda', form);
       legenda.focus();
-      form.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      form.scrollIntoView({ block: 'start', behavior: rolagemSuave() });
     }
   }
   bProxima.addEventListener('click', function () { if (validarEtapa(etapaAtual)) irPara(etapaAtual + 1, true); });
   bAnterior.addEventListener('click', function () { irPara(etapaAtual - 1, true); });
+  bVoltarRevisao.addEventListener('click', function () {
+    if (!validarEtapa(etapaAtual)) return;
+    var origem = etapaAtual;
+    irPara(TOTAL_ETAPAS, false);
+    var editar = $('[data-editar-etapa="' + origem + '"]', form);
+    if (editar) {
+      editar.focus({ preventScroll: true });
+      editar.closest('section').scrollIntoView({ block: 'start', behavior: rolagemSuave() });
+    }
+  });
+  function rolagemSuave() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  }
 
   function mostrarErro(t) { erroGeral.textContent = t || ''; erroGeral.hidden = !t; }
 
+  function valorResumo(d, k) {
+    var v = d[k];
+    if (k === 'tem_dominio') v = { sim: 'Sim', nao: 'Não', nao_sei: 'Não sei' }[v] || '';
+    if (k === 'arquivos') v = arquivos.map(function (a) { return a.nome; }).join('\n');
+    if (Array.isArray(v)) v = v.join('\n');
+    return v || '';
+  }
   function renderizarResumo() {
-    var dl = $('[data-resumo-briefing]');
-    dl.textContent = '';
+    var box = $('[data-resumo-briefing]');
+    box.textContent = '';
     var d = coletar();
-    Object.keys(ROTULOS).forEach(function (k) {
-      if (k === 'observacoes') return;
-      var v = d[k];
-      if (k === 'tem_dominio') v = { sim: 'Sim', nao: 'Não', nao_sei: 'Não sei' }[v] || '';
-      if (k === 'arquivos') v = arquivos.map(function (a) { return a.nome; }).join(', ');
-      if (Array.isArray(v)) v = v.join('\n');
-      var linha = el('div', 'briefing__resumo-linha');
-      linha.appendChild(el('dt', null, ROTULOS[k]));
-      linha.appendChild(el('dd', v ? null : 'briefing__resumo-vazio', v || 'Não informado'));
-      dl.appendChild(linha);
+    GRUPOS_RESUMO.forEach(function (g) {
+      var idTitulo = 'b-resumo-etapa-' + g.etapa;
+      var grupo = el('section', 'briefing__resumo-grupo', null, { 'aria-labelledby': idTitulo, 'data-resumo-grupo': String(g.etapa) });
+      var topo = el('div', 'briefing__resumo-topo');
+      topo.appendChild(el('h3', 'briefing__resumo-subtitulo', g.titulo, { id: idTitulo }));
+      var editar = el('button', 'botao botao--contorno botao--pequeno briefing__editar', 'Editar',
+        { type: 'button', 'data-editar-etapa': String(g.etapa) });
+      editar.appendChild(el('span', 'visualmente-oculto', ' etapa ' + g.etapa + ': ' + g.titulo));
+      editar.addEventListener('click', function () {
+        revisando = true;
+        irPara(g.etapa, true);
+      });
+      topo.appendChild(editar);
+      grupo.appendChild(topo);
+      var dl = el('dl', 'briefing__resumo-lista');
+      g.campos.forEach(function (k) {
+        if (k === 'dominio' && d.tem_dominio !== 'sim') return;
+        var v = valorResumo(d, k);
+        var linha = el('div', 'briefing__resumo-linha');
+        linha.appendChild(el('dt', null, ROTULOS[k]));
+        linha.appendChild(el('dd', v ? null : 'briefing__resumo-vazio', v || 'Não informado'));
+        dl.appendChild(linha);
+      });
+      grupo.appendChild(dl);
+      box.appendChild(grupo);
     });
   }
 

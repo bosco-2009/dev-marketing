@@ -248,12 +248,15 @@
 
           <fieldset class="briefing__etapa" data-etapa="5" hidden>
             <legend class="briefing__legenda" tabindex="-1">Etapa 5 de 5: Revisão</legend>
+            <section class="briefing__revisao" aria-labelledby="b-resumo-titulo" aria-describedby="b-resumo-dica">
+              <h2 class="briefing__resumo-titulo" id="b-resumo-titulo">Confira as informações</h2>
+              <p class="campo__dica" id="b-resumo-dica">Confira as respostas antes de enviar. Para corrigir algo, use “Editar” na parte certa e depois “Voltar à revisão”.</p>
+              <div class="briefing__resumo" data-resumo-briefing></div>
+            </section>
             <div class="campo">
               <label class="campo__rotulo" for="b-observacoes">Algo mais que devemos saber?</label>
               <textarea class="campo__entrada" id="b-observacoes" name="observacoes" rows="4" maxlength="4000"></textarea>
             </div>
-            <h2 class="briefing__resumo-titulo">Confira as informações</h2>
-            <dl class="briefing__resumo" data-resumo-briefing></dl>
           </fieldset>
 
           <p class="checkout__erro" role="alert" data-erro-briefing hidden></p>
@@ -261,7 +264,8 @@
           <div class="briefing__navegacao">
             <button class="botao botao--contorno" type="button" data-etapa-anterior hidden>Voltar</button>
             <button class="botao botao--primario" type="button" data-etapa-proxima>Continuar</button>
-            <button class="botao botao--primario" type="submit" data-enviar-briefing hidden>Enviar briefing</button>
+            <button class="botao botao--primario" type="button" data-voltar-revisao hidden>Voltar à revisão</button>
+            <button class="botao botao--primario" type="submit" data-enviar-briefing aria-describedby="b-resumo-dica" hidden>Enviar briefing</button>
           </div>
           <div class="briefing__rascunho">
             <p class="briefing__salvo" data-rascunho-status aria-live="polite"></p>

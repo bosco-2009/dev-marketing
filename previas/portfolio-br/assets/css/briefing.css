@@ -119,15 +119,30 @@ textarea.campo__entrada { resize: vertical; line-height: 1.5; }
 }
 
 /* ---------------- Resumo e navegação ---------------- */
-.briefing__resumo-titulo { margin-top: var(--esp-3); font-size: var(--texto-lg); }
-.briefing__resumo {
-  display: grid;
-  gap: var(--esp-3);
-  margin: 0;
+.briefing__revisao { display: grid; gap: var(--esp-3); }
+.briefing__resumo-titulo { margin: var(--esp-3) 0 0; font-size: var(--texto-lg); }
+.briefing__revisao .campo__dica { margin: 0; }
+/* Resumo por etapa (melhoria 50): um cartão por etapa, com "Editar" que leva até ela */
+.briefing__resumo { display: grid; gap: var(--esp-3); }
+.briefing__resumo-grupo {
   padding: var(--esp-4);
   border-radius: var(--raio-md);
   background: var(--cor-fundo-suave);
+  scroll-margin-top: var(--esp-8);
 }
+.briefing__resumo-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+  padding-bottom: var(--esp-3);
+  border-bottom: 1px solid var(--cor-borda);
+}
+.briefing__resumo-subtitulo { margin: 0; font-size: var(--texto-base); }
+.briefing__editar { flex: 0 0 auto; }
+.briefing__resumo-lista { display: grid; gap: var(--esp-3); margin: 0; }
 .briefing__resumo-linha dt { color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
 .briefing__resumo-linha dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .briefing__resumo-vazio { color: var(--cor-texto-suave); font-style: italic; }
