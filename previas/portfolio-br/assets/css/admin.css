@@ -658,6 +658,60 @@
 .admin-kpi__seta[data-direcao='sobe'] { color: var(--cor-sucesso); }
 .admin-kpi__seta[data-direcao='desce'] { color: var(--cor-erro); }
 
+/* De onde vieram os pedidos (melhoria 70) */
+.admin-conteudos {
+  max-width: 72rem;
+  margin: var(--esp-4) auto 0;
+  padding: var(--esp-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-sm);
+}
+.admin-conteudos[hidden],
+.admin-conteudos [hidden] { display: none; }
+.admin-conteudos__titulo { margin: 0; font-size: var(--texto-base); }
+.admin-conteudos__dica,
+.admin-conteudos__nota,
+.admin-conteudos__vazio { margin: var(--esp-1) 0 0; color: var(--cor-texto-suave); font-size: var(--texto-xs); }
+.admin-conteudos__nota { margin-top: var(--esp-3); }
+.admin-conteudos__vazio { margin-top: var(--esp-3); color: var(--cor-texto); font-size: var(--texto-sm); }
+.admin-conteudos__tabela {
+  width: 100%;
+  margin-top: var(--esp-3);
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+}
+.admin-conteudos__tabela caption {
+  padding-bottom: var(--esp-2);
+  color: var(--cor-texto-suave);
+  font-size: var(--texto-xs);
+  text-align: left;
+}
+.admin-conteudos__tabela th,
+.admin-conteudos__tabela td {
+  padding: var(--esp-2) var(--esp-1);
+  border-bottom: 1px solid var(--cor-borda);
+  text-align: right;
+  vertical-align: top;
+}
+.admin-conteudos__tabela th:first-child { padding-left: 0; text-align: left; }
+.admin-conteudos__tabela tr > :last-child { padding-right: 0; }
+.admin-conteudos__tabela thead th { color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
+.admin-conteudos__tabela tbody th { font-weight: var(--peso-semi); overflow-wrap: break-word; }
+/* Colunas de números só com a largura do conteúdo: o nome do conteúdo fica com o resto (sem quebrar palavra no meio) */
+.admin-conteudos__tabela :is(th, td):not(:first-child) { width: 1%; padding-right: 0; white-space: nowrap; }
+.admin-conteudos__tabela tfoot th,
+.admin-conteudos__tabela tfoot td { border-bottom: 0; font-weight: var(--peso-negrito); }
+.admin-conteudos__nome { display: block; }
+.admin-conteudos__tipo { display: block; color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
+@media (min-width: 30rem) { .admin-conteudos { padding: var(--esp-4); } }
+@media (min-width: 48rem) {
+  .admin-conteudos__tabela th,
+  .admin-conteudos__tabela td { padding-inline: var(--esp-3); }
+}
+
 /* Briefing pendente há mais de 24 h (melhoria 34): reaproveita o bloco .admin-recuperar */
 .admin-item__tag--aviso { background: var(--cor-destaque-suave); color: var(--cor-texto); font-weight: var(--peso-semi); }
 .admin-recuperar[data-modo="briefing"] { border-left-color: var(--cor-acao); }

@@ -473,6 +473,21 @@
       </div>
       <p class="admin-resumo-mes__estado" data-resumo-estado>Carregando os dados do painel…</p>
       <ul class="admin-kpis" role="list" data-resumo-cartoes></ul>
+      <!-- Conteúdos que levam aos planos (melhoria 70): "cta: blog/..." e "cta: segmento/..." gravados pelo origem.js -->
+      <section class="admin-conteudos" data-resumo-conteudos hidden aria-labelledby="conteudos-titulo">
+        <h3 id="conteudos-titulo" class="admin-conteudos__titulo">De onde vieram os pedidos</h3>
+        <p class="admin-conteudos__dica">Artigos do blog e páginas de segmento em que o visitante clicou em “Ver o plano” antes de conversar ou pedir.</p>
+        <table class="admin-conteudos__tabela" data-resumo-conteudos-tabela hidden>
+          <caption>Conversas e pedidos de <span data-resumo-conteudos-mes></span> por conteúdo</caption>
+          <thead>
+            <tr><th scope="col">Conteúdo</th><th scope="col">Conversas</th><th scope="col">Pedidos</th><th scope="col">Pagos</th></tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+        <p class="admin-conteudos__nota" data-resumo-conteudos-nota hidden></p>
+        <p class="admin-conteudos__vazio" data-resumo-conteudos-vazio hidden></p>
+      </section>
       <p class="admin-resumo-mes__nota" data-resumo-limite hidden></p>
       <p class="admin-resumo-mes__nota">Comparação com o mês anterior. Datas no fuso deste navegador.</p>
     </section>

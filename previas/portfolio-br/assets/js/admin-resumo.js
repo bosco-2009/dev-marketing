@@ -5,6 +5,10 @@
  * já carregaram (evento "pbr:admin-dados"): nenhuma consulta nova ao banco, nenhuma tabela nova.
  *
  * Cada cartão tem um texto completo ("2 a mais que em outubro (3)") — a seta é só decoração (aria-hidden).
+ *
+ * Melhoria 70: cartão "De onde vieram os pedidos" — conversas e pedidos do mês agrupados pelo conteúdo (artigo do blog
+ * ou página de segmento) que levou o visitante aos planos. Lê o "cta: blog/..." / "cta: segmento/..." que o origem.js
+ * (melhoria 65) põe no fim de conversas.pagina_origem e de pedidos.origem. Também só com os dados já carregados.
  */
 (function () {
   'use strict';
@@ -56,6 +60,53 @@
       iniciadosPagos: iniciadosPagos.length,
       taxa: iniciados.length ? (iniciadosPagos.length / iniciados.length) * 100 : null
     };
+  }
+
+  // "… · cta: blog/site-ou-instagram" → "blog/site-ou-instagram". O origem.js sempre põe o cta por último;
+  // exigir o fim do texto descarta um cta cortado no meio pelo limite de tamanho do campo.
+  function ctaDe(texto) {
+    var m = /(?:^|· )cta: ((?:blog|segmento)\/[a-z0-9-]+)$/.exec(String(texto || '').trim());
+    return m ? m[1] : '';
+  }
+
+  // "blog/site-ou-instagram" → { tipo: 'Artigo do blog', nome: 'Site ou instagram' }
+  function rotuloCta(cta) {
+    var p = cta.split('/');
+    var nome = p[1].replace(/-/g, ' ');
+    if (p[0] === 'segmento') nome = nome.replace(/^saude$/, 'saúde').replace(/^servicos$/, 'serviços');
+    return { tipo: p[0] === 'blog' ? 'Artigo do blog' : 'Página de segmento', nome: nome.charAt(0).toUpperCase() + nome.slice(1) };
+  }
+
+  // Linhas por conteúdo no mês: conversas iniciadas, pedidos iniciados e, destes, os pagos (como na conversão).
+  function porConteudo(m) {
+    var mapa = {};
+    function linha(cta) {
+      if (!mapa[cta]) mapa[cta] = { cta: cta, conversas: 0, pedidos: 0, pagos: 0 };
+      return mapa[cta];
+    }
+    var totais = { conversas: 0, pedidos: 0, pagos: 0, conversasMes: 0, pedidosMes: 0 };
+    (dados.conversas || []).forEach(function (c) {
+      if (!noMes(c.criado_em, m)) return;
+      totais.conversasMes++;
+      var cta = ctaDe(c.pagina_origem);
+      if (!cta) return;
+      linha(cta).conversas++;
+      totais.conversas++;
+    });
+    (dados.pedidos || []).forEach(function (p) {
+      if (!noMes(p.criado_em, m)) return;
+      totais.pedidosMes++;
+      var cta = ctaDe(p.origem);
+      if (!cta) return;
+      var l = linha(cta);
+      l.pedidos++;
+      totais.pedidos++;
+      if (p.status === 'aprovado') { l.pagos++; totais.pagos++; }
+    });
+    var linhas = Object.keys(mapa).map(function (k) { return mapa[k]; }).sort(function (a, b) {
+      return (b.pagos - a.pagos) || (b.pedidos - a.pedidos) || (b.conversas - a.conversas) || (a.cta < b.cta ? -1 : 1);
+    });
+    return { linhas: linhas, totais: totais };
   }
 
   // Texto de comparação com o mês anterior, sempre em palavras.
@@ -127,6 +178,8 @@
 
     lista.textContent = '';
     if (dados.conversas == null && dados.pedidos == null) {
+      var blocoConteudos = $('[data-resumo-conteudos]');
+      if (blocoConteudos) blocoConteudos.hidden = true;
       estadoTexto.textContent = 'Carregando os dados do painel…';
       estadoTexto.hidden = false;
       aviso.hidden = true;
@@ -154,11 +207,65 @@
         comparar(hoje.taxa, antes.taxa, a, pct, 'taxa'));
     }
 
+    renderizarConteudos(m);
+
     var partes = [];
     if (dados.limiteConversas) partes.push('as ' + fNum.format(dados.conversas.length) + ' conversas mais recentes');
     if (dados.limitePedidos) partes.push('os ' + fNum.format(dados.pedidos.length) + ' pedidos mais recentes');
     aviso.hidden = !partes.length;
     aviso.textContent = partes.length ? 'O painel carrega só ' + partes.join(' e ') + '; meses mais antigos podem aparecer incompletos.' : '';
+  }
+
+  function celula(tr, tag, texto, attrs) { var c = el(tag, null, texto, attrs); tr.appendChild(c); return c; }
+
+  function renderizarConteudos(m) {
+    var bloco = $('[data-resumo-conteudos]');
+    if (!bloco) return;
+    var tabela = $('[data-resumo-conteudos-tabela]', bloco);
+    var vazio = $('[data-resumo-conteudos-vazio]', bloco);
+    var corpo = $('tbody', tabela);
+    var pe = $('tfoot', tabela);
+    var nota = $('[data-resumo-conteudos-nota]', bloco);
+    var r = porConteudo(m);
+    var inteiro = function (n) { return fNum.format(n); };
+    bloco.hidden = false;
+    $('[data-resumo-conteudos-mes]', bloco).textContent = nomeMes(m, true);
+    corpo.textContent = '';
+    pe.textContent = '';
+    if (!r.linhas.length) {
+      tabela.hidden = true;
+      nota.hidden = true;
+      vazio.hidden = false;
+      vazio.textContent = 'Nenhuma conversa ou pedido de ' + nomeMes(m, true) + ' passou por um artigo do blog ou página de segmento.';
+      return;
+    }
+    tabela.hidden = false;
+    nota.hidden = false;
+    vazio.hidden = true;
+    r.linhas.forEach(function (l) {
+      var rot = rotuloCta(l.cta);
+      var tr = el('tr');
+      var th = celula(tr, 'th', null, { scope: 'row' });
+      th.appendChild(el('span', 'admin-conteudos__nome', rot.nome));
+      th.appendChild(document.createTextNode(' ')); // "Moda Página de segmento" também para leitores de tela
+      th.appendChild(el('span', 'admin-conteudos__tipo', rot.tipo));
+      celula(tr, 'td', inteiro(l.conversas));
+      celula(tr, 'td', inteiro(l.pedidos));
+      celula(tr, 'td', inteiro(l.pagos));
+      corpo.appendChild(tr);
+    });
+    var t = r.totais;
+    var tr = el('tr');
+    celula(tr, 'th', 'Total', { scope: 'row' });
+    celula(tr, 'td', inteiro(t.conversas));
+    celula(tr, 'td', inteiro(t.pedidos));
+    celula(tr, 'td', inteiro(t.pagos));
+    pe.appendChild(tr);
+    // Para comparar: quanto do mês passou por um conteúdo (o resto veio por outros caminhos).
+    var partes = [];
+    if (dados.conversas != null) partes.push(inteiro(t.conversas) + ' de ' + inteiro(t.conversasMes) + (t.conversasMes === 1 ? ' conversa' : ' conversas'));
+    if (dados.pedidos != null) partes.push(inteiro(t.pedidos) + ' de ' + inteiro(t.pedidosMes) + (t.pedidosMes === 1 ? ' pedido' : ' pedidos'));
+    nota.textContent = 'No mês, ' + partes.join(' e ') + ' passaram por um desses conteúdos.';
   }
 
   document.addEventListener('pbr:admin-dados', function (e) {
@@ -186,5 +293,5 @@
   else iniciar();
 
   // Exposto para testes.
-  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar };
+  window.PBRAdminResumo = { comparar: comparar, renderizar: renderizar, ctaDe: ctaDe, rotuloCta: rotuloCta };
 })();
