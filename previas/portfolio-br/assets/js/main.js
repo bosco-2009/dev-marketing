@@ -425,6 +425,26 @@
       });
       caixaBusca.hidden = false;
     }
+
+    // Lista filtrada (planos.html): FAQPage só com as perguntas exibidas nesta página (melhoria 55).
+    // A home tem o seu FAQPage completo no bloco de dados estruturados abaixo.
+    if (filtroFaq && perguntasFaq.length && secaoFaq && secaoFaq.id && config.site && config.site.url) {
+      var urlPagina = config.site.url.replace(/\/?$/, '/') + location.pathname.split('/').pop();
+      var ldFaq = document.createElement('script');
+      ldFaq.type = 'application/ld+json';
+      ldFaq.setAttribute('data-ld-faq', '');
+      ldFaq.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        '@id': urlPagina + '#' + secaoFaq.id,
+        url: urlPagina,
+        inLanguage: 'pt-BR',
+        mainEntity: perguntasFaq.map(function (f) {
+          return { '@type': 'Question', name: f.pergunta, acceptedAnswer: { '@type': 'Answer', text: f.resposta } };
+        })
+      });
+      document.head.appendChild(ldFaq);
+    }
   }
 
   // ---------------- CTA final ----------------

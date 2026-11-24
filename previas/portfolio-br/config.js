@@ -202,17 +202,27 @@
 
     // [PROVISÓRIO] revisar todas as respostas (dependem de políticas da empresa).
     // palavras (opcional): sinônimos usados só pela busca do FAQ (melhoria 13)
-    // checkout: true (opcional): a pergunta também aparece em planos.html, em "Dúvidas sobre o pagamento" (melhoria 35)
+    // checkout: true (opcional): a pergunta também aparece em planos.html, em "Dúvidas antes de contratar", com FAQPage
+    //   próprio no JSON-LD (melhorias 35 e 55): prazo, depois do pagamento, alterações e pagamento
     faq: [
       {
         pergunta: 'Quanto tempo leva para meu site ficar pronto?',
         resposta: 'Depende do plano: de 7 a 20 dias úteis, contados a partir do envio do briefing completo, com textos e fotos.',
-        palavras: 'prazo entrega demora quando fica pronto'
+        palavras: 'prazo entrega demora quando fica pronto',
+        checkout: true
       },
       {
         pergunta: 'O que eu preciso enviar?',
         resposta: 'Depois do pagamento, você preenche um briefing simples: nome do negócio, serviços, contatos, logo (se tiver) e fotos. Se não tiver fotos ou logo, a gente orienta.',
-        palavras: 'material conteúdo textos imagens logotipo'
+        palavras: 'material conteúdo textos imagens logotipo depois do pagamento briefing',
+        checkout: true
+      },
+      {
+        // [PROVISÓRIO] confirmar com o dono como as alterações são pedidas (melhoria 55)
+        pergunta: 'Como peço alterações no site?',
+        resposta: 'Quando a prévia do site ficar pronta, você junta tudo o que quer mudar e envia numa rodada de ajustes, pelo chat do site ou pelo WhatsApp. Cada plano inclui um número de rodadas (veja o comparativo dos planos). Alterações além das rodadas incluídas ou depois da entrega podem ser contratadas à parte.',
+        palavras: 'ajuste ajustes mudar mudança correção revisão editar trocar',
+        checkout: true
       },
       {
         pergunta: 'O domínio (www.seunegocio.com.br) está incluso?',
@@ -232,7 +242,8 @@
       {
         pergunta: 'Quais as formas de pagamento?',
         resposta: 'Pix, boleto ou cartão de crédito, tudo pelo Mercado Pago.',
-        palavras: 'pagar parcelar parcelas crédito'
+        palavras: 'pagar parcelar parcelas crédito',
+        checkout: true
       },
       {
         pergunta: 'Pagando com Pix, quando o pedido é confirmado?',
