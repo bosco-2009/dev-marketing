@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Feed RSS do blog (melhoria 33). Ao publicar um artigo: novo <item> no topo, lastBuildDate e o teste testes/funcoes/blog-seo.test.mjs. -->
+<!-- Feed RSS do blog (melhoria 33). Ao publicar um artigo: novo <item> no topo, lastBuildDate, o teste testes/funcoes/blog-seo.test.mjs e node testes/seo/gerar-sitemap.mjs (sitemap). -->
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blog Portfólio BR</title>
