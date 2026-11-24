@@ -91,6 +91,29 @@
     mensagemDeErro: mensagemDeErro
   };
 
+  // Primeira mensagem automática conforme a página (melhoria 48). A página declara o assunto em
+  // <main data-chat-contexto="pedido"> ou reaproveita <main data-whats-contexto="artigo|planos|...">.
+  var TEXTO_PADRAO = 'Como podemos ajudar? Conte o que você precisa e respondemos por aqui.';
+  function contextoDaPagina() {
+    var m = document.querySelector('[data-chat-contexto]');
+    if (m) return m.getAttribute('data-chat-contexto') || 'padrao';
+    m = document.querySelector('[data-whats-contexto]');
+    return (m && m.getAttribute('data-whats-contexto')) || 'padrao';
+  }
+  function tituloDaPagina() {
+    var h1 = document.querySelector('main h1');
+    return h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '';
+  }
+  function textoBoasVindas(contexto) {
+    var textos = (window.PBR_CONFIG && window.PBR_CONFIG.chat && window.PBR_CONFIG.chat.boasVindas) || {};
+    var modelo = (typeof textos[contexto] === 'string' && textos[contexto].trim()) ||
+      (typeof textos.padrao === 'string' && textos.padrao.trim()) || TEXTO_PADRAO;
+    var titulo = tituloDaPagina();
+    // Modelo com {pagina} numa página sem título: volta ao padrão em vez de mostrar aspas vazias.
+    if (/\{pagina\}/.test(modelo) && !titulo) modelo = (typeof textos.padrao === 'string' && textos.padrao.trim()) || TEXTO_PADRAO;
+    return modelo.replace(/\{pagina\}/g, titulo).replace(/\s+/g, ' ').trim();
+  }
+
   // =========================================================================
   // Inicialização
   // =========================================================================
@@ -205,10 +228,13 @@
     // nem as mensagens do próprio visitante; só as respostas novas do atendente vão para o anúncio abaixo.
     var log = el('div', 'chat__mensagens', null, { role: 'region', 'aria-label': 'Mensagens da conversa', tabindex: '0' });
     var boasVindas = el('p', 'chat__bolha chat__bolha--admin chat__bolha--boas-vindas');
+    // Conversa já em andamento (vinda de outra página): o histórico abre com a saudação geral.
+    var contextoBoasVindas = estado.iniciada ? 'padrao' : contextoDaPagina();
+    boasVindas.setAttribute('data-chat-boas-vindas', contextoBoasVindas);
     boasVindas.appendChild(oculto('Portfólio BR: '));
     boasVindas.appendChild(document.createTextNode('Olá! '));
     boasVindas.appendChild(el('span', null, '👋', { 'aria-hidden': 'true' }));
-    boasVindas.appendChild(document.createTextNode(' Como podemos ajudar? Conte o que você precisa e respondemos por aqui.'));
+    boasVindas.appendChild(document.createTextNode(' ' + textoBoasVindas(contextoBoasVindas)));
     log.appendChild(boasVindas);
     var listaMensagens = el('ol', 'chat__lista', null, { role: 'list' });
     log.appendChild(listaMensagens);

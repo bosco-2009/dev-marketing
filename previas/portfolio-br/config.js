@@ -66,6 +66,18 @@
       textoHorario: 'Segunda a sexta, das 9h às 18h, e sábado, das 9h às 13h.' // [PROVISÓRIO]
     },
 
+    // Chat ao vivo: primeira mensagem automática do widget, conforme a página (melhoria 48).
+    // O site escreve "Olá! 👋" antes do texto. {pagina} vira o título do artigo.
+    // Contexto vazio ou ausente = usa o `padrao`. Não prometa prazo de resposta nem finja ser uma pessoa digitando.
+    chat: {
+      boasVindas: { // [PROVISÓRIO] revisar o tom
+        padrao: 'Como podemos ajudar? Conte o que você precisa e respondemos por aqui.',
+        planos: 'Ficou com dúvida sobre algum plano ou sobre o pagamento? Pergunte por aqui e ajudamos você a escolher.',
+        pedido: 'Tem alguma dúvida sobre o seu pedido? Escreva por aqui e, se puder, informe o código do pedido.',
+        artigo: 'Quer conversar sobre o artigo "{pagina}"? Conte um pouco do seu negócio e tiramos suas dúvidas por aqui.'
+      }
+    },
+
     pagamento: {
       // [PROVISÓRIO] confirmar condições de parcelamento configuradas na conta do Mercado Pago.
       textoParcelamento: 'Pix, boleto ou cartão em até 12x pelo Mercado Pago.'
