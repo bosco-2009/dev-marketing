@@ -30,7 +30,9 @@
 }
 .legal .legal__indice-titulo { margin: 0 0 var(--esp-2); font-size: var(--texto-base); letter-spacing: 0; }
 .legal__indice ol { margin: 0; }
-.legal__indice li + li { margin-top: var(--esp-1); }
+/* Cada link do índice com 24 px de altura (WCAG 2.5.8); o espaço entre os itens sai da própria altura */
+.legal__indice li + li { margin-top: 0; }
+.legal__indice a { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); }
 
 .legal__provisorio {
   padding: 0 0.25em;

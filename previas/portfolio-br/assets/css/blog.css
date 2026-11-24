@@ -67,6 +67,8 @@
 .artigo__meta a:hover { color: var(--cor-destaque); }
 .blog-links { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-5); margin: var(--esp-4) 0 0; padding: 0; font-size: var(--texto-sm); }
 .blog-links a { color: var(--cor-texto-invertido); text-underline-offset: 0.2em; }
+/* Links soltos (fora de frase) com 24 px de altura: alvo de toque da WCAG 2.5.8 sem depender do espaçamento (melhoria 68) */
+.blog-links a, .autor__nota a[type], .artigo__mais-todos a { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); }
 .blog-links a:hover { color: var(--cor-destaque); }
 .autor__titulo { margin-bottom: var(--esp-4); font-size: var(--texto-xl); line-height: 1.25; }
 .autor__lista { display: grid; gap: var(--esp-3); margin: 0; padding: 0; font-size: var(--texto-md); }

@@ -620,6 +620,7 @@ a:hover { color: var(--cor-acao-hover); }
 
 /* Link da home para o comparativo de planos (item 5) */
 .planos__comparar { margin-top: var(--esp-6); font-weight: var(--peso-semi); text-align: center; }
+.planos__comparar a { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); } /* 24 px: WCAG 2.5.8 */
 
 /* =====================================================================================
    Microinterações (melhoria 16). Só transform/translate/opacity/cores; tudo some com prefers-reduced-motion

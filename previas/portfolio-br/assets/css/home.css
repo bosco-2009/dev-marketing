@@ -353,7 +353,7 @@
 .segmento__icone .icone { width: 1.5rem; height: 1.5rem; }
 .segmento__titulo { font-size: var(--texto-md); }
 /* Título leva à página do segmento (melhoria 25) */
-.segmento__titulo-link { color: inherit; text-decoration: none; }
+.segmento__titulo-link { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); color: inherit; text-decoration: none; } /* 24 px: WCAG 2.5.8 */
 .segmento__titulo-link:hover { color: var(--cor-acao); text-decoration: underline; text-underline-offset: 0.2em; }
 .segmento__texto { margin-top: var(--esp-2); color: var(--cor-texto-suave); font-size: var(--texto-sm); }
 .segmento__link {

@@ -355,6 +355,8 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 /* ===================== Comparativo de planos (planos.html#comparativo) ===================== */
 .checkout__comparar { margin-top: var(--esp-3); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
 .checkout__comparar[hidden], .comparativo[hidden] { display: none; }
+/* Links soltos com 24 px de altura (WCAG 2.5.8, melhoria 68) */
+.checkout__comparar a, .duvidas-pagamento__mais a { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); }
 .comparativo { background: var(--cor-fundo-suave); }
 .comparativo__whats { margin-top: var(--esp-5); text-align: center; color: var(--cor-texto-suave); font-size: var(--texto-sm); }
 .comparativo:focus { outline: none; }

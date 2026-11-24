@@ -146,6 +146,9 @@
   --esp-8: 4rem;     /* 64px */
   --esp-9: 6rem;     /* 96px */
 
+  /* Alvo de toque mínimo (WCAG 2.2, 2.5.8): links e botões soltos medem pelo menos 24 por 24 px (melhoria 68) */
+  --alvo-minimo: 1.5rem; /* 24px */
+
   --esp-secao: clamp(3.5rem, 2.5rem + 5vw, 6.5rem);
   --margem-lateral: clamp(1rem, 0.5rem + 2.5vw, 2rem);
   --largura-max: 72rem;     /* 1152px */

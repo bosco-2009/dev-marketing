@@ -295,6 +295,8 @@
 }
 .admin-dados dt { color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
 .admin-dados dd { margin: 0 0 var(--esp-2); overflow-wrap: anywhere; }
+/* E-mail e WhatsApp do pedido: link com 24 px de altura (WCAG 2.5.8, melhoria 68) */
+.admin-dados dd > a:only-child { display: inline-flex; align-items: center; min-block-size: var(--alvo-minimo); }
 @media (min-width: 40rem) {
   .admin-dados { grid-template-columns: 11rem minmax(0, 1fr); }
   .admin-dados dd { margin: 0; }
