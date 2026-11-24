@@ -26,7 +26,7 @@
   <script src="../assets/js/admin-tempo-real.js?v=4ec6be5b" defer></script>
   <script src="../assets/js/admin.js?v=3330b7fb" defer></script>
   <script src="../assets/js/admin-respostas.js?v=e55b2747" defer></script>
-  <script src="../assets/js/admin-pedidos.js?v=aa9c2b0e" defer></script>
+  <script src="../assets/js/admin-pedidos.js?v=e1e1376c" defer></script>
   <script src="../assets/js/admin-briefings.js?v=8573ff69" defer></script>
   <script src="../assets/js/admin-resumo.js?v=610a6be3" defer></script>
   <script src="../assets/js/admin-busca.js?v=2f5ed0f4" defer></script>
@@ -282,6 +282,7 @@
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="pendente">Pendentes</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="abandonado" title="Pendentes há mais de 1 hora">Abandonados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-briefing" title="Aprovados há mais de 24 horas sem briefing">Sem briefing</button>
+          <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="briefing-parado" title="Aprovados há mais de 3 dias úteis sem briefing">Briefing parado</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="sem-contato" title="Aprovados nos últimos 30 dias que ainda não receberam mensagem sua">Sem contato</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="atrasado" title="Briefing recebido há mais dias úteis do que o prazo do plano e site ainda não entregue">Atrasados</button>
           <button type="button" class="admin-filtro" aria-pressed="false" data-filtro-pedido="recusado">Recusados</button>
@@ -346,7 +347,7 @@
                 <p class="admin-recuperar__acoes">
                   <a class="botao botao--whatsapp botao--pequeno" href="#" target="_blank" rel="noopener" data-recuperar-link>
                     <svg class="icone" aria-hidden="true"><use href="#i-whatsapp"/></svg>
-                    Chamar no WhatsApp<span class="visualmente-oculto"> (abre em nova aba)</span>
+                    <span data-recuperar-link-texto>Chamar no WhatsApp</span><span class="visualmente-oculto"> (abre em nova aba)</span>
                   </a>
                   <button class="botao botao--contorno botao--pequeno" type="button" data-recuperar-padrao>Restaurar mensagem</button>
                   <button class="botao botao--contorno botao--pequeno" type="button" data-recuperar-contatado hidden>Já falei com este cliente</button>

@@ -101,6 +101,14 @@
     return p.status === 'aprovado' && !!desde && !(estado && estado.briefings[p.id]) &&
       (agora || Date.now()) - new Date(desde).getTime() > BRIEFING_MS;
   }
+  // Briefing parado (melhoria 103): o mesmo pedido sem briefing, mas pago há MAIS de 3 dias úteis (mesma conta de dias
+  // úteis da melhoria 83: segunda a sexta, o dia do pagamento não conta). Devolve os dias úteis decorridos, ou 0.
+  var BRIEFING_PARADO_DIAS = 3;
+  function briefingParado(p, agora) {
+    if (!semBriefing(p, agora)) return 0;
+    var n = diasUteisDesde(p.pago_em || p.atualizado_em, agora);
+    return n != null && n > BRIEFING_PARADO_DIAS ? n : 0;
+  }
   // Pago sem contato (melhoria 51): aprovado nos últimos 30 dias, site ainda não entregue, e o dono ainda não
   // mandou nenhuma mensagem: nenhuma resposta sua no chat de uma conversa com o mesmo WhatsApp e nenhum WhatsApp
   // aberto por este painel (boas-vindas, lembrete ou recuperação). Sem mudança no banco: só leitura.
@@ -198,6 +206,16 @@
         ' (abra no aparelho em que fez a compra ou pelo link pessoal que enviamos). ' : '') +
       'Se preferir, posso tirar as dúvidas por aqui.';
   }
+  // Lembrete do briefing parado: vai direto ao briefing (só o código do pedido, nunca o token).
+  function mensagemBriefingParado(p) {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
+    return 'Olá' + (primeiro ? ', ' + primeiro : '') + '! Aqui é da ' + (site.nome || 'Portfólio BR') + '. ' +
+      'Passando para lembrar do briefing do seu site (plano ' + p.plano_nome + ', pedido ' + p.codigo + '). ' +
+      'Assim que ele chegar, começamos a produção. É só abrir ' + linkBriefing(p) +
+      ' no aparelho em que fez a compra (ou usar o link pessoal que enviamos). ' +
+      'Se tiver alguma dúvida ou preferir mandar as informações por aqui, é só me responder.';
+  }
   function mensagemBoasVindas(p) {
     var site = (window.PBR_CONFIG || {}).site || {};
     var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
@@ -214,7 +232,7 @@
       'Qualquer dúvida, é só me chamar por aqui.';
   }
   function mensagemPara(p, modo) {
-    return modo === 'briefing' ? mensagemBriefing(p) : modo === 'boas-vindas' ? mensagemBoasVindas(p) : mensagemRecuperacao(p);
+    return modo === 'briefing' ? (briefingParado(p) ? mensagemBriefingParado(p) : mensagemBriefing(p)) : modo === 'boas-vindas' ? mensagemBoasVindas(p) : mensagemRecuperacao(p);
   }
 
   function mensagemRecuperacao(p) {
@@ -408,12 +426,18 @@
     if (!modo) { caixa.hidden = true; caixa.removeAttribute('data-pedido'); return; }
     var chave = modo + ':' + p.id;
     var mesmo = caixa.getAttribute('data-pedido') === chave && !caixa.hidden;
+    var parado = modo === 'briefing' ? briefingParado(p) : 0;
+    // Virar "parado" com o painel aberto troca a mensagem pronta (mudou o texto sugerido, não o que o dono digitou).
+    if (parado) chave += ':parado';
     caixa.hidden = false;
     caixa.setAttribute('data-pedido', chave);
     caixa.setAttribute('data-modo', modo);
-    $('[data-recuperar-titulo]').textContent = modo === 'briefing' ? 'Briefing pendente'
+    $('[data-recuperar-titulo]').textContent = parado ? 'Briefing parado' : modo === 'briefing' ? 'Briefing pendente'
       : modo === 'boas-vindas' ? 'Cliente ainda sem mensagem sua' : 'Checkout abandonado';
-    $('[data-recuperar-texto]').textContent = modo === 'briefing'
+    $('[data-recuperar-texto]').textContent = parado
+      ? 'Pago há ' + diasUteisTexto(parado) + ' e o briefing ainda não chegou. Sem ele a produção não começa; ' +
+        'a mensagem pronta leva o link direto do briefing (só o código do pedido, sem o token).'
+      : modo === 'briefing'
       ? 'Pago há ' + tempoParado(p.pago_em || p.atualizado_em) + ' e o briefing ainda não chegou. ' +
         'Sem ele a produção não começa; um lembrete com o link de acompanhamento costuma resolver.'
       : modo === 'boas-vindas'
@@ -425,6 +449,8 @@
     if (jaFalei) jaFalei.hidden = !(modo === 'boas-vindas' && semContato(p));
     var temWhats = String(p.whatsapp || '').replace(/\D/g, '').length >= 10;
     $('[data-recuperar-whats]').hidden = !temWhats;
+    var rotuloLink = $('[data-recuperar-link-texto]');
+    if (rotuloLink) rotuloLink.textContent = modo === 'briefing' ? 'Lembrar no WhatsApp' : 'Chamar no WhatsApp';
     $('[data-recuperar-sem]').hidden = temWhats;
     // Preserva o texto que o dono está editando quando a lista recarrega.
     if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemPara(p, modo);
@@ -567,6 +593,7 @@
       if (!noRecorte(p)) return false;
       if (estado.filtro === 'abandonado') { if (!abandonado(p)) return false; }
       else if (estado.filtro === 'sem-briefing') { if (!semBriefing(p)) return false; }
+      else if (estado.filtro === 'briefing-parado') { if (!briefingParado(p)) return false; }
       else if (estado.filtro === 'sem-contato') { if (!semContato(p)) return false; }
       else if (estado.filtro === 'atrasado') { if (!atrasado(p)) return false; }
       else if (estado.filtro !== 'todos' && p.status !== estado.filtro) return false;
@@ -591,6 +618,7 @@
       contagem[p.status] = (contagem[p.status] || 0) + 1;
       if (abandonado(p, agora)) contagem.abandonado = (contagem.abandonado || 0) + 1;
       if (semBriefing(p, agora)) contagem['sem-briefing'] = (contagem['sem-briefing'] || 0) + 1;
+      if (briefingParado(p, agora)) contagem['briefing-parado'] = (contagem['briefing-parado'] || 0) + 1;
       if (semContato(p, agora)) contagem['sem-contato'] = (contagem['sem-contato'] || 0) + 1;
       if (atrasado(p, agora)) contagem.atrasado = (contagem.atrasado || 0) + 1;
     });
@@ -599,6 +627,7 @@
     $$('[data-filtro-pedido]').forEach(function (b) {
       var f = b.getAttribute('data-filtro-pedido');
       var base = f === 'todos' ? 'Todos' : f === 'abandonado' ? 'Abandonados' : f === 'sem-briefing' ? 'Sem briefing'
+        : f === 'briefing-parado' ? 'Briefing parado'
         : f === 'sem-contato' ? 'Sem contato' : f === 'atrasado' ? 'Atrasados' : ROTULOS[f] + 's';
       b.textContent = base + ' (' + (contagem[f] || 0) + ')';
     });
@@ -622,7 +651,9 @@
     if (selo) {
       selo.hidden = !atencao;
       selo.textContent = atencao ? String(atencao) : '';
-      selo.title = pendentes + ' pendente(s)' + (semBrief ? ' e ' + semBrief + ' sem briefing há mais de 24 h' : '');
+      var parados = estado.pedidos.filter(function (p) { return briefingParado(p, agora); }).length;
+      selo.title = pendentes + ' pendente(s)' + (semBrief ? ' e ' + semBrief + ' sem briefing há mais de 24 h' : '') +
+        (parados ? ' (' + parados + ' parado(s) há mais de ' + diasUteisTexto(BRIEFING_PARADO_DIAS) + ')' : '');
     }
 
     itens.forEach(function (p) {
@@ -641,8 +672,15 @@
       if (p.status === 'aprovado') {
         var temBriefing = !!estado.briefings[p.id];
         var atrasado = semBriefing(p, agora);
-        l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
-          temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
+        var parado = briefingParado(p, agora);
+        if (parado) {
+          l2.appendChild(el('span', 'admin-item__tag admin-item__tag--alerta',
+            'Briefing parado · ' + (lembrados[p.id] ? 'lembrado' : diasUteisTexto(parado)),
+            { title: 'Pago há ' + diasUteisTexto(parado) + ' sem briefing' + (lembrados[p.id] ? '; lembrete aberto no WhatsApp em ' + data(lembrados[p.id]) : '') }));
+        } else {
+          l2.appendChild(el('span', 'admin-item__tag' + (temBriefing ? ' admin-item__tag--ok' : atrasado ? ' admin-item__tag--aviso' : ''),
+            temBriefing ? 'briefing ✓' : atrasado ? (lembrados[p.id] ? 'sem briefing · lembrado' : 'sem briefing · ' + tempoParado(p.pago_em || p.atualizado_em)) : 'sem briefing'));
+        }
         if (semContato(p, agora)) l2.appendChild(el('span', 'admin-item__tag admin-item__tag--contato', 'sem contato'));
         var sp = situacaoPrazo(p, agora);
         if (sp && sp.atraso > 0) {
@@ -680,7 +718,7 @@
       { titulo: 'Canal de origem', valor: function (p) { return X.rotuloCanal(canalDe(p)); } },
       { titulo: 'Origem (detalhe)', valor: function (p) { return p.origem || ''; } },
       { titulo: 'Pago em', valor: function (p) { return p.pago_em ? data(p.pago_em) : ''; } },
-      { titulo: 'Briefing', valor: function (p) { return estado.briefings[p.id] ? 'recebido' : (p.status === 'aprovado' ? 'não enviado' : ''); } },
+      { titulo: 'Briefing', valor: function (p) { return estado.briefings[p.id] ? 'recebido' : briefingParado(p) ? 'parado' : (p.status === 'aprovado' ? 'não enviado' : ''); } },
       { titulo: 'Atraso (dias úteis)', valor: function (p) { var sp = situacaoPrazo(p); return sp && sp.atraso > 0 ? String(sp.atraso) : ''; } }
     ];
     X.baixar('pedidos-portfolio-br-' + X.hoje() + '.csv', X.csv(colunas, itens));
