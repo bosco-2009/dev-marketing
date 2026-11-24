@@ -197,18 +197,18 @@
             <div class="campos">
               <div class="campo">
                 <label class="campo__rotulo" for="checkout-nome">Nome completo</label>
-                <input class="campo__entrada" id="checkout-nome" name="nome" type="text" autocomplete="name" maxlength="80" required aria-describedby="checkout-nome-erro">
+                <input class="campo__entrada" id="checkout-nome" name="nome" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="80" required aria-describedby="checkout-nome-erro">
                 <p class="campo__erro" id="checkout-nome-erro" hidden></p>
               </div>
               <div class="campo">
                 <label class="campo__rotulo" for="checkout-email">E-mail</label>
-                <input class="campo__entrada" id="checkout-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="checkout-email-dica checkout-email-erro">
+                <input class="campo__entrada" id="checkout-email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" enterkeyhint="next" maxlength="254" required aria-describedby="checkout-email-dica checkout-email-erro">
                 <p class="campo__dica" id="checkout-email-dica">O comprovante do Mercado Pago chega neste e-mail.</p>
                 <p class="campo__erro" id="checkout-email-erro" hidden></p>
               </div>
               <div class="campo">
                 <label class="campo__rotulo" for="checkout-whatsapp">WhatsApp</label>
-                <input class="campo__entrada" id="checkout-whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="(11) 91234-5678" required aria-describedby="checkout-whatsapp-dica checkout-whatsapp-erro">
+                <input class="campo__entrada" id="checkout-whatsapp" name="whatsapp" type="tel" autocomplete="tel-national" inputmode="tel" enterkeyhint="done" maxlength="20" placeholder="(11) 91234-5678" required aria-describedby="checkout-whatsapp-dica checkout-whatsapp-erro">
                 <p class="campo__dica" id="checkout-whatsapp-dica">Usamos para combinar os detalhes do seu site.</p>
                 <p class="campo__erro" id="checkout-whatsapp-erro" hidden></p>
               </div>

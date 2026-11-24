@@ -167,29 +167,77 @@
 
   function digitos(t) { return String(t || '').replace(/\D/g, ''); }
 
+  // Regras por campo: a mesma função serve ao envio e à saída do campo (melhoria 46)
+  var REGRAS = {
+    nome: function () { return campos.nome.value.trim().length < 2 ? 'Informe seu nome.' : ''; },
+    email: function () {
+      return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(campos.email.value.trim()) ? '' : 'Informe um e-mail válido, por exemplo nome@gmail.com.';
+    },
+    whatsapp: function () {
+      return /^\d{10,13}$/.test(digitos(campos.whatsapp.value)) ? '' : 'Informe o WhatsApp com DDD, por exemplo (11) 91234-5678.';
+    },
+    aceite: function () { return campos.aceite.checked ? '' : 'Para continuar, aceite os termos de uso e a política de privacidade.'; }
+  };
+
+  function marcarCampo(k, erro) {
+    var alvo = $('#checkout-' + k + '-erro');
+    if (erro) {
+      campos[k].setAttribute('aria-invalid', 'true');
+      alvo.textContent = erro;
+      alvo.hidden = false;
+    } else {
+      campos[k].removeAttribute('aria-invalid');
+      alvo.textContent = '';
+      alvo.hidden = true;
+    }
+  }
+
   function validar() {
-    var erros = {};
-    var nome = campos.nome.value.trim();
-    if (nome.length < 2) erros.nome = 'Informe seu nome.';
-    var email = campos.email.value.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) erros.email = 'Informe um e-mail válido, por exemplo nome@gmail.com.';
-    if (!/^\d{10,13}$/.test(digitos(campos.whatsapp.value))) erros.whatsapp = 'Informe o WhatsApp com DDD, por exemplo (11) 91234-5678.';
-    if (!campos.aceite.checked) erros.aceite = 'Para continuar, aceite os termos de uso e a política de privacidade.';
+    var primeiro = null;
     Object.keys(campos).forEach(function (k) {
-      var alvo = $('#checkout-' + k + '-erro');
-      if (erros[k]) {
-        campos[k].setAttribute('aria-invalid', 'true');
-        alvo.textContent = erros[k];
-        alvo.hidden = false;
-      } else {
-        campos[k].removeAttribute('aria-invalid');
-        alvo.hidden = true;
-      }
+      var erro = REGRAS[k]();
+      marcarCampo(k, erro);
+      if (erro && !primeiro) primeiro = k;
     });
-    var primeiro = Object.keys(campos).filter(function (k) { return erros[k]; })[0];
     if (primeiro) campos[primeiro].focus();
     return !primeiro;
   }
+
+  // Ao sair do campo: mostra o erro só se a pessoa escreveu algo (passar com Tab por um campo vazio não acusa nada).
+  // Enquanto digita: nenhuma mensagem nova; um erro já mostrado some assim que o valor fica certo.
+  ['nome', 'email', 'whatsapp'].forEach(function (k) {
+    campos[k].addEventListener('blur', function () {
+      if (campos[k].value.trim() || campos[k].hasAttribute('aria-invalid')) marcarCampo(k, REGRAS[k]());
+    });
+    campos[k].addEventListener('input', function () {
+      if (campos[k].hasAttribute('aria-invalid') && !REGRAS[k]()) marcarCampo(k, '');
+    });
+  });
+  campos.aceite.addEventListener('change', function () {
+    if (campos.aceite.hasAttribute('aria-invalid') && campos.aceite.checked) marcarCampo('aceite', '');
+  });
+
+  // Máscara leve do WhatsApp: (11) 91234-5678. Só formata ao digitar/colar com o cursor no fim;
+  // apagar nunca é reformatado (o Backspace funciona normalmente) e números com DDI (mais de 11 dígitos) ficam como estão.
+  function mascaraWhatsapp(d) {
+    if (d.length > 11) return null;
+    if (d.length <= 2) return d.length ? '(' + d : '';
+    var ddd = '(' + d.slice(0, 2) + ') ', resto = d.slice(2);
+    if (resto.length <= 4) return ddd + resto;
+    var corte = resto.length === 9 ? 5 : 4;
+    return ddd + resto.slice(0, corte) + '-' + resto.slice(corte);
+  }
+  campos.whatsapp.addEventListener('input', function (e) {
+    var c = campos.whatsapp;
+    if (e.inputType && e.inputType.indexOf('delete') === 0) return;
+    if (c.selectionStart !== c.value.length) return;
+    var formatado = mascaraWhatsapp(digitos(c.value));
+    if (formatado !== null && formatado !== c.value) c.value = formatado;
+  });
+  campos.whatsapp.addEventListener('blur', function () {
+    var formatado = mascaraWhatsapp(digitos(campos.whatsapp.value));
+    if (formatado && digitos(formatado).length >= 10) campos.whatsapp.value = formatado;
+  });
 
   function mostrarErro(texto) {
     erroGeral.textContent = texto || '';
