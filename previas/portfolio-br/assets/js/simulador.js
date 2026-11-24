@@ -3,6 +3,7 @@
  * As regras ficam em config.simulador (ids de config.planos); a recomendação é o MAIOR plano, na ordem de
  * config.planos, entre as regras que se aplicam. Resultado anunciado numa região aria-live.
  * Sem JavaScript a seção continua oculta (não há como calcular).
+ * O último plano indicado fica neste aparelho (pbr_simulador_v1, 30 dias) para planos.html lembrar (melhoria 74).
  */
 (function () {
   'use strict';
@@ -62,6 +63,11 @@
   }
   window.PBRSimulador = { recomendar: recomendar };
 
+  // Melhoria 74: só o id do plano e a hora; nada pessoal. planos.js lê e descarta depois de 30 dias.
+  function lembrar(id) {
+    try { localStorage.setItem('pbr_simulador_v1', JSON.stringify({ plano: id, em: Date.now() })); } catch (e) { /* sem armazenamento */ }
+  }
+
   function atualizar() {
     var r = { tipo: valor('tipo'), vende: valor('vende'), paginas: valor('paginas'), dominio: valor('dominio') };
     var pronto = r.vende && r.paginas;
@@ -69,6 +75,7 @@
     espera.hidden = !!(res && res.plano);
     caixa.hidden = !(res && res.plano);
     if (!res || !res.plano) return;
+    lembrar(res.plano.id);
     nomePlano.textContent = 'Plano ' + res.plano.nome;
     preco.textContent = formato.format(res.plano.precoCentavos / 100) + ' · pagamento único';
     motivos.textContent = '';

@@ -603,3 +603,21 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 .dados-salvos__icone { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; color: var(--cor-acao); }
 .dados-salvos__texto { color: var(--cor-texto-suave); font-size: var(--texto-sm); }
 .dados-salvos__limpar { grid-column: 2; justify-self: start; }
+
+/* ---------------- Plano indicado pelo simulador (melhoria 74) ---------------- */
+.sim-lembrete {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--esp-2) var(--esp-3);
+  align-items: start;
+  margin-bottom: var(--esp-4);
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-destaque);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+.sim-lembrete[hidden] { display: none; }
+.sim-lembrete__icone { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; color: var(--cor-acao); }
+.sim-lembrete__texto { color: var(--cor-texto); font-size: var(--texto-sm); overflow-wrap: anywhere; }
+.sim-lembrete__acoes { grid-column: 2; display: flex; flex-wrap: wrap; gap: var(--esp-2); }

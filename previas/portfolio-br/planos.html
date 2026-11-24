@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="assets/css/tokens.css?v=ab9d61fa">
   <link rel="stylesheet" href="assets/css/main.css?v=6576ecdd">
   <link rel="stylesheet" href="assets/css/chat.css?v=2cb578ea">
-  <link rel="stylesheet" href="assets/css/checkout.css?v=c8b941ae">
+  <link rel="stylesheet" href="assets/css/checkout.css?v=498ce14b">
   <link rel="stylesheet" href="assets/css/movimento.css?v=2fbd47c0">
 
   <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
@@ -48,13 +48,13 @@
   <script src="assets/js/abertura.js?v=57c49d7f" defer></script>
   <script src="assets/js/revelar.js?v=1703afa0" defer></script>
   <script src="assets/js/mockup.js?v=9048b3a3" defer></script>
-  <script src="assets/js/simulador.js?v=0a1577a3" defer></script>
+  <script src="assets/js/simulador.js?v=d69ba6fd" defer></script>
   <script src="assets/js/supabase-client.js?v=b6c0292b" defer></script>
   <script src="assets/js/tema.js?v=9bbca718" defer></script>
   <script src="assets/js/origem.js?v=eb8d79e1" defer></script>
   <script src="assets/js/chat.js?v=0028a14d" defer></script>
   <script src="assets/js/resumo-erros.js?v=76cad3fe" defer></script>
-  <script src="assets/js/planos.js?v=e4fbebb4" defer></script>
+  <script src="assets/js/planos.js?v=d00ad033" defer></script>
   <script src="assets/js/comparativo.js?v=8c80cd57" defer></script>
   <!-- Trilha (melhoria 22): BreadcrumbList igual à <nav aria-label="Trilha"> visível -->
   <script type="application/ld+json">
@@ -187,6 +187,16 @@
         <form class="checkout__form" data-form-checkout novalidate>
           <fieldset class="checkout__grupo">
             <legend class="checkout__legenda"><span class="checkout__passo" aria-hidden="true">1</span> Escolha o plano</legend>
+            <!-- Melhoria 74: plano indicado pelo simulador da home (localStorage, 30 dias); nada é marcado sozinho -->
+            <div class="sim-lembrete" data-sim-lembrete hidden>
+              <svg class="icone sim-lembrete__icone" aria-hidden="true"><use href="#i-check"/></svg>
+              <p class="sim-lembrete__texto" data-sim-lembrete-texto></p>
+              <div class="sim-lembrete__acoes">
+                <button class="botao botao--primario botao--pequeno" type="button" data-sim-lembrete-marcar></button>
+                <button class="botao botao--contorno botao--pequeno" type="button" data-sim-lembrete-dispensar>Dispensar</button>
+              </div>
+            </div>
+            <p class="visualmente-oculto" aria-live="polite" data-sim-lembrete-aviso></p>
             <div class="opcoes-plano" data-opcoes-plano></div>
             <p class="checkout__comparar" data-link-comparativo hidden><a href="#comparativo">Compare tudo o que cada plano inclui</a></p>
             <noscript>

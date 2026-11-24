@@ -121,6 +121,56 @@
   opcoes.addEventListener('change', atualizarResumo);
   atualizarResumo();
 
+  // ------------------------------------------------------------------ plano indicado pelo simulador (melhoria 74)
+  // Só sem ?plano= na URL: quem chegou por um link já escolheu. Nada é marcado sozinho; "Dispensar" apaga a lembrança.
+  (function () {
+    var CHAVE_SIM = 'pbr_simulador_v1';
+    var VALIDADE_MS = 30 * 24 * 60 * 60 * 1000;
+    var caixa = $('[data-sim-lembrete]');
+    var avisoSim = $('[data-sim-lembrete-aviso]');
+    if (!caixa || params.get('plano')) return;
+    function esquecer() { try { localStorage.removeItem(CHAVE_SIM); } catch (e) { /* sem armazenamento */ } }
+    var salvo = null;
+    try { salvo = JSON.parse(localStorage.getItem(CHAVE_SIM)); } catch (e) { salvo = null; }
+    if (!salvo || typeof salvo.plano !== 'string' || typeof salvo.em !== 'number') return;
+    var idade = Date.now() - salvo.em;
+    if (idade < 0 || idade > VALIDADE_MS) { esquecer(); return; }
+    var plano = config.planos.filter(function (p) { return p.id === salvo.plano; })[0];
+    if (!plano) { esquecer(); return; }
+    var atual = planoEscolhido();
+    if (atual && atual.id === plano.id) return; // já marcado: o aviso não acrescenta nada
+    $('[data-sim-lembrete-texto]', caixa).textContent = 'O simulador da página inicial indicou o plano ' + plano.nome + ' para o seu negócio.';
+    var marcar = $('[data-sim-lembrete-marcar]', caixa);
+    marcar.textContent = 'Marcar o plano ' + plano.nome;
+    caixa.hidden = false;
+    function fechar() {
+      caixa.hidden = true;
+      opcoes.removeEventListener('change', aoTrocar);
+    }
+    // Se a pessoa marcar o plano indicado por conta própria, o aviso some (sem mexer no foco).
+    function aoTrocar() {
+      var p = planoEscolhido();
+      if (p && p.id === plano.id) fechar();
+    }
+    opcoes.addEventListener('change', aoTrocar);
+    marcar.addEventListener('click', function () {
+      var radio = opcoes.querySelector('input[name="plano"][value="' + plano.id + '"]');
+      if (!radio) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+      fechar();
+      avisoSim.textContent = 'Plano ' + plano.nome + ' marcado.';
+      radio.focus();
+    });
+    $('[data-sim-lembrete-dispensar]', caixa).addEventListener('click', function () {
+      esquecer();
+      fechar();
+      avisoSim.textContent = 'Aviso dispensado.';
+      var r = form.querySelector('input[name="plano"]:checked') || opcoes.querySelector('input[name="plano"]');
+      if (r) r.focus();
+    });
+  })();
+
   // ------------------------------------------------------------------ o que acontece depois de pagar (melhoria 35)
   // Mesmas etapas de pedido.html, textos de config.depoisDoPagamento. {prazo} = prazo do plano escolhido.
   var depois = $('[data-depois-pagar]');
