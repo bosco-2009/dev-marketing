@@ -5,6 +5,8 @@
  * Os dados vêm da RPC pedido_acompanhar(codigo, token), que valida o token secreto guardado neste
  * navegador (por planos.js ao comprar, ou pelo link pessoal #c=...&t=...) e não devolve dados pessoais.
  * A etapa é derivada no servidor do status do pagamento e do status do briefing que o dono muda no painel.
+ * Pedido pendente (melhoria 105): "Como concluir o pagamento" de concluir-pagamento.js (o mesmo de obrigado.html),
+ * com o botão que reabre a MESMA preferência do Mercado Pago (o servidor valida código + token).
  * Todo texto é inserido com textContent.
  */
 (function () {
@@ -214,7 +216,19 @@
 
     // Próximo passo
     var prox = $('[data-acompanhar-proximo]');
-    prox.textContent = '';
+    // Pix/boleto ainda não pago (melhoria 105): o mesmo "Como concluir o pagamento" de obrigado.html.
+    // Montado uma vez: as atualizações seguintes (botão Atualizar, volta à aba) não apagam o estado de espera
+    // nem o aviso de erro do botão.
+    var comoConcluir = d.pedido_status === 'pendente' && !!window.PBRConcluirPagamento;
+    var jaTemComoConcluir = !!prox.querySelector('[data-concluir-pagamento]');
+    if (!(comoConcluir && jaTemComoConcluir)) prox.textContent = '';
+    if (comoConcluir && !jaTemComoConcluir) {
+      window.PBRConcluirPagamento.montar(prox, {
+        codigo: acesso.codigo,
+        token: acesso.token,
+        passoFinal: 'Depois de pagar, volte a esta página ou toque em “Atualizar”: a próxima etapa aparece assim que o Mercado Pago confirmar.'
+      });
+    }
     var linkBriefing = 'briefing.html?pedido=' + encodeURIComponent(d.codigo);
     if (pago && d.etapa === 'pago') {
       prox.appendChild(el('h2', 'resultado__proximo-titulo', 'Próximo passo: o briefing'));
