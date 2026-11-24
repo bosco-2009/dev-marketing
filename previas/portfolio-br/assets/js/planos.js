@@ -239,11 +239,26 @@
     if (formatado && digitos(formatado).length >= 10) campos.whatsapp.value = formatado;
   });
 
-  function mostrarErro(texto) {
+  var botaoTentar = $('[data-tentar-checkout]');
+  function mostrarErro(texto, semConexao) {
     erroGeral.textContent = texto || '';
     erroGeral.hidden = !texto;
-    if (texto) erroGeral.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    botaoTentar.hidden = !(texto && semConexao);
+    if (texto) erroGeral.scrollIntoView({ block: 'center', behavior: rolagemSuave() });
   }
+  function rolagemSuave() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  }
+
+  // Sem internet (melhoria 53): nada do que foi digitado se perde; "Tentar de novo" reenvia o mesmo formulário.
+  var SEM_INTERNET = 'Sem internet: seus dados continuam aqui. Confira a conexão e toque em “Tentar de novo”.';
+  var CONEXAO_VOLTOU = 'A conexão voltou. Seus dados continuam aqui: toque em “Tentar de novo” para ir ao pagamento.';
+  var rede = window.PBRRede || { offline: function () { return false; }, falhaDeRede: function () { return false; }, aoVoltar: function () {} };
+  botaoTentar.addEventListener('click', function () {
+    botao.focus(); // o "Tentar de novo" some ao reenviar: o foco fica no botão de pagamento
+    if (form.requestSubmit) form.requestSubmit(botao); else botao.click();
+  });
+  rede.aoVoltar(function () { if (!botaoTentar.hidden) mostrarErro(CONEXAO_VOLTOU, true); });
 
   var MENSAGENS = {
     plano_invalido: 'Este plano não está disponível no momento. Escolha outro ou fale com a gente.',
@@ -276,6 +291,7 @@
       mostrarErro('A contratação online está indisponível no momento. Fale com a gente pelo chat ou pelo Instagram @' + config.contato.instagram + '.');
       return;
     }
+    if (rede.offline()) { mostrarErro(SEM_INTERNET, true); return; }
 
     enviando = true;
     botao.disabled = true;
@@ -309,7 +325,8 @@
       })
       .catch(function (err) {
         var codigo = err && err.message;
-        mostrarErro(MENSAGENS[codigo] || 'Não foi possível iniciar o pagamento. Verifique sua conexão e tente de novo.');
+        if (rede.falhaDeRede(err)) mostrarErro(SEM_INTERNET, true);
+        else mostrarErro(MENSAGENS[codigo] || 'Não foi possível iniciar o pagamento. Verifique sua conexão e tente de novo.');
         enviando = false;
         botao.disabled = false;
         botao.removeAttribute('data-carregando');

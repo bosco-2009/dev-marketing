@@ -274,10 +274,14 @@
 
     var erro = el('p', 'chat__erro', null, { id: 'chat-erro', role: 'alert' });
     erro.hidden = true;
+    // Sem internet (melhoria 53): a mensagem fica na caixa de texto e "Tentar de novo" reenvia.
+    var botaoTentar = el('button', 'botao botao--contorno botao--pequeno chat__tentar', 'Tentar de novo', { type: 'button' });
+    botaoTentar.hidden = true;
 
     var rodapePainel = el('div', 'chat__rodape');
     rodapePainel.appendChild(formInicio);
     rodapePainel.appendChild(erro);
+    rodapePainel.appendChild(botaoTentar);
     rodapePainel.appendChild(formEnvio);
 
     painel.appendChild(cabecalho);
@@ -422,10 +426,20 @@
     }
     atualizarModo();
 
-    function mostrarErro(texto) {
+    function mostrarErro(texto, semConexao) {
       erro.textContent = texto || '';
       erro.hidden = !texto;
+      botaoTentar.hidden = !(texto && semConexao);
     }
+    var rede = window.PBRRede || { offline: function () { return false; }, falhaDeRede: function () { return false; }, aoVoltar: function () {} };
+    var SEM_INTERNET = 'Sem internet: sua mensagem continua aqui. Confira a conexão e toque em “Tentar de novo”.';
+    botaoTentar.addEventListener('click', function () {
+      areaTexto.focus(); // o botão some ao reenviar: o foco volta para a mensagem
+      enviar(areaTexto.value);
+    });
+    rede.aoVoltar(function () {
+      if (!botaoTentar.hidden) mostrarErro('A conexão voltou. Sua mensagem continua aqui: toque em “Tentar de novo” para enviar.', true);
+    });
 
     // ------------------------------------------------------------- Supabase
     function obterCliente() {
@@ -541,6 +555,7 @@
       texto = texto.trim();
       if (!texto) { mostrarErro('Escreva sua mensagem.'); areaTexto.focus(); return; }
       if (texto.length > LIMITE_TEXTO) { mostrarErro(mensagemDeErro({ message: 'texto_invalido' })); return; }
+      if (rede.offline()) { mostrarErro(SEM_INTERNET, true); return; }
 
       var passoInicial = Promise.resolve();
       if (!estado.iniciada) {
@@ -591,6 +606,8 @@
             mostrarErro('Sua conversa anterior foi encerrada. Envie de novo para começar outra.');
           } else if (tratarAcessoNegado(e)) {
             mostrarErro('Sua sessão de chat expirou neste navegador. Envie de novo para começar uma nova conversa.');
+          } else if (rede.falhaDeRede(e)) {
+            mostrarErro(SEM_INTERNET, true);
           } else {
             mostrarErro(mensagemDeErro(e));
           }
@@ -627,7 +644,9 @@
         (estado.iniciada ? areaTexto : campoNome.entrada).focus();
         log.scrollTop = log.scrollHeight;
         if (estado.iniciada && !conversa) retomarConversa();
-        else obterCliente().catch(function () { mostrarErro('Chat indisponível no momento. Tente mais tarde.'); });
+        else obterCliente().catch(function () {
+          mostrarErro(rede.offline() ? 'Sem internet: o chat volta a funcionar quando a conexão voltar.' : 'Chat indisponível no momento. Tente mais tarde.');
+        });
       } else if (devolverFoco) {
         botao.focus();
       }

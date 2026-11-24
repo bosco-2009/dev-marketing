@@ -587,3 +587,28 @@
   document.addEventListener('focusin', function (e) { preCarregar(linkDo(e)); });
   document.addEventListener('touchstart', function (e) { preCarregar(linkDo(e)); }, { passive: true });
 })();
+
+/*
+ * PBRRede (melhoria 53) — falhas de conexão com mensagem clara, sem perder o que foi digitado.
+ *   PBRRede.offline()        -> true quando o navegador diz que está sem internet
+ *   PBRRede.falhaDeRede(err) -> true se o erro foi falta de conexão (e não uma recusa do servidor)
+ *   PBRRede.aoVoltar(fn)     -> chama fn quando a conexão volta (evento "online"); devolve uma função que cancela
+ * Usado por planos.js, briefing.js, pedido.js e chat.js.
+ */
+(function () {
+  'use strict';
+  function offline() { return typeof navigator !== 'undefined' && navigator.onLine === false; }
+  function falhaDeRede(err) {
+    if (offline()) return true;
+    if (!err) return false;
+    // fetch() rejeita com TypeError quando não há conexão (Chrome: "Failed to fetch"; Firefox: "NetworkError…";
+    // Safari: "Load failed"); o supabase-js repassa a mesma mensagem. Outros TypeError (erros de código) não contam.
+    var m = String(err.message || err.msg || err || '');
+    return /Failed to fetch|NetworkError|Load failed|ERR_INTERNET_DISCONNECTED|ERR_NETWORK_CHANGED/i.test(m);
+  }
+  function aoVoltar(fn) {
+    window.addEventListener('online', fn);
+    return function () { window.removeEventListener('online', fn); };
+  }
+  window.PBRRede = { offline: offline, falhaDeRede: falhaDeRede, aoVoltar: aoVoltar };
+})();

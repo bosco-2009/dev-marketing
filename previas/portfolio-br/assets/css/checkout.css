@@ -141,6 +141,8 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
   font-weight: var(--peso-semi);
 }
 .checkout__erro[hidden] { display: none; }
+/* Sem internet (melhoria 53): "Tentar de novo" logo abaixo da mensagem, sem perder o que foi digitado */
+.checkout__tentar { justify-self: start; margin-top: calc(-1 * var(--esp-3)); }
 
 .checkout__botao { width: 100%; }
 .checkout__botao:disabled { opacity: 0.7; cursor: progress; }

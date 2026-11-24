@@ -138,7 +138,7 @@
   };
 
   // ------------------------------------------------------------------ renderização
-  function mostrarErro(titulo, texto, codigo) {
+  function mostrarErro(titulo, texto, codigo, aoTentar) {
     caixa.setAttribute('data-estado', 'erro');
     $('[data-acompanhar-titulo]').textContent = titulo;
     $('[data-acompanhar-texto]').textContent = texto;
@@ -148,6 +148,11 @@
     $('[data-acompanhar-atualizado]').hidden = !codigo;
     var acoes = $('[data-acompanhar-acoes]');
     acoes.textContent = '';
+    if (aoTentar) { // sem internet (melhoria 53)
+      var tentar = el('button', 'botao botao--primario', 'Tentar de novo', { type: 'button', 'data-tentar-pedido': '' });
+      tentar.addEventListener('click', aoTentar);
+      acoes.appendChild(tentar);
+    }
     var c = linkContato(codigo);
     acoes.appendChild(el('a', 'botao botao--contorno', c.rotulo, { href: c.href, target: '_blank', rel: 'noopener' }));
     acoes.appendChild(el('a', 'botao botao--contorno', 'Ver os planos', { href: 'planos.html' }));
@@ -293,17 +298,49 @@
   var ultimaConsulta = 0;
   var consultando = false;
 
+  // Sem internet (melhoria 53): mensagem clara, "Tentar de novo" e nova consulta sozinha quando a conexão volta.
+  var rede = window.PBRRede || { offline: function () { return false; }, falhaDeRede: function () { return false; }, aoVoltar: function () {} };
+  var ultimaHora = '';
+  var esperandoConexao = false;
+  rede.aoVoltar(function () { if (esperandoConexao) carregar(false); });
+  function semInternet(manual) {
+    esperandoConexao = true;
+    var estado = caixa.getAttribute('data-estado');
+    if (estado === 'carregando' || estado === 'erro') {
+      mostrarErro('Sem internet no momento',
+        'Não conseguimos consultar o seu pedido porque o aparelho está sem conexão. Confira a internet e toque em “Tentar de novo”; quando a conexão voltar, consultamos sozinhos.',
+        acesso.codigo, function () { carregar(true); });
+      hora.textContent = '';
+      $('[data-acompanhar-atualizado]').hidden = true; // "Tentar de novo" já faz o papel do "Atualizar"
+      if (manual) $('[data-tentar-pedido]').focus();
+    } else {
+      hora.textContent = 'Sem internet: mostrando a situação ' + (ultimaHora ? 'das ' + ultimaHora : 'anterior') +
+        '. Atualizamos sozinhos quando a conexão voltar.';
+    }
+  }
+
   function carregar(manual) {
     if (consultando) return;
+    if (rede.offline()) { semInternet(manual); return; }
+    var focoNoTentar = !!(document.activeElement && document.activeElement.hasAttribute('data-tentar-pedido'));
     consultando = true;
     ultimaConsulta = Date.now();
     botaoAtualizar.disabled = true;
     if (manual) hora.textContent = 'Atualizando…';
     consultar().then(function (d) {
+      esperandoConexao = false;
       renderizar(d, acesso);
-      hora.textContent = 'Atualizado às ' + fHora.format(new Date()) + '.';
+      ultimaHora = fHora.format(new Date());
+      hora.textContent = 'Atualizado às ' + ultimaHora + '.';
+      if (focoNoTentar) { // o "Tentar de novo" sumiu: o foco vai para o título com a situação do pedido
+        var titulo = $('[data-acompanhar-titulo]');
+        titulo.setAttribute('tabindex', '-1');
+        titulo.focus();
+      }
     }).catch(function (err) {
-      if (err && err.message === 'acesso_negado') {
+      if (rede.falhaDeRede(err)) {
+        semInternet(manual);
+      } else if (err && err.message === 'acesso_negado') {
         mostrarErro('Não foi possível abrir este pedido',
           'O link pode estar incompleto. Abra pelo link pessoal do pedido ou fale com a gente.');
       } else if (caixa.getAttribute('data-estado') === 'carregando' || caixa.getAttribute('data-estado') === 'erro') {

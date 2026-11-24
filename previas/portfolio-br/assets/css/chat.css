@@ -256,3 +256,4 @@
   font-weight: var(--peso-semi);
 }
 .chat__erro[hidden] { display: none; }
+.chat__tentar { justify-self: start; margin-top: calc(-1 * var(--esp-2)); } /* sem internet (melhoria 53) */

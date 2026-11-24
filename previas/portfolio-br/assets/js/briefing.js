@@ -95,7 +95,14 @@
     $('[data-aviso-texto]', aviso).textContent = texto || '';
     var box = $('[data-aviso-acoes]', aviso);
     box.textContent = '';
-    (acoes || []).forEach(function (a) { box.appendChild(el('a', 'botao ' + (a.primario ? 'botao--primario' : 'botao--contorno'), a.rotulo, a.attrs)); });
+    (acoes || []).forEach(function (a) {
+      var classe = 'botao ' + (a.primario ? 'botao--primario' : 'botao--contorno');
+      if (a.aoClicar) { // botão de ação na própria página (ex.: "Tentar de novo", melhoria 53)
+        var b = el('button', classe, a.rotulo, Object.assign({ type: 'button' }, a.attrs || {}));
+        b.addEventListener('click', a.aoClicar);
+        box.appendChild(b);
+      } else box.appendChild(el('a', classe, a.rotulo, a.attrs));
+    });
     var c = linkContato();
     box.appendChild(el('a', 'botao botao--contorno', c.rotulo, { href: c.href, target: '_blank', rel: 'noopener' }));
   }
@@ -112,6 +119,7 @@
   }
 
   var CHAVE_RASCUNHO = 'pbr_briefing_rascunho_' + acesso.codigo;
+  var rede = window.PBRRede || { offline: function () { return false; }, falhaDeRede: function () { return false; }, aoVoltar: function () { return function () {}; } };
 
   function chamarRpc(nome, args) {
     return fetch(base + '/rest/v1/rpc/' + nome, {
@@ -315,7 +323,12 @@
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   }
 
-  function mostrarErro(t) { erroGeral.textContent = t || ''; erroGeral.hidden = !t; }
+  var botaoTentar = $('[data-tentar-briefing]');
+  function mostrarErro(t, semConexao) {
+    erroGeral.textContent = t || '';
+    erroGeral.hidden = !t;
+    botaoTentar.hidden = !(t && semConexao);
+  }
 
   function valorResumo(d, k) {
     var v = d[k];
@@ -393,6 +406,7 @@
     if (TIPOS.indexOf(arquivo.type) === -1) { falhar('Tipo não aceito: use imagem ou PDF.'); return Promise.resolve(); }
     if (arquivo.size > TAMANHO_MAXIMO) { falhar('Maior que 5 MB.'); return Promise.resolve(); }
     if (arquivos.length >= MAX_ARQUIVOS) { falhar('Limite de ' + MAX_ARQUIVOS + ' arquivos.'); return Promise.resolve(); }
+    if (rede.offline()) { falhar('Sem internet: escolha o arquivo de novo quando a conexão voltar.'); return Promise.resolve(); }
 
     return fetch(base + '/functions/v1/briefing-upload', {
       method: 'POST',
@@ -414,6 +428,7 @@
         });
     }).catch(function (e) {
       var m = e && e.message;
+      if (rede.falhaDeRede(e)) { falhar('Sem internet: escolha o arquivo de novo quando a conexão voltar.'); return; }
       falhar({ limite_arquivos: 'Limite de arquivos atingido.', arquivo_grande: 'Maior que 5 MB.', tipo_nao_permitido: 'Tipo não aceito.',
         briefing_bloqueado: 'O briefing já está em produção.' }[m] || 'Não foi possível enviar. Tente de novo.');
     });
@@ -434,6 +449,16 @@
     arquivo_invalido: 'Um dos arquivos não foi encontrado. Remova-o e envie de novo.',
     acesso_negado: 'Não foi possível confirmar o seu pedido. Abra o briefing pelo link da página de confirmação.'
   };
+  // Sem internet (melhoria 53): as respostas ficam no formulário (e no rascunho do aparelho);
+  // "Tentar de novo" reenvia o mesmo briefing. Nada é enviado sozinho quando a conexão volta.
+  var SEM_INTERNET = 'Sem internet: suas respostas continuam aqui. Confira a conexão e toque em “Tentar de novo”.';
+  var CONEXAO_VOLTOU = 'A conexão voltou. Suas respostas continuam aqui: toque em “Tentar de novo” para enviar.';
+  botaoTentar.addEventListener('click', function () {
+    bEnviar.focus(); // o "Tentar de novo" some ao reenviar: o foco fica no botão de envio
+    if (form.requestSubmit) form.requestSubmit(bEnviar); else bEnviar.click();
+  });
+  rede.aoVoltar(function () { if (!botaoTentar.hidden) mostrarErro(CONEXAO_VOLTOU, true); });
+
   var enviando = false;
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -441,6 +466,7 @@
     for (var n = 1; n <= TOTAL_ETAPAS; n++) {
       if (!validarEtapa(n)) { irPara(n, false); validarEtapa(n); return; }
     }
+    if (rede.offline()) { mostrarErro(SEM_INTERNET, true); return; }
     enviando = true;
     bEnviar.disabled = true;
     bEnviar.setAttribute('data-carregando', ''); // microinteração (melhoria 16)
@@ -459,6 +485,7 @@
       })
       .catch(function (err) {
         var m = (err && err.message) || '';
+        if (rede.falhaDeRede(err)) { mostrarErro(SEM_INTERNET, true); return; }
         var chaveMsg = Object.keys(MENSAGENS).filter(function (k) { return m.indexOf(k) !== -1; })[0];
         mostrarErro(MENSAGENS[chaveMsg] || 'Não foi possível enviar agora. Seu rascunho está salvo; tente de novo em instantes.');
       })
@@ -466,44 +493,71 @@
   });
 
   // ------------------------------------------------------------------ início
-  chamarRpc('briefing_obter', { p_codigo: acesso.codigo, p_token: acesso.token })
-    .then(function (linhas) {
-      var info = linhas && linhas[0];
-      if (!info) throw new Error('acesso_negado');
-      if (info.pedido_status !== 'aprovado') {
-        mostrarAviso('pendente', 'Pagamento ainda não confirmado',
-          'O briefing fica disponível assim que o Mercado Pago confirmar o pagamento do pedido ' + acesso.codigo + '.',
-          [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
-        return;
-      }
-      var b = info.briefing;
-      if (b && b.status !== 'novo') {
-        mostrarAviso('bloqueado', 'Seu briefing já está com a gente',
-          'Status: ' + (STATUS_BRIEFING[b.status] || b.status) + '. Para mudar alguma informação agora, fale com a gente.',
-          [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
-        return;
-      }
-      briefingServidor = b || null;
-      var rascunho = lerJSON(CHAVE_RASCUNHO);
-      var usarRascunho = rascunho && rascunho.dados && (!b || rascunho.salvo_em > b.atualizado_em);
-      var etapaSalva = usarRascunho ? Math.min(TOTAL_ETAPAS, Math.max(1, Math.floor(Number(rascunho.etapa)) || 1)) : 1;
-      preencher(usarRascunho ? rascunho.dados : b);
-      $('[data-briefing-pedido]').textContent = 'Pedido ' + acesso.codigo + ' · Plano ' + info.plano_nome;
-      aviso.hidden = true;
-      form.hidden = false;
-      irPara(etapaSalva, false);
-      formularioPronto = true;
-      bLimpar.hidden = !usarRascunho;
-      if (usarRascunho) {
-        statusRascunho.textContent = etapaSalva > 1
-          ? 'Continuando o rascunho salvo neste aparelho, na etapa ' + etapaSalva + ' de ' + TOTAL_ETAPAS + '.'
-          : 'Continuando o rascunho salvo neste aparelho.';
-      } else if (b) statusRascunho.textContent = 'Você já enviou este briefing. Pode editar e enviar de novo.';
-    })
-    .catch(function (e) {
-      var negado = e && /acesso_negado/.test(e.message);
-      mostrarAviso('erro', negado ? 'Não foi possível abrir este briefing' : 'Não foi possível carregar o briefing',
-        negado ? 'O link pode estar incompleto. Abra pelo link da página de confirmação do pagamento ou fale com a gente.'
-          : 'Verifique sua conexão e recarregue a página.');
-    });
+  var carregando = false;
+  var cancelarVolta = null;
+  function semInternetNaCarga(focar) {
+    mostrarAviso('erro', 'Sem internet no momento',
+      'Não conseguimos abrir o seu briefing porque o aparelho está sem conexão. Confira a internet e toque em “Tentar de novo”; quando a conexão voltar, tentamos sozinhos.',
+      [{ rotulo: 'Tentar de novo', primario: true, attrs: { 'data-tentar-carga': '' }, aoClicar: function () { carregarBriefing(true); } }]);
+    if (focar) $('[data-tentar-carga]', aviso).focus();
+    if (!cancelarVolta) cancelarVolta = rede.aoVoltar(function () { carregarBriefing(false); });
+  }
+  function carregarBriefing(manual) {
+    if (carregando) return;
+    if (rede.offline()) { semInternetNaCarga(manual); return; }
+    carregando = true;
+    if (manual) {
+      aviso.setAttribute('data-tipo', 'carregando');
+      $('[data-aviso-titulo]', aviso).textContent = 'Carregando o seu pedido…';
+      $('[data-aviso-texto]', aviso).textContent = '';
+      $('[data-aviso-titulo]', aviso).setAttribute('tabindex', '-1');
+      $('[data-aviso-titulo]', aviso).focus(); // o botão "Tentar de novo" some: o foco vai para o aviso
+      $('[data-aviso-acoes]', aviso).textContent = '';
+    }
+    chamarRpc('briefing_obter', { p_codigo: acesso.codigo, p_token: acesso.token })
+      .then(function (linhas) {
+        if (cancelarVolta) { cancelarVolta(); cancelarVolta = null; }
+        var info = linhas && linhas[0];
+        if (!info) throw new Error('acesso_negado');
+        if (info.pedido_status !== 'aprovado') {
+          mostrarAviso('pendente', 'Pagamento ainda não confirmado',
+            'O briefing fica disponível assim que o Mercado Pago confirmar o pagamento do pedido ' + acesso.codigo + '.',
+            [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
+          return;
+        }
+        var b = info.briefing;
+        if (b && b.status !== 'novo') {
+          mostrarAviso('bloqueado', 'Seu briefing já está com a gente',
+            'Status: ' + (STATUS_BRIEFING[b.status] || b.status) + '. Para mudar alguma informação agora, fale com a gente.',
+            [{ rotulo: 'Acompanhar meu pedido', primario: true, attrs: { href: 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo), 'data-acompanhar-link': '' } }]);
+          return;
+        }
+        briefingServidor = b || null;
+        var rascunho = lerJSON(CHAVE_RASCUNHO);
+        var usarRascunho = rascunho && rascunho.dados && (!b || rascunho.salvo_em > b.atualizado_em);
+        var etapaSalva = usarRascunho ? Math.min(TOTAL_ETAPAS, Math.max(1, Math.floor(Number(rascunho.etapa)) || 1)) : 1;
+        preencher(usarRascunho ? rascunho.dados : b);
+        $('[data-briefing-pedido]').textContent = 'Pedido ' + acesso.codigo + ' · Plano ' + info.plano_nome;
+        aviso.hidden = true;
+        form.hidden = false;
+        irPara(etapaSalva, !!manual); // depois de "Tentar de novo", o foco vai para a etapa
+        formularioPronto = true;
+        bLimpar.hidden = !usarRascunho;
+        if (usarRascunho) {
+          statusRascunho.textContent = etapaSalva > 1
+            ? 'Continuando o rascunho salvo neste aparelho, na etapa ' + etapaSalva + ' de ' + TOTAL_ETAPAS + '.'
+            : 'Continuando o rascunho salvo neste aparelho.';
+        } else if (b) statusRascunho.textContent = 'Você já enviou este briefing. Pode editar e enviar de novo.';
+      })
+      .catch(function (e) {
+        if (rede.falhaDeRede(e)) { semInternetNaCarga(manual); return; }
+        if (cancelarVolta) { cancelarVolta(); cancelarVolta = null; }
+        var negado = e && /acesso_negado/.test(e.message);
+        mostrarAviso('erro', negado ? 'Não foi possível abrir este briefing' : 'Não foi possível carregar o briefing',
+          negado ? 'O link pode estar incompleto. Abra pelo link da página de confirmação do pagamento ou fale com a gente.'
+            : 'Verifique sua conexão e recarregue a página.');
+      })
+    .then(function () { carregando = false; });
+  }
+  carregarBriefing(false);
 })();
