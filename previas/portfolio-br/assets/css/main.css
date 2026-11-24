@@ -44,6 +44,7 @@ img, svg { display: block; max-width: 100%; }
 img { height: auto; }
 
 input, button, textarea, select { font: inherit; color: inherit; }
+::placeholder { color: var(--cor-placeholder); opacity: 1; }
 button { cursor: pointer; }
 
 h1, h2, h3, h4 {
