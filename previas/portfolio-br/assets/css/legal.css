@@ -54,3 +54,18 @@
 .legal__tabela tbody th { width: 8rem; font-weight: var(--peso-negrito); }
 
 .legal__lista-planos { padding-left: var(--esp-5); }
+
+/* Impressão (melhoria 77): termos e política em papel ou PDF, legíveis e sem fundos escuros */
+@media print {
+  .pagina-topo { padding-block: var(--esp-4) 0; background: none; color: var(--cor-texto); }
+  .pagina-topo .secao__sobretitulo, .pagina-topo__texto { color: var(--cor-texto-suave); }
+  .secao--compacta { padding-block: var(--esp-4) 0; }
+  .legal { font-size: var(--texto-base); line-height: 1.55; }
+  .legal h2 { margin-top: var(--esp-6); }
+  .legal__indice { background: none; break-inside: avoid; }
+  .legal__indice a { min-block-size: 0; text-decoration: none; }
+  .legal__provisorio { background: none; border: 1px dashed var(--cor-borda-campo); }
+  .legal__tabela-rolagem { overflow: visible; }
+  .legal__tabela thead th { background: none; border-bottom: 2px solid var(--cor-texto); }
+  .legal__tabela tr { break-inside: avoid; }
+}

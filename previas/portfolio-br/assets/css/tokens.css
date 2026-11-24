@@ -189,12 +189,13 @@
 /* ---------- Modo escuro (melhoria 11) ----------
  * Automático pelo sistema (prefers-color-scheme) ou escolhido no botão do cabeçalho (data-tema no <html>,
  * posto antes da 1ª pintura pelo inicio.js). Só os papéis semânticos mudam; a marca continua a mesma.
+ * Só em @media screen: na impressão as páginas saem sempre claras (melhoria 77).
  * Páginas com data-tema-fixo (sites de EXEMPLO e painel /admin/) ficam sempre claras.
  * Contrastes conferidos (WCAG AA): texto 16,6:1 e suave 9,1:1 no fundo; ação 9,2:1 no fundo e texto da ação 9,3:1.
  * Item 52: testes/e2e/contraste-escuro.test.js mede textos, placeholders, bordas de campos e ícones da home, planos e
  *   blog pelos pixels renderizados (inclusive sobre gradientes) nos dois temas; o --cor-placeholder vem de --cor-texto-suave.
  */
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-tema='claro']):not([data-tema-fixo]) {
     color-scheme: dark;
     --cor-fundo: #08101F;
@@ -228,35 +229,38 @@
     --sombra-lg: 0 18px 40px rgb(0 0 0 / 0.55), 0 6px 12px rgb(0 0 0 / 0.35);
   }
 }
-:root[data-tema='escuro']:not([data-tema-fixo]) {
-  color-scheme: dark;
-  --cor-fundo: #08101F;
-  --cor-fundo-suave: #0D1730;
-  --cor-fundo-escuro: #14244A;
-  --cor-superficie: #111C38;
-  --cor-borda: #26365C;
-  --cor-texto: #EAF0FA;
-  --cor-texto-suave: #A7B4CD;
-  --cor-texto-invertido: #FFFFFF;
-  --cor-texto-invertido-suave: #C2CCE0;
-  --cor-acao: #3DCB97;
-  --cor-acao-hover: #66D9AE;
-  --cor-acao-ativa: #2BB283;
-  --cor-acao-texto: #06101F;
-  --cor-acao-fundo-suave: #0E3529;
-  --cor-acao-no-escuro: #3DCB97;
-  --cor-acao-texto-suave: #8FE6C4;
-  --cor-destaque-suave: #3A3112;
-  --cor-foco: var(--cor-sol-400);
-  --cor-erro: #FF9C94;
-  --cor-erro-suave: #3A1513;
-  --cor-sucesso: #3DCB97;
-  --cor-fundo-neutro: #1A2849;
-  --cor-borda-campo: #7D8BA8;
-  --cor-selecionado-fundo: #3DCB97; /* no escuro, o azul da aba ativa ficava em 1,1:1 com a superfície */
-  --cor-selecionado-texto: #06101F;
-  --cor-topo-fundo: rgb(8 16 31 / 0.94);
-  --sombra-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
-  --sombra-md: 0 4px 12px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
-  --sombra-lg: 0 18px 40px rgb(0 0 0 / 0.55), 0 6px 12px rgb(0 0 0 / 0.35);
+/* Só na tela: impressos (melhoria 77) saem sempre com os papéis claros, legíveis em papel */
+@media screen {
+  :root[data-tema='escuro']:not([data-tema-fixo]) {
+    color-scheme: dark;
+    --cor-fundo: #08101F;
+    --cor-fundo-suave: #0D1730;
+    --cor-fundo-escuro: #14244A;
+    --cor-superficie: #111C38;
+    --cor-borda: #26365C;
+    --cor-texto: #EAF0FA;
+    --cor-texto-suave: #A7B4CD;
+    --cor-texto-invertido: #FFFFFF;
+    --cor-texto-invertido-suave: #C2CCE0;
+    --cor-acao: #3DCB97;
+    --cor-acao-hover: #66D9AE;
+    --cor-acao-ativa: #2BB283;
+    --cor-acao-texto: #06101F;
+    --cor-acao-fundo-suave: #0E3529;
+    --cor-acao-no-escuro: #3DCB97;
+    --cor-acao-texto-suave: #8FE6C4;
+    --cor-destaque-suave: #3A3112;
+    --cor-foco: var(--cor-sol-400);
+    --cor-erro: #FF9C94;
+    --cor-erro-suave: #3A1513;
+    --cor-sucesso: #3DCB97;
+    --cor-fundo-neutro: #1A2849;
+    --cor-borda-campo: #7D8BA8;
+    --cor-selecionado-fundo: #3DCB97; /* no escuro, o azul da aba ativa ficava em 1,1:1 com a superfície */
+    --cor-selecionado-texto: #06101F;
+    --cor-topo-fundo: rgb(8 16 31 / 0.94);
+    --sombra-sm: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+    --sombra-md: 0 4px 12px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
+    --sombra-lg: 0 18px 40px rgb(0 0 0 / 0.55), 0 6px 12px rgb(0 0 0 / 0.35);
+  }
 }

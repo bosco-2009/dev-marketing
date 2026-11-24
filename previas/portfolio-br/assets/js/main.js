@@ -690,3 +690,32 @@
   }
   window.PBRRede = { offline: offline, falhaDeRede: falhaDeRede, aoVoltar: aoVoltar };
 })();
+
+/*
+ * Impressão limpa (melhoria 77) — no papel o link não é clicável: antes de imprimir, cada link do conteúdo
+ * ganha data-endereco-impresso com o endereço legível, que o @media print de main.css mostra entre parênteses.
+ * Ficam de fora: âncoras da própria página, links cujo texto já é o endereço e os botões (somem na impressão).
+ * Query e fragmento são cortados: no papel não vão códigos de pedido nem tokens.
+ */
+(function () {
+  'use strict';
+  function enderecoLegivel(link) {
+    var url;
+    try { url = new URL(link.getAttribute('href'), location.href); } catch (e) { return ''; }
+    if (url.protocol === 'mailto:' || url.protocol === 'tel:') return decodeURIComponent(url.pathname);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+    if (url.origin === location.origin && url.pathname === location.pathname) return ''; // âncora desta página
+    return (url.host + url.pathname).replace(/^www\./, '').replace(/\/$/, '');
+  }
+  function prepararImpressao() {
+    var links = document.querySelectorAll('main a[href]:not(.botao)');
+    for (var i = 0; i < links.length; i++) {
+      var endereco = enderecoLegivel(links[i]);
+      var texto = links[i].textContent.replace(/\s+/g, ' ').trim().replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+      if (endereco && texto !== endereco) links[i].setAttribute('data-endereco-impresso', endereco);
+      else links[i].removeAttribute('data-endereco-impresso');
+    }
+  }
+  window.addEventListener('beforeprint', prepararImpressao);
+  window.PBRImpressao = { preparar: prepararImpressao };
+})();

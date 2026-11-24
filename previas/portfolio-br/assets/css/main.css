@@ -689,3 +689,48 @@ a:hover { color: var(--cor-acao-hover); }
 .migalhas a { color: var(--cor-texto-invertido); }
 .migalhas a:hover { color: var(--cor-destaque); }
 .migalhas [aria-current="page"] { color: var(--cor-texto-invertido-suave); }
+
+/* =====================================================================================
+   IMPRESSÃO (melhoria 77): o cliente guarda o comprovante e os termos em papel ou PDF.
+   Sem cabeçalho fixo, chat, abertura nem botões; cores sempre claras (tokens.css só aplica o escuro na tela);
+   links do conteúdo com o endereço impresso (data-endereco-impresso, posto pelo main.js no "beforeprint").
+   As regras de cada página ficam no CSS dela (legal.css, checkout.css).
+   ===================================================================================== */
+@media print {
+  @page { margin: 1.6cm 1.4cm; }
+  html { font-size: 87.5%; }
+  body { min-height: 0; background: var(--cor-branco); color: var(--cor-texto); } /* 100vh criava uma folha em branco */
+  *, *::before, *::after { box-shadow: none !important; text-shadow: none !important; animation: none !important; transition: none !important; }
+
+  /* Nada de navegação, interação nem elementos flutuantes no papel */
+  .pular-link, .topo__nav, .topo__menu-botao, .tema-botao, .chat, .abertura, .sprite,
+  .botao, button, noscript, [data-prefetch] { display: none !important; }
+
+  /* Cabeçalho: só a marca, no fluxo normal (sem sticky nem fundo translúcido) */
+  .topo { position: static; background: none; backdrop-filter: none; border-bottom: 1px solid var(--cor-borda); }
+  .topo__barra { min-height: 0; padding-block: var(--esp-2); }
+
+  /* Aviso de rascunho continua (é informação), mas sem a faixa amarela */
+  .modo-rascunho .aviso-rascunho { background: none; border: 1px solid var(--cor-borda-campo); border-radius: var(--raio-sm); margin: var(--esp-2) 0; }
+
+  /* Rodapé: só a linha de direitos e os dados da empresa */
+  .rodape { padding-block: var(--esp-4) 0; background: none; color: var(--cor-texto-suave); border-top: 1px solid var(--cor-borda); }
+  .rodape__grade { display: none; }
+  .rodape__base { margin-top: 0; padding-top: 0; border-top: 0; color: var(--cor-texto-suave); }
+
+  /* Conteúdo revelado na rolagem aparece inteiro, mesmo o que ainda não entrou na tela */
+  .revelar-ativo [data-revelar] { opacity: 1 !important; transform: none !important; }
+
+  a { color: var(--cor-texto); }
+  main a[data-endereco-impresso]::after {
+    content: ' (' attr(data-endereco-impresso) ')';
+    color: var(--cor-texto-suave);
+    font-size: 0.9em;
+    font-weight: var(--peso-normal);
+    overflow-wrap: anywhere;
+  }
+
+  h1, h2, h3, h4 { break-after: avoid; }
+  p, li, dd { orphans: 3; widows: 3; }
+  table, dl, figure, img, svg { break-inside: avoid; }
+}

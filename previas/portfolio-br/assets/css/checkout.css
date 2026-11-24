@@ -678,3 +678,15 @@ html:not(.sem-js) .pagina-topo__parcelamento { display: block; min-height: 3.2em
 @media (min-width: 48rem) {
   .barra-plano:not([hidden]) { display: none; }
 }
+
+/* Impressão (melhoria 77): obrigado.html e pedido.html viram comprovante (pedido, status e etapas).
+   O link pessoal do briefing (com token) e o "em outro aparelho" não vão para o papel. */
+@media print {
+  .secao--compacta { padding-block: var(--esp-4) 0; }
+  .resultado, .acompanhar { padding: var(--esp-5) var(--esp-4); border-color: var(--cor-borda-campo); break-inside: avoid; }
+  .resultado__link-briefing, .acompanhar__outro, .barra-plano { display: none !important; }
+  .resultado__pedido { border: 1px solid var(--cor-borda); }  /* o fundo suave some no papel */
+  .resultado__icone, .etapas__marca, .etapas__item::before { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .etapas__item { break-inside: avoid; }
+  .acompanhar__atualizado { gap: 0; }
+}
