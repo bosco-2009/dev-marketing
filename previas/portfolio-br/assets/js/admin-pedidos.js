@@ -91,6 +91,27 @@
     var site = (window.PBR_CONFIG || {}).site || {};
     return site.url ? site.url.replace(/\/?$/, '/') + 'pedido.html' : '';
   }
+  // Link direto do briefing (melhoria 56): só o código do pedido, nunca o token. Sem site.url, usa a origem do painel.
+  function linkBriefing(p) {
+    var site = (window.PBR_CONFIG || {}).site || {};
+    var base = site.url ? site.url.replace(/\/?$/, '/') : new URL('../', location.href).href;
+    return base + 'briefing.html?pedido=' + encodeURIComponent(p.codigo);
+  }
+  function copiarTexto(texto) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+    return new Promise(function (ok, falha) {
+      var campo = document.createElement('textarea');
+      campo.value = texto;
+      campo.setAttribute('readonly', '');
+      campo.className = 'visualmente-oculto';
+      document.body.appendChild(campo);
+      campo.select();
+      var feito = false;
+      try { feito = document.execCommand('copy'); } catch (e) { feito = false; }
+      campo.remove();
+      if (feito) ok(); else falha(new Error('cópia indisponível'));
+    });
+  }
   function mensagemBriefing(p) {
     var site = (window.PBR_CONFIG || {}).site || {};
     var primeiro = String(p.nome || '').trim().split(/\s+/)[0];
@@ -240,6 +261,26 @@
       mostrarChamado(p.id, modo);
       renderizarLista();
     };
+    var copiar = $('[data-briefing-copiar]');
+    if (copiar) copiar.onclick = function () {
+      var p = pedidoSelecionado();
+      if (!p) return;
+      var url = linkBriefing(p);
+      var aviso = $('[data-briefing-copiado]');
+      aviso.textContent = '';
+      copiarTexto(url).then(function () {
+        aviso.textContent = 'Link copiado. Cole no WhatsApp, e-mail ou onde preferir.';
+      }, function () {
+        // Sem área de transferência: seleciona o link para o dono copiar com o teclado.
+        var codigo = $('[data-briefing-link-url]');
+        var faixa = document.createRange();
+        faixa.selectNodeContents(codigo);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(faixa);
+        aviso.textContent = 'Não foi possível copiar automaticamente. O link está selecionado: use Ctrl+C (ou toque e segure).';
+      });
+    };
     // Falou com o cliente por outro caminho (ligação, WhatsApp do celular): tira o aviso, só neste navegador.
     var jaFalei = $('[data-recuperar-contatado]');
     if (jaFalei) jaFalei.onclick = function () {
@@ -302,6 +343,14 @@
     if (temWhats && !mesmo) $('[data-recuperar-mensagem]').value = mensagemPara(p, modo);
     if (temWhats) atualizarLinkWhats();
     mostrarChamado(p.id, modo);
+    var caixaLink = $('[data-briefing-link]');
+    if (caixaLink) {
+      caixaLink.hidden = modo !== 'briefing';
+      if (modo === 'briefing') {
+        $('[data-briefing-link-url]').textContent = linkBriefing(p);
+        if (!mesmo) $('[data-briefing-copiado]').textContent = '';
+      }
+    }
   }
 
   var timerRecarga = null;

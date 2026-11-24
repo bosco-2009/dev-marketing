@@ -329,6 +329,15 @@
                 <p class="admin-recuperar__nota">Nada é enviado automaticamente: o WhatsApp abre com o texto pronto e você decide se envia.</p>
               </div>
               <p class="admin-recuperar__sem" data-recuperar-sem hidden>O cliente não deixou WhatsApp neste pedido.</p>
+              <div class="admin-recuperar__copiar" data-briefing-link hidden>
+                <p class="admin-recuperar__rotulo">Link do briefing (sem o token)</p>
+                <p class="admin-recuperar__url"><code data-briefing-link-url></code></p>
+                <p class="admin-recuperar__acoes">
+                  <button class="botao botao--contorno botao--pequeno" type="button" data-briefing-copiar>Copiar link do briefing</button>
+                </p>
+                <p class="admin-recuperar__nota">O link abre o briefing no aparelho em que o cliente comprou. Em outro aparelho, ele usa o link pessoal recebido na compra.</p>
+                <p class="admin-recuperar__chamado" role="status" data-briefing-copiado></p>
+              </div>
               <p class="admin-recuperar__chamado" role="status" data-recuperar-chamado></p>
             </section>
             <section class="admin-etapa" data-pedido-etapa hidden aria-labelledby="etapa-titulo">
