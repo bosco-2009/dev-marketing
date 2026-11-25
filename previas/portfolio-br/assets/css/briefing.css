@@ -19,10 +19,44 @@
 .briefing-aviso__acoes { display: flex; flex-direction: column; gap: var(--esp-2); margin-top: var(--esp-2); }
 @media (min-width: 30rem) { .briefing-aviso__acoes { flex-direction: row; flex-wrap: wrap; } }
 
+/* Espaço reservado (melhoria 126): enquanto carrega e com o formulário aberto, a área ocupa ao menos a tela toda,
+   para o rodapé já começar abaixo da dobra e não ser empurrado quando o pedido chega (CLS 0). Avisos de erro,
+   pendente e sucesso continuam com a altura natural. */
+.briefing-area:has(> .briefing-aviso[data-tipo='carregando']:not([hidden]), > .briefing:not([hidden])) { min-height: 100vh; }
+
 /* ---------------- Formulário ---------------- */
 .briefing { display: grid; gap: var(--esp-5); }
 .briefing[hidden] { display: none; }
-.briefing__pedido { color: var(--cor-texto-suave); font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+
+/* Lembrete do pedido no topo do formulário (melhoria 126): montado pelo briefing.js antes de o formulário aparecer. */
+.briefing-pedido {
+  display: grid;
+  gap: var(--esp-2);
+  padding: var(--esp-4);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-acao);
+  border-radius: var(--raio-md);
+  background: var(--cor-fundo-suave);
+}
+.briefing-pedido__titulo { font-size: var(--texto-base); font-weight: var(--peso-extra); }
+.briefing-pedido__lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-2) var(--esp-4); margin: 0; }
+.briefing-pedido__linha--prazo, .briefing-pedido__linha--larga { grid-column: 1 / -1; }
+.briefing-pedido__linha { min-width: 0; }
+.briefing-pedido__linha[hidden] { display: none; }
+.briefing-pedido__linha dt { color: var(--cor-texto-suave); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
+.briefing-pedido__linha dd { margin: 0; font-size: var(--texto-sm); overflow-wrap: anywhere; }
+.briefing-pedido__link {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--alvo-minimo);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-negrito);
+}
+@media (min-width: 30rem) {
+  .briefing-pedido__lista { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-4); }
+  .briefing-pedido__linha--prazo { grid-column: auto; }
+}
 
 .briefing__progresso {
   display: grid;

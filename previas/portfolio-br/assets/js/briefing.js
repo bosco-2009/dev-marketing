@@ -668,6 +668,27 @@
       .then(function () { enviando = false; bEnviar.disabled = false; bEnviar.removeAttribute('data-carregando'); bEnviar.textContent = 'Enviar briefing'; });
   });
 
+  // ------------------------------------------------------------------ lembrete do pedido (melhoria 126)
+  // Só com o que a RPC briefing_obter já devolve (código e nome do plano); o prazo vem de config.planos[].prazo.
+  function prazoDoPlano(nome) {
+    var alvo = String(nome || '').trim().toLowerCase();
+    var plano = (config.planos || []).filter(function (p) { return String(p.nome || '').trim().toLowerCase() === alvo; })[0];
+    return plano && plano.prazo ? plano.prazo : '';
+  }
+  function montarResumoPedido(planoNome, jaEnviado) {
+    var caixa = $('[data-briefing-pedido]');
+    if (!caixa) return;
+    var prazo = prazoDoPlano(planoNome);
+    $('[data-pedido-codigo]', caixa).textContent = acesso.codigo;
+    $('[data-pedido-plano]', caixa).textContent = planoNome || '—';
+    $('[data-pedido-prazo]', caixa).textContent = prazo ? prazo + '.' : '';
+    $('[data-pedido-prazo-linha]', caixa).hidden = !prazo;
+    $('[data-pedido-proxima]', caixa).textContent = jaEnviado
+      ? 'Briefing recebido: a produção começa em breve. Até lá, você pode editar e enviar de novo.'
+      : 'Enviar este briefing. O prazo de entrega começa a contar quando ele estiver completo.';
+    $('[data-pedido-acompanhar]', caixa).setAttribute('href', 'pedido.html?pedido=' + encodeURIComponent(acesso.codigo));
+  }
+
   // ------------------------------------------------------------------ início
   var carregando = false;
   var cancelarVolta = null;
@@ -713,7 +734,7 @@
         var usarRascunho = rascunho && rascunho.dados && (!b || rascunho.salvo_em > b.atualizado_em);
         var etapaSalva = usarRascunho ? Math.min(TOTAL_ETAPAS, Math.max(1, Math.floor(Number(rascunho.etapa)) || 1)) : 1;
         preencher(usarRascunho ? rascunho.dados : b);
-        $('[data-briefing-pedido]').textContent = 'Pedido ' + acesso.codigo + ' · Plano ' + info.plano_nome;
+        montarResumoPedido(info.plano_nome, !!b); // antes de mostrar o formulário: nada se desloca depois (CLS 0)
         aviso.hidden = true;
         form.hidden = false;
         irPara(etapaSalva, !!manual); // depois de "Tentar de novo", o foco vai para a etapa

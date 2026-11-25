@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="assets/css/main.css?v=858c0e58">
   <link rel="stylesheet" href="assets/css/chat.css?v=b49e6330" media="not all" data-chat-css>
   <link rel="stylesheet" href="assets/css/checkout.css?v=c419189a">
-  <link rel="stylesheet" href="assets/css/briefing.css?v=d2821ce0">
+  <link rel="stylesheet" href="assets/css/briefing.css?v=22eae521">
   <link rel="stylesheet" href="assets/css/movimento.css?v=2fbd47c0">
 
   <!-- Síncronos e pequenos: marcam o <html> antes da primeira pintura (ver inicio.js) -->
@@ -58,7 +58,7 @@
   <script src="assets/js/origem.js?v=f7a26e3b" defer></script>
   <script src="assets/js/chat.js?v=1e4ecf8a" defer></script>
   <script src="assets/js/resumo-erros.js?v=eed0f8a7" defer></script>
-  <script src="assets/js/briefing.js?v=fb24e61e" defer></script>
+  <script src="assets/js/briefing.js?v=d65273c1" defer></script>
 </head>
 <body>
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -146,7 +146,7 @@
     </section>
 
     <section class="secao secao--compacta" aria-label="Formulário do briefing">
-      <div class="container container--estreito">
+      <div class="container container--estreito briefing-area">
         <div class="briefing-aviso" data-briefing-aviso data-tipo="carregando" role="status">
           <p class="briefing-aviso__titulo" data-aviso-titulo>Carregando o seu pedido…</p>
           <p data-aviso-texto></p>
@@ -154,7 +154,16 @@
         </div>
 
         <form class="briefing" data-form-briefing novalidate hidden>
-          <p class="briefing__pedido" data-briefing-pedido></p>
+          <section class="briefing-pedido" aria-labelledby="briefing-pedido-titulo" data-briefing-pedido>
+            <h2 class="briefing-pedido__titulo" id="briefing-pedido-titulo">Seu pedido</h2>
+            <dl class="briefing-pedido__lista">
+              <div class="briefing-pedido__linha"><dt>Pedido</dt><dd data-pedido-codigo></dd></div>
+              <div class="briefing-pedido__linha"><dt>Plano</dt><dd data-pedido-plano></dd></div>
+              <div class="briefing-pedido__linha briefing-pedido__linha--prazo" data-pedido-prazo-linha><dt>Prazo</dt><dd data-pedido-prazo></dd></div>
+              <div class="briefing-pedido__linha briefing-pedido__linha--larga"><dt>Próxima etapa</dt><dd data-pedido-proxima></dd></div>
+            </dl>
+            <a class="briefing-pedido__link" href="pedido.html" data-pedido-acompanhar>Acompanhar meu pedido</a>
+          </section>
           <ol class="briefing__progresso" role="list" aria-label="Etapas do briefing">
             <li data-indicador="1"><span class="briefing__num">1</span><span class="briefing__rotulo">Negócio</span></li>
             <li data-indicador="2"><span class="briefing__num">2</span><span class="briefing__rotulo">Site</span></li>
