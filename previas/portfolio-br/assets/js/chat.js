@@ -283,7 +283,11 @@
     painel.hidden = true;
 
     var cabecalho = el('div', 'chat__cabecalho');
-    var avatar = el('img', 'chat__avatar', null, { src: caminhoRaiz() + 'assets/img/logo-icone.svg', alt: '', width: '40', height: '40' });
+    // loading="lazy" ANTES do src (melhoria 130): o painel nasce oculto, e nas páginas sem o logo no cabeçalho (sites de
+    // exemplo) o avatar seria um pedido a mais na carga; lazy dentro de [hidden] só baixa quando o painel abre.
+    var avatar = el('img', 'chat__avatar', null, {
+      loading: 'lazy', decoding: 'async', alt: '', width: '40', height: '40', src: caminhoRaiz() + 'assets/img/logo-icone.svg'
+    });
     var identificacao = el('div', 'chat__identificacao');
     identificacao.appendChild(el('h2', 'chat__titulo', 'Portfólio BR', { id: 'chat-titulo' }));
     var statusLinha = el('p', 'chat__status');
