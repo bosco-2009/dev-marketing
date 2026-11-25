@@ -7,6 +7,9 @@
  * A etapa é derivada no servidor do status do pagamento e do status do briefing que o dono muda no painel.
  * Pedido pendente (melhoria 105): "Como concluir o pagamento" de concluir-pagamento.js (o mesmo de obrigado.html),
  * com o botão que reabre a MESMA preferência do Mercado Pago (o servidor valida código + token).
+ * Mudança de etapa com a página aberta (melhoria 129): quando uma nova consulta (botão Atualizar ou volta à aba)
+ * traz outra situação, a região viva da hora diz "O pedido mudou: <situação>." uma única vez e a etapa atual ganha
+ * um destaque (anel em volta do marcador, sem animação com prefers-reduced-motion). O foco não sai de onde está.
  * Todo texto é inserido com textContent.
  */
 (function () {
@@ -163,10 +166,16 @@
     document.title = titulo + ' — Portfólio BR';
   }
 
+  // Situação mostrada por último (chave de CABECALHO): null antes da primeira consulta que deu certo.
+  var situacaoAnterior = null;
+
+  // Devolve o título da nova situação quando ela mudou desde a última consulta (senão, '').
   function renderizar(d, acesso) {
     var pago = d.pedido_status === 'aprovado';
     var chave = pago ? (d.briefing_status === 'em_revisao' ? 'em_revisao' : d.etapa) : d.pedido_status;
     var cab = CABECALHO[chave] || CABECALHO.pendente;
+    var mudou = situacaoAnterior !== null && situacaoAnterior !== chave;
+    situacaoAnterior = chave;
     caixa.setAttribute('data-estado', pago ? d.etapa : d.pedido_status);
     $('[data-acompanhar-titulo]').textContent = cab[0];
     $('[data-acompanhar-texto]').textContent = cab[1];
@@ -193,7 +202,10 @@
       definicoes(d).forEach(function (e, i) {
         var estado = i < prog.feitas ? (i === prog.atual ? 'feita-atual' : 'feita') : i === prog.atual ? 'atual' : 'futura';
         var li = el('li', 'etapas__item etapas__item--' + estado);
-        if (i === prog.atual) li.setAttribute('aria-current', 'step');
+        if (i === prog.atual) {
+          li.setAttribute('aria-current', 'step');
+          if (mudou) li.classList.add('etapas__item--recem'); // destaque visual da etapa que acabou de mudar
+        }
         var marca = el('span', 'etapas__marca');
         marca.setAttribute('aria-hidden', 'true');
         if (i < prog.feitas) marca.appendChild(icone('check'));
@@ -280,6 +292,7 @@
     if (outro) outro.hidden = !pago;
 
     $('[data-acompanhar-atualizado]').hidden = false;
+    return mudou ? cab[0] : '';
   }
 
   // ------------------------------------------------------------------ consulta
@@ -338,19 +351,44 @@
     }
   }
 
+  // O redesenho troca o "Próximo passo" e as ações: se o foco estava num elemento que sumiu, ele volta para o
+  // equivalente novo (mesmo gancho data-*, ex.: "Preencher" → "Revisar o briefing") ou, sem equivalente, para o título.
+  // Assim a mudança de etapa nunca joga o foco para o início da página (melhoria 129).
+  function guardarFoco() {
+    var a = document.activeElement;
+    if (!a || a === document.body || !caixa.contains(a)) return null;
+    var gancho = Array.prototype.filter.call(a.attributes, function (at) { return at.name.indexOf('data-') === 0; })[0];
+    return { el: a, gancho: gancho ? gancho.name : '', texto: a.textContent.trim() };
+  }
+  function devolverFoco(f) {
+    if (!f || document.contains(f.el)) return;
+    var novo = f.gancho ? caixa.querySelector('[' + f.gancho + ']') : null;
+    if (!novo) {
+      novo = Array.prototype.filter.call(caixa.querySelectorAll('a[href], button'), function (b) {
+        return b.textContent.trim() === f.texto;
+      })[0];
+    }
+    if (novo && !novo.closest('[hidden]')) novo.focus();
+    else $('[data-acompanhar-titulo]').focus();
+  }
+
   function carregar(manual) {
     if (consultando) return;
     if (rede.offline()) { semInternet(manual); return; }
     var focoNoTentar = !!(document.activeElement && document.activeElement.hasAttribute('data-tentar-pedido'));
     consultando = true;
     ultimaConsulta = Date.now();
-    botaoAtualizar.disabled = true;
+    // aria-disabled em vez de disabled: um botão desativado perde o foco (quem atualizou pelo teclado voltaria ao início).
+    botaoAtualizar.setAttribute('aria-disabled', 'true');
     if (manual) hora.textContent = 'Atualizando…';
     consultar().then(function (d) {
       esperandoConexao = false;
-      renderizar(d, acesso);
+      var focado = guardarFoco();
+      var novaSituacao = renderizar(d, acesso);
+      devolverFoco(focado);
       ultimaHora = fHora.format(new Date());
-      hora.textContent = 'Atualizado às ' + ultimaHora + '.';
+      // Uma só região viva (a da hora): a mudança de etapa sai na mesma frase, anunciada uma vez, sem mexer no foco.
+      hora.textContent = 'Atualizado às ' + ultimaHora + '.' + (novaSituacao ? ' O pedido mudou: ' + novaSituacao + '.' : '');
       if (focoNoTentar) { // o "Tentar de novo" sumiu: o foco vai para o título com a situação do pedido
         var titulo = $('[data-acompanhar-titulo]');
         titulo.setAttribute('tabindex', '-1');
@@ -370,7 +408,7 @@
       }
     }).then(function () {
       consultando = false;
-      botaoAtualizar.disabled = false;
+      botaoAtualizar.removeAttribute('aria-disabled');
     });
   }
 
