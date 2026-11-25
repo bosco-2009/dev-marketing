@@ -789,10 +789,15 @@
 })();
 
 /*
- * Pré-carregamento dos próximos passos (melhoria 28).
- * Ao passar o mouse (com pequena espera), focar ou tocar num link para planos.html ou exemplos.html,
- * cria UMA vez um <link rel="prefetch"> para a página, para o clique abrir quase na hora.
- * Não pré-carrega com "Economia de dados" (Save-Data) nem em conexões 2g/lentas.
+ * Pré-carregamento dos próximos passos (melhorias 28 e 124).
+ * Onde o navegador entende Speculation Rules (Chromium), põe UMA regra `prefetch` com eagerness "moderate"
+ * para planos.html e exemplos.html: o próprio navegador pré-carrega ao manter o mouse ~200 ms ou no toque
+ * (pointerdown) e respeita a Economia de dados/economia de bateria. A regra é inline só de dados (JSON): a CSP
+ * libera apenas `'inline-speculation-rules'`, nunca `unsafe-inline` (o GitHub Pages não deixa usar o cabeçalho
+ * Speculation-Rules).
+ * Nos outros navegadores (e no foco pelo teclado, que a regra "moderate" não cobre) continua o caminho antigo:
+ * mouse com pequena espera, foco ou toque criam UMA vez um <link rel="prefetch"> para a página.
+ * Nada é pré-carregado com "Economia de dados" (Save-Data) nem em conexões 2g/lentas.
  */
 (function () {
   'use strict';
@@ -811,6 +816,32 @@
   function suportaPrefetch() {
     var l = document.createElement('link');
     return !!(l.relList && l.relList.supports && l.relList.supports('prefetch'));
+  }
+  function suportaRegras() {
+    return !!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'));
+  }
+
+  // Regra única: qualquer link para planos.html ou exemplos.html (em qualquer pasta, com ou sem ?busca/#âncora),
+  // menos a própria página e links que abrem em outra aba ou baixam arquivo.
+  var comRegras = false;
+  if (suportaRegras() && conexaoPermite()) {
+    var aqui = location.pathname;
+    var regra = document.createElement('script');
+    regra.type = 'speculationrules';
+    regra.setAttribute('data-especulacao', '');
+    regra.textContent = JSON.stringify({
+      prefetch: [{
+        source: 'document',
+        where: { and: [
+          { or: [{ href_matches: { pathname: '/{*/}?planos.html' } }, { href_matches: { pathname: '/{*/}?exemplos.html' } }] },
+          { not: { href_matches: { pathname: aqui.replace(/[\\:*?()+{}]/g, '\\$&') } } },
+          { not: { selector_matches: '[target="_blank"], [download]' } }
+        ] },
+        eagerness: 'moderate'
+      }]
+    });
+    document.head.appendChild(regra);
+    comRegras = true;
   }
   if (!suportaPrefetch()) return;
 
@@ -839,6 +870,10 @@
     return alvo && alvo.closest ? alvo.closest('a[href]') : null;
   }
 
+  // Teclado: a regra "moderate" não age no foco, então o foco sempre usa o <link rel="prefetch">.
+  document.addEventListener('focusin', function (e) { preCarregar(linkDo(e)); });
+  if (comRegras) return; // mouse e toque ficam com o navegador
+
   var timer = null;
   document.addEventListener('mouseover', function (e) {
     var link = linkDo(e);
@@ -849,7 +884,6 @@
   document.addEventListener('mouseout', function (e) {
     if (linkDo(e)) clearTimeout(timer);
   }, { passive: true });
-  document.addEventListener('focusin', function (e) { preCarregar(linkDo(e)); });
   document.addEventListener('touchstart', function (e) { preCarregar(linkDo(e)); }, { passive: true });
 })();
 
