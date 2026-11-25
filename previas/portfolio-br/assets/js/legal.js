@@ -5,6 +5,8 @@
  *   [data-cfg-whatsapp]              → número formatado do contato.whatsapp
  *   [data-cfg-planos]                → lista dos planos (nome, preço, prazo, itens)
  * Sem JavaScript, os marcadores [PROVISÓRIO: ...] continuam visíveis.
+ * Melhoria 125: o HTML já vem gravado com esses mesmos dados (testes/legal/gravar.mjs --gravar); aqui só se troca o
+ * que estiver diferente do config.js, para nada mudar na carga (CLS 0) quando o HTML está em dia.
  */
 (function () {
   'use strict';
@@ -15,39 +17,43 @@
     return caminho.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, config);
   }
   function provisorio(el, rotulo) {
-    el.textContent = '[PROVISÓRIO: ' + rotulo + ']';
+    var texto = '[PROVISÓRIO: ' + rotulo + ']';
+    if (el.textContent !== texto || el.children.length) el.textContent = texto;
     el.classList.add('legal__provisorio');
+  }
+  /** Link de contato: refeito só se o que está no HTML for diferente. */
+  function link(el, href, texto, externo) {
+    var atual = el.children.length === 1 && el.firstElementChild;
+    el.classList.remove('legal__provisorio');
+    if (atual && atual.tagName === 'A' && atual.getAttribute('href') === href && el.textContent === texto) return;
+    var a = document.createElement('a');
+    a.href = href;
+    if (externo) { a.target = '_blank'; a.rel = 'noopener'; }
+    a.textContent = texto;
+    el.textContent = '';
+    el.appendChild(a);
   }
 
   document.querySelectorAll('[data-cfg]').forEach(function (el) {
     var v = valor(el.getAttribute('data-cfg'));
     if (v === undefined || v === null || v === '') provisorio(el, el.getAttribute('data-cfg-rotulo') || 'a preencher');
-    else { el.textContent = String(v); el.classList.remove('legal__provisorio'); }
+    else {
+      if (el.textContent !== String(v) || el.children.length) el.textContent = String(v);
+      el.classList.remove('legal__provisorio');
+    }
   });
 
   var email = config.contato && config.contato.email;
   document.querySelectorAll('[data-cfg-email]').forEach(function (el) {
     if (!email) { provisorio(el, 'e-mail'); return; }
-    var a = document.createElement('a');
-    a.href = 'mailto:' + email;
-    a.textContent = email;
-    el.classList.remove('legal__provisorio');
-    el.textContent = '';
-    el.appendChild(a);
+    link(el, 'mailto:' + email, email, false);
   });
 
   var zap = config.contato && config.contato.whatsapp;
   var m = /^55(\d{2})(\d{4,5})(\d{4})$/.exec(zap || '');
   document.querySelectorAll('[data-cfg-whatsapp]').forEach(function (el) {
     if (!zap) { provisorio(el, 'WhatsApp'); return; }
-    var a = document.createElement('a');
-    a.href = 'https://wa.me/' + zap;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.textContent = m ? '(' + m[1] + ') ' + m[2] + '-' + m[3] : zap;
-    el.classList.remove('legal__provisorio');
-    el.textContent = '';
-    el.appendChild(a);
+    link(el, 'https://wa.me/' + zap, m ? '(' + m[1] + ') ' + m[2] + '-' + m[3] : zap, true);
   });
 
   var formato = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
