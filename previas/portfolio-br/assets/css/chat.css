@@ -184,7 +184,7 @@
   display: block;
   margin-top: var(--esp-1);
   font-size: 0.6875rem;
-  opacity: 0.8;
+  /* Sem opacidade: branco a 80% sobre --cor-acao dava 4,0:1 em texto de 11 px (axe, melhoria 123). */
   text-align: right;
 }
 .chat__bolha--admin .chat__hora { color: var(--cor-texto-suave); opacity: 1; }

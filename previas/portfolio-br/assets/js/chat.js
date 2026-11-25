@@ -325,10 +325,12 @@
     // Formulário inicial (nome e WhatsApp opcionais)
     var formInicio = el('form', 'chat__inicio', null, { novalidate: '' });
     var campoNome = campo('chat-nome', 'Seu nome (opcional)', 'input', {
-      type: 'text', autocomplete: 'name', maxlength: '80', 'aria-describedby': 'chat-privacidade'
+      type: 'text', autocomplete: 'name', autocapitalize: 'words', spellcheck: 'false', enterkeyhint: 'next',
+      maxlength: '80', 'aria-describedby': 'chat-privacidade'
     });
     var campoZap = campo('chat-whatsapp', 'Seu WhatsApp (opcional)', 'input', {
-      type: 'tel', autocomplete: 'tel', inputmode: 'tel', maxlength: '20', placeholder: '(11) 91234-5678',
+      // tel-national (melhoria 123): o exemplo e a validação usam DDD + número, como no checkout.
+      type: 'tel', autocomplete: 'tel-national', inputmode: 'tel', enterkeyhint: 'next', maxlength: '20', placeholder: '(11) 91234-5678',
       'aria-describedby': 'chat-whatsapp-dica chat-privacidade'
     });
     var dicaZap = el('p', 'chat__dica', 'Se preferir, respondemos também por lá.', { id: 'chat-whatsapp-dica' });
@@ -343,6 +345,7 @@
     var rotuloTexto = el('label', 'visualmente-oculto', 'Sua mensagem', { for: 'chat-texto' });
     var areaTexto = el('textarea', 'chat__texto', null, {
       id: 'chat-texto', rows: '1', maxlength: String(LIMITE_TEXTO), placeholder: 'Escreva sua mensagem…',
+      autocapitalize: 'sentences', enterkeyhint: 'send',
       'aria-describedby': 'chat-erro', required: ''
     });
     var botaoEnviar = el('button', 'chat__enviar', null, { type: 'submit' });

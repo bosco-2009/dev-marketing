@@ -40,7 +40,7 @@
   <link rel="preload" href="assets/fonts/plus-jakarta-sans-latin-wght.woff2?v=fa8d31cc" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/tokens.css?v=7ed647ad">
   <link rel="stylesheet" href="assets/css/main.css?v=858c0e58">
-  <link rel="stylesheet" href="assets/css/chat.css?v=2cb578ea" media="not all" data-chat-css>
+  <link rel="stylesheet" href="assets/css/chat.css?v=b49e6330" media="not all" data-chat-css>
   <link rel="stylesheet" href="assets/css/checkout.css?v=5d10ed35">
   <link rel="stylesheet" href="assets/css/briefing.css?v=d2821ce0">
   <link rel="stylesheet" href="assets/css/movimento.css?v=2fbd47c0">
@@ -56,9 +56,9 @@
   <script src="assets/js/supabase-client.js?v=790738d9" defer></script>
   <script src="assets/js/tema.js?v=9bbca718" defer></script>
   <script src="assets/js/origem.js?v=f7a26e3b" defer></script>
-  <script src="assets/js/chat.js?v=0bfff203" defer></script>
+  <script src="assets/js/chat.js?v=1e4ecf8a" defer></script>
   <script src="assets/js/resumo-erros.js?v=eed0f8a7" defer></script>
-  <script src="assets/js/briefing.js?v=aafcd713" defer></script>
+  <script src="assets/js/briefing.js?v=fb24e61e" defer></script>
 </head>
 <body>
   <a class="pular-link" href="#conteudo">Pular para o conteúdo</a>
@@ -168,17 +168,17 @@
             <legend class="briefing__legenda" tabindex="-1">Etapa 1 de 5: Seu negócio</legend>
             <div class="campo">
               <label class="campo__rotulo" for="b-nome_negocio">Nome do negócio <span class="campo__obrigatorio">(obrigatório)</span></label>
-              <input class="campo__entrada" id="b-nome_negocio" name="nome_negocio" type="text" maxlength="120" required autocomplete="organization" aria-describedby="b-nome_negocio-erro">
+              <input class="campo__entrada" id="b-nome_negocio" name="nome_negocio" type="text" maxlength="120" required autocomplete="organization" autocapitalize="words" enterkeyhint="next" aria-describedby="b-nome_negocio-erro">
               <p class="campo__erro" id="b-nome_negocio-erro" hidden></p>
             </div>
             <div class="campos">
               <div class="campo">
                 <label class="campo__rotulo" for="b-segmento">Segmento</label>
-                <input class="campo__entrada" id="b-segmento" name="segmento" type="text" maxlength="120" placeholder="Ex.: confeitaria, salão de beleza">
+                <input class="campo__entrada" id="b-segmento" name="segmento" type="text" maxlength="120" enterkeyhint="next" placeholder="Ex.: confeitaria, salão de beleza">
               </div>
               <div class="campo">
                 <label class="campo__rotulo" for="b-cidade">Cidade/UF</label>
-                <input class="campo__entrada" id="b-cidade" name="cidade" type="text" maxlength="120" placeholder="Ex.: Campinas/SP" autocomplete="address-level2">
+                <input class="campo__entrada" id="b-cidade" name="cidade" type="text" maxlength="120" placeholder="Ex.: Campinas/SP" autocomplete="address-level2" autocapitalize="words" enterkeyhint="next">
               </div>
             </div>
             <div class="campo">
@@ -234,7 +234,7 @@
             </fieldset>
             <div class="campo" data-campo-dominio hidden>
               <label class="campo__rotulo" for="b-dominio">Qual é o domínio?</label>
-              <input class="campo__entrada" id="b-dominio" name="dominio" type="text" maxlength="253" placeholder="seunegocio.com.br" autocapitalize="off" spellcheck="false">
+              <input class="campo__entrada" id="b-dominio" name="dominio" type="text" maxlength="253" placeholder="seunegocio.com.br" autocomplete="url" inputmode="url" autocapitalize="none" spellcheck="false" enterkeyhint="next">
             </div>
             <div class="campo">
               <span class="campo__rotulo" id="b-arquivos-rotulo">Logo, fotos e documentos</span>

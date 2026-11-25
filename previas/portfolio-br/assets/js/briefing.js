@@ -171,7 +171,7 @@
       campo.appendChild(el('label', 'visualmente-oculto', (nome === 'referencias' ? 'Referência ' : 'Link de arquivo ') + i, { for: id }));
       campo.appendChild(el('input', 'campo__entrada', null, {
         id: id, type: 'url', inputmode: 'url', maxlength: '500', placeholder: 'https://', 'data-link': nome,
-        'aria-describedby': id + '-erro', autocapitalize: 'off', spellcheck: 'false'
+        'aria-describedby': id + '-erro', autocapitalize: 'none', spellcheck: 'false', enterkeyhint: 'next'
       }));
       var erro = el('p', 'campo__erro', null, { id: id + '-erro' });
       erro.hidden = true;
